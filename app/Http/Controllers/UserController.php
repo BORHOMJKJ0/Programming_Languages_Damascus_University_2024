@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterRequest;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 
@@ -14,4 +15,8 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    public function register(RegisterRequest $request)
+    {
+        return $this->userService->register($request);
+    }
 }
