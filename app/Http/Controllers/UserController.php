@@ -19,4 +19,9 @@ class UserController extends Controller
     {
         return $this->userService->register($request);
     }
+
+    public function getStarted()
+    {
+        return $this->userService->getStarted();
+    }
 }
