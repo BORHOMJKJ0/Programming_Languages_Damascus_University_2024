@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -73,6 +74,24 @@ public function login(LoginRequest $request)
         'user' => UserResource::make($user),
         'token' => $token,
     ];
-    return ResponseHelper::jsonResponse($data,'Login successfully');
+    return ResponseHelper::jsonResponse($data,'Logged in successfully');
+}
+
+public function logout(Request $request)
+{
+    $token = $request->header('Authorization');
+    Auth::guard('api')->invalidate($token);
+
+    return ResponseHelper::jsonResponse([], 'Logged out successfully!');
+}
+
+public function getProfile()
+{
+    $user = Auth::guard('api')->user();
+    $data = [
+        'user' => UserResource::make($user),
+    ];
+
+    return ResponseHelper::jsonResponse($data,'Get profile successfully');
 }
 }

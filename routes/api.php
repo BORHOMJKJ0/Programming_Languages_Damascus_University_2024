@@ -23,4 +23,8 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
     Route::get('/getStarted', 'getStarted');
     Route::post('/register', 'register');
     Route::post('/login', 'login');
+    Route::middleware('check_auth:api')->group(function () {
+        Route::post('/logout', 'logout');
+        Route::get('/getProfile', 'getProfile');
+    });
 });
