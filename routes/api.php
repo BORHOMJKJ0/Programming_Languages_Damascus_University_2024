@@ -20,13 +20,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('users')->controller(UserController::class)->group(function () {
-    Route::get('/getStarted', 'getStarted');
+    Route::post('/getStarted', 'getStarted');
     Route::post('/register', 'register');
     Route::post('/login', 'login');
     Route::middleware('check_auth:api')->group(function () {
         Route::post('/logout', 'logout');
         Route::get('/getProfile', 'getProfile');
-        Route::put('/updateProfile', 'updateProfile');
-        Route::put('/resetPassword', 'resetPassword');
+        Route::post('/updateProfile', 'updateProfile');
+        Route::post('/resetPassword', 'resetPassword');
     });
 });
