@@ -1,6 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Cart\CartItemsController;
+use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Product\FavoriteProductController;
+use App\Http\Controllers\Product\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +18,28 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('api')->group(function () {
+    Route::apiResource('products', ProductController::class);
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('cart_items', CartItemsController::class);
+    Route::prefix('products')->controller(ProductController::class)->group(function () {
+        Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+    Route::prefix('categories')->controller(CategoryController::class)->group(function () {
+        Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+    Route::prefix('products/favorites')->controller(FavoriteProductController::class)->group(function () {
+        Route::get('/index', 'index');
+        Route::post('/store/{product}', 'store');
+        Route::delete('/destroy/{product}', 'destroy');
+    });
+    Route::prefix('carts')->controller(CartController::class)->group(function () {
+        Route::get('/', 'show');
+        Route::post('/', 'store');
+        Route::put('/', 'update');
+        Route::delete('/', 'destroy');
+    });
+    Route::prefix('cart_items')->controller(CartItemsController::class)->group(function () {
+        Route::get('/order/{column}/{direction}', 'orderBy');
+    });
 });
