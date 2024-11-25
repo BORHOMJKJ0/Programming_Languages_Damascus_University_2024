@@ -27,5 +27,6 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::post('/logout', 'logout');
         Route::get('/getProfile', 'getProfile');
         Route::put('/updateProfile', 'updateProfile');
+        Route::put('/resetPassword', 'resetPassword');
     });
 });

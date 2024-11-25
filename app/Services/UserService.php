@@ -94,4 +94,51 @@ public function getProfile()
 
     return ResponseHelper::jsonResponse($data,'Get profile successfully');
 }
+
+    public function updateProfile(Request $request){
+        $inputs = $request->all();
+
+        $user = auth()->user();
+
+        if($request->hasFile('image')){
+            if($request->image && Storage::disk('public')->exists($request->image)){
+                $path = $inputs['image']->store('images', 'public');
+                $inputs['image'] = $path;
+            }
+        }
+        if ($request->hasFile('image')) {
+            if($user->image){
+                if(Storage::disk('public')->exists($user->image)){
+                    Storage::disk('public')->delete($user->image);
+                }
+            }
+            $path = $inputs['image']->store('images', 'public');
+            $inputs['image'] = $path;
+        }
+
+        $user->update($inputs);
+
+        $data = [
+            'user' => UserResource::make($user),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'profile updated successfully',201);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $inputs = $request->all();
+        $user = auth()->user();
+
+        if(!Hash::check($inputs['old_password'], $user->password)){
+            return ResponseHelper::jsonResponse([], 'old password is incorrect',401,false);
+        }
+
+        $inputs['new_password'] = Hash::make($inputs['new_password']);
+        $user->update([
+            'password' => $inputs['new_password'],
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'Password reset successfully');
+    }
 }
