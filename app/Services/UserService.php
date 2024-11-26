@@ -21,7 +21,7 @@ class UserService
     {
         $user = User::find($user_id);
         $user->role->update([
-            'role' => 'user'
+            'role' => $new_role
         ]);
     }
 public function register(RegisterRequest $request) : JsonResponse
