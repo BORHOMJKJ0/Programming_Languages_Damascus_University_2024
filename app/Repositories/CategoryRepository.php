@@ -15,5 +15,4 @@ class CategoryRepository
     {
         return Category::orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
     }
-
 }

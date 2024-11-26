@@ -9,16 +9,15 @@ class ProductRepository
 {
     use Lockable;
 
-    public function getAll($items)
+    public function getAll($items,$page)
     {
-        return Product::paginate($items);
+        return Product::paginate($items, ['*'], 'page', $page);
     }
 
     public function orderBy($column, $direction, $page, $items)
     {
         return Product::orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
     }
-
 
     public function create(array $data)
     {

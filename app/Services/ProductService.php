@@ -17,18 +17,19 @@ use Illuminate\Validation\ValidationException;
 class ProductService
 {
     use AuthTrait;
-    protected ProductRepository $productRepository;
-    private CategoryService $categoryService;
 
-    public function __construct(ProductRepository $productRepository, CategoryService $categoryService)
+    protected ProductRepository $productRepository;
+
+    public function __construct(ProductRepository $productRepository)
     {
         $this->productRepository = $productRepository;
-        $this->categoryService = $categoryService;
     }
+
     public function getAllProducts(Request $request)
     {
         $items = $request->query('items', 20);
-        $products = $this->productRepository->getAll($items);
+        $page = $request->query('page', 1);
+        $products = $this->productRepository->getAll($items,$page);
 
         $hasMorePages = $products->hasMorePages();
 
@@ -46,7 +47,8 @@ class ProductService
 
         return ResponseHelper::jsonResponse($data, 'Product retrieved successfully!');
     }
-    public function createProduct(array $data,Request $request): JsonResponse
+
+    public function createProduct(array $data, Request $request): JsonResponse
     {
         $data['user_id'] = auth()->id();
         $this->validateProductData($data);
@@ -60,6 +62,7 @@ class ProductService
 
         return ResponseHelper::jsonResponse($data, 'Product created successfully!', 201);
     }
+
     public function getProductsOrderedBy($column, $direction, Request $request)
     {
         $validColumns = ['name', 'price', 'created_at', 'updated_at'];
@@ -80,6 +83,7 @@ class ProductService
 
         return ResponseHelper::jsonResponse($data, 'Products ordered successfully!');
     }
+
     public function updateProduct(Product $product, array $data)
     {
         try {
@@ -104,6 +108,7 @@ class ProductService
 
         return $response;
     }
+
     public function deleteProduct(Product $product)
     {
         try {
@@ -122,10 +127,11 @@ class ProductService
         $validator = Validator::make($data, [
             'name' => "$rule|unique:products,name",
             'price' => "$rule",
-            'amount'=>"$rule",
+            'amount' => "$rule",
             'description' => "$rule",
             'image' => "$rule",
             'category_id' => "$rule|exists:categories,id",
+            'store_id' => "$rule|exists:stores,id",
         ]);
 
         if ($validator->fails()) {

@@ -7,20 +7,23 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait AuthTrait
 {
-    public function checkOwnership($model, $modelType, $action, $relation = null, $relationName = null)
+    public function checkOwnership($model, $modelType, $action, $type = 'user')
     {
-        if ($relation && $model->$relation()->exists()) {
-            $unauthorizedProducts = $model->$relation()->where('user_id', '!=', auth()->id())->exists();
+        $user = auth()->user();
 
-            if ($unauthorizedProducts) {
-                throw new HttpResponseException(ResponseHelper::jsonResponse([],
-                    "You are not authorized to {$action} this {$modelType}. It has associated {$relationName}.",
-                    403, false));
-            }
-        } elseif ($model->user_id !== auth()->id()) {
-            throw new HttpResponseException(ResponseHelper::jsonResponse([],
-                "You are not authorized to {$action} this {$modelType}.",
-                403, false));
+        if ($type === 'user' && $model->user_id !== $user->id) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse([],
+                    "You are not authorized to {$action} this {$modelType}.",
+                    403, false)
+            );
+        }
+
+        if ($type === 'admin' && $user->role->role !== 'admin') {
+            throw new HttpResponseException( ResponseHelper::jsonResponse([],
+                    "You need admin privileges to {$action} this {$modelType}.",
+                    403, false)
+            );
         }
     }
 }

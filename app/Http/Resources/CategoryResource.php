@@ -15,7 +15,7 @@ class CategoryResource extends JsonResource
             'name' => $this->name,
             'products' => $this->Products->map(function ($product) {
                 return [
-                    'id'=>$product->id,
+                    'id' => $product->id,
                     'name' => $product->name,
                 ];
             }),

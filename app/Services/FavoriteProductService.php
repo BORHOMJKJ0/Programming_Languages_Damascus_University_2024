@@ -16,6 +16,7 @@ class FavoriteProductService
     {
         $this->userRepository = $userRepository;
     }
+
     public function index(Request $request): JsonResponse
     {
         $page = $request->query('page', 1);

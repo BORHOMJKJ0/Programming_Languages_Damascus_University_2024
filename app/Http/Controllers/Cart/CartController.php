@@ -18,7 +18,7 @@ class CartController extends Controller
 
     public function store(): JsonResponse
     {
-       return $this->cartService->createCart();
+        return $this->cartService->createCart();
     }
 
     public function update(): JsonResponse

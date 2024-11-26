@@ -27,6 +27,7 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof ModelNotFoundException) {
             $modelName = $exception->getModel();
+
             return ResponseHelper::jsonResponse([], "{$modelName} Not Found", 404, false);
         }
 

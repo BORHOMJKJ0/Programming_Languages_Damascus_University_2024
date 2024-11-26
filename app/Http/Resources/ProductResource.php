@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,6 +25,7 @@ class ProductResource extends JsonResource
         if ($request->routeIs('products.show')) {
             $data['description'] = $this->description;
         }
+
         return $data;
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Repositories\CategoryRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\Request;
+
 class CategoryService
 {
     use AuthTrait;
@@ -18,6 +19,7 @@ class CategoryService
     {
         $this->categoryRepository = $categoryRepository;
     }
+
     public function getAllCategories(Request $request)
     {
         $page = $request->query('page', 1);
@@ -32,12 +34,14 @@ class CategoryService
 
         return ResponseHelper::jsonResponse($data, 'Categories retrieved successfully');
     }
+
     public function getCategoryById(Category $category)
     {
         $data = ['category' => CategoryResource::make($category)];
 
         return ResponseHelper::jsonResponse($data, 'Category retrieved successfully!');
     }
+
     public function getCategoriesOrderedBy($column, $direction, Request $request)
     {
         $validColumns = ['name', 'created_at', 'updated_at'];
@@ -57,5 +61,4 @@ class CategoryService
 
         return ResponseHelper::jsonResponse($data, 'Categories ordered successfully!');
     }
-
 }

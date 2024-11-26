@@ -25,6 +25,7 @@ class Cart_Items_Service
     {
         $this->cartItemsRepository = $cartItemsRepository;
     }
+
     public function getAllCart_items(Request $request)
     {
         $page = $request->query('page', 1);
@@ -40,6 +41,7 @@ class Cart_Items_Service
 
         return ResponseHelper::jsonResponse($data, 'Cart_items retrieved successfully!');
     }
+
     public function getCart_itemById(Cart_items $cart_item)
     {
         try {
@@ -72,6 +74,7 @@ class Cart_Items_Service
 
         return $response;
     }
+
     public function getCart_items_OrderedBy($column, $direction, Request $request)
     {
         $validColumns = ['quantity', 'created_at', 'updated_at'];
@@ -94,6 +97,7 @@ class Cart_Items_Service
         return ResponseHelper::jsonResponse($data, 'Cart_items ordered successfully');
 
     }
+
     public function updateCart_items(Cart_items $cart_item, array $data)
     {
         try {
@@ -112,6 +116,7 @@ class Cart_Items_Service
 
         return $response;
     }
+
     public function deleteCart_items(Cart_items $cart_item)
     {
         try {

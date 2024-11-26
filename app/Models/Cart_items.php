@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 class Cart_items extends Model
 {
     use HasFactory;
@@ -14,6 +15,7 @@ class Cart_items extends Model
     {
         return $this->belongsTo(Cart::class);
     }
+
     public function product()
     {
         return $this->belongsTo(Product::class);

@@ -22,6 +22,7 @@ class CategoryController extends Controller
     {
         return $this->categoryService->getAllCategories($request);
     }
+
     public function show(Category $category): JsonResponse
     {
         return $this->categoryService->getCategoryById($category);

@@ -27,6 +27,7 @@ class CartService
 
         return ResponseHelper::jsonResponse($data, 'Cart retrieved successfully!');
     }
+
     public function createCart()
     {
         $carts = Cart::where('user_id', auth()->id())->get();
@@ -35,10 +36,13 @@ class CartService
             $data = [
                 'Cart' => CartResource::make($cart),
             ];
-           return ResponseHelper::jsonResponse($data, 'Cart created successfully!');
+
+            return ResponseHelper::jsonResponse($data, 'Cart created successfully!');
         }
-       return ResponseHelper::jsonResponse([], 'Cart created before');
+
+        return ResponseHelper::jsonResponse([], 'Cart created before');
     }
+
     public function updateCart()
     {
         try {
@@ -56,6 +60,7 @@ class CartService
 
         return $response;
     }
+
     public function deleteCart()
     {
         try {

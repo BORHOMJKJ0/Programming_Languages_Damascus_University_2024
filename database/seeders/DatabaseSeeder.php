@@ -12,7 +12,9 @@ class DatabaseSeeder extends Seeder
         DB::transaction(function () {
             $this->call([
                 UserSeeder::class,
+                RoleSeeder::class,
                 CartSeeder::class,
+                StoreSeeder::class,
                 CategorySeeder::class,
                 ProductSeeder::class,
                 CartItemsSeeder::class,
