@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
@@ -42,11 +43,13 @@ public function register(RegisterRequest $request) : JsonResponse
 
 public function getStarted()
 {
-    $guest = User::create();
-    Role::create([
-        'user_id' => $guest->id,
+    $role = Role::create([
         'role' => 'guest'
     ]);
+    $guest = User::create([
+        'role_id' => $role->id,
+    ]);
+
     $data = [
         'guest_id' => $guest->id
     ];
