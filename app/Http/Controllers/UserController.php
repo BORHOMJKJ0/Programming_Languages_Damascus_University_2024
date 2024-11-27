@@ -16,6 +16,10 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    public function refresh_token()
+    {
+        return $this->userService->refresh_token();
+    }
     public function register(RegisterRequest $request)
     {
         return $this->userService->register($request);
