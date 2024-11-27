@@ -6,12 +6,13 @@ use App\Helpers\ResponseHelper;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\User\Role;
+use App\Models\User\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
@@ -42,11 +43,13 @@ class UserService
 
     public function getStarted()
     {
-        $guest = User::create();
-        Role::create([
-            'user_id' => $guest->id,
+        $role = Role::create([
             'role' => 'guest',
         ]);
+        $guest = User::create([
+            'role_id' => $role->id,
+        ]);
+
         $data = [
             'guest_id' => $guest->id,
         ];

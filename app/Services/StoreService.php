@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Resources\StoreResource;
-use App\Models\Store;
+use App\Http\Resources\Store\StoreResource;
+use App\Models\Store\Store;
 use App\Repositories\StoreRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -18,16 +18,17 @@ class StoreService
     use AuthTrait;
 
     protected StoreRepository $storeRepository;
+
     public function __construct(StoreRepository $storeRepository)
     {
         $this->storeRepository = $storeRepository;
     }
 
-    public function getMyStores(Request $request)
+    public function getAllStores(Request $request)
     {
         $items = $request->query('items', 20);
-        $page=$request->query('page', 1);
-        $stores = $this->storeRepository->getAll($items,$page);
+        $page = $request->query('page', 1);
+        $stores = $this->storeRepository->getAll($items, $page);
 
         $hasMorePages = $stores->hasMorePages();
 
@@ -41,24 +42,37 @@ class StoreService
 
     public function getMyStoreById(Store $store)
     {
-        $this->checkOwnership($store,'Store','show','admin');
+        $this->checkOwnership($store, 'Store', 'show', 'admin');
         $data = ['Store' => StoreResource::make($store)];
 
         return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
     }
 
-    public function createStore(array $data, Request $request): JsonResponse
+    public function createStore(array $data): JsonResponse
     {
-        $data['user_id'] = auth()->id();
-        $this->validateStoreData($data);
-        $this->checkOwnership(null, 'Store', 'create', 'admin');
-        $store = $this->storeRepository->create($data);
+        try {
+            $this->checkStores();
+            $data['user_id'] = auth()->id();
+            if($data['user_id']->role->role=='user')
 
-        $data = [
-            'Store' => StoreResource::make($store),
-        ];
+            $existingStore = $this->storeRepository->findByUserId();
+            if ($existingStore) {
+                return ResponseHelper::jsonResponse([],
+                    'You already own a store. You cannot create another one.',
+                    403, false);
+            }
+            $this->validateStoreData($data);
+            $store = $this->storeRepository->create($data);
+            $data = [
+                'Store' => StoreResource::make($store),
+            ];
 
-        return ResponseHelper::jsonResponse($data, 'Store created successfully!', 201);
+            $response = ResponseHelper::jsonResponse($data, 'Store created successfully!', 201);
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+        }
+
+        return $response;
     }
 
     public function getStoresOrderedBy($column, $direction, Request $request)
@@ -71,7 +85,6 @@ class StoreService
         }
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);
-        $this->checkOwnership(null, 'Store', 'order', 'admin');
         $stores = $this->storeRepository->orderBy($column, $direction, $page, $items);
         $hasMorePages = $stores->hasMorePages();
         $data = [
@@ -85,8 +98,8 @@ class StoreService
     public function updateStore(Store $store, array $data)
     {
         try {
+            $this->checkOwnership($store, 'Store', 'update', 'admin');
             $this->validateStoreData($data, 'sometimes');
-            $this->checkOwnership($store, 'Store', 'update','admin');
             $store = $this->storeRepository->update($store, $data);
             $data = [
                 'Store' => StoreResource::make($store),
@@ -103,7 +116,7 @@ class StoreService
     public function deleteStore(Store $store)
     {
         try {
-            $this->checkOwnership($store, 'Store', 'delete','admin');
+            $this->checkOwnership($store, 'Store', 'delete', 'admin');
             $this->storeRepository->delete($store);
             $response = ResponseHelper::jsonResponse([], 'Store deleted successfully!');
         } catch (HttpResponseException $e) {
@@ -117,7 +130,7 @@ class StoreService
     {
         $validator = Validator::make($data, [
             'name' => "$rule|unique:stores,name",
-            'location'=>"$rule|nullable",
+            'location' => "$rule|nullable",
         ]);
 
         if ($validator->fails()) {

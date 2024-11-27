@@ -2,21 +2,26 @@
 
 namespace App\Repositories;
 
-use App\Models\Store;
+use App\Models\Store\Store;
 use App\Traits\Lockable;
 
 class StoreRepository
 {
     use Lockable;
 
-    public function getAll($items,$page)
+    public function getAll($items, $page)
     {
-        return Store::where('user_id', auth()->id())->paginate($items, ['*'], 'page', $page);
+        return Store::paginate($items, ['*'], 'page', $page);
+    }
+
+    public function findByUserId()
+    {
+        return Store::where('user_id', auth()->id())->first();
     }
 
     public function orderBy($column, $direction, $page, $items)
     {
-        return Store::where('user_id', auth()->id())->orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
+        return Store::orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
     }
 
     public function create(array $data)

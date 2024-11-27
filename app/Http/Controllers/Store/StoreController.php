@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
-use App\Models\Store;
+use App\Models\Store\Store;
 use App\Services\StoreService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,12 +20,12 @@ class StoreController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        return $this->storeService->getMyStores($request);
+        return $this->storeService->getAllStores($request);
     }
 
     public function store(Request $request): JsonResponse
     {
-        return $this->storeService->createStore($request->all(), $request);
+        return $this->storeService->createStore($request->all());
     }
 
     public function show(Store $store): JsonResponse

@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Store\StoreSeeder;
+use Database\Seeders\User\RoleSeeder;
+use Database\Seeders\User\UserSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -11,13 +14,9 @@ class DatabaseSeeder extends Seeder
     {
         DB::transaction(function () {
             $this->call([
-                UserSeeder::class,
                 RoleSeeder::class,
-                CartSeeder::class,
+                UserSeeder::class,
                 StoreSeeder::class,
-                CategorySeeder::class,
-                ProductSeeder::class,
-                CartItemsSeeder::class,
             ]);
         });
     }

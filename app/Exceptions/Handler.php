@@ -26,7 +26,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof ModelNotFoundException) {
-            $modelName = $exception->getModel();
+            $modelName = class_basename($exception->getModel());
 
             return ResponseHelper::jsonResponse([], "{$modelName} Not Found", 404, false);
         }
