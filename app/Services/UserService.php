@@ -62,6 +62,9 @@ public function register_for_guest(RegisterRequest $request, $guest_id) : JsonRe
     if(!$user){
         return ResponseHelper::jsonResponse([], 'User not found',404,false);
     }
+    if($user->role != 'guest'){
+        return  ResponseHelper::jsonResponse([], 'registered already',404,false);
+    }
     $user->update($inputs);
     $user->save();
 
