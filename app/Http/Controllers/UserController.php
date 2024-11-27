@@ -15,10 +15,14 @@ class UserController extends Controller
     {
         $this->userService = $userService;
     }
-
     public function register(RegisterRequest $request)
     {
         return $this->userService->register($request);
+    }
+
+    public function register_for_guest(RegisterRequest $request, $guest_id)
+    {
+        return $this->userService->register_for_guest($request, $guest_id);
     }
 
     public function getStarted()

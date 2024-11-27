@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('users')->controller(UserController::class)->group(function () {
     Route::post('/getStarted', 'getStarted');
     Route::post('/register', 'register');
+    Route::post('/register/{id}', 'register_for_guest');
     Route::post('/login', 'login');
     Route::middleware('check_auth:api')->group(function () {
         Route::post('/logout', 'logout');

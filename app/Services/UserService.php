@@ -8,6 +8,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,30 @@ class UserService
             'role' => $new_role
         ]);
     }
-public function register(RegisterRequest $request) : JsonResponse
+
+    public function register(RegisterRequest $request)
+    {
+        $inputs = $request->all();
+
+        $inputs['password'] = Hash::make($inputs['password']);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images', 'public');
+            $inputs['image'] = $path;
+        }
+        $role = Role::create([
+            'role' => 'user'
+        ]);
+        $inputs['role_id'] = $role->id;
+
+        $user = User::create($inputs);
+
+        $data = [
+            'user' => UserResource::make($user),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'Register successfully',201);
+    }
+public function register_for_guest(RegisterRequest $request, $guest_id) : JsonResponse
 {
     $inputs = $request->all();
 
@@ -34,7 +58,7 @@ public function register(RegisterRequest $request) : JsonResponse
         $inputs['image'] = $path;
     }
 
-    $user =  User::where('id',$inputs['id'])->first();
+    $user =  User::where('id',$guest_id)->first();
     $user->update($inputs);
     $user->save();
 
@@ -150,4 +174,5 @@ public function getProfile()
 
         return ResponseHelper::jsonResponse([], 'Password reset successfully');
     }
+
 }
