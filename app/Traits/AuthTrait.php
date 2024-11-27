@@ -20,25 +20,21 @@ trait AuthTrait
         }
     }
 
-    public function checkAdmin($model, $modelType, $action, $type = 'admin')
+    public function checkAccount($model, $modelType, $action, $type = 'admin')
     {
         $user = auth()->user();
-        if ($user->role->role !== $type) {
+        if ($type === 'admin' && $user->role->role !== $type) {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse([],
                     "Admin just {$action} this {$modelType}.",
                     403, false)
             );
-        }
-    }
-
-    public function checkStores()
-    {
-        $existingStore = $this->storeRepository->findByUserId();
-        if ($existingStore) {
-            return ResponseHelper::jsonResponse([],
-                'You already own a store. You cannot create another one.',
-                403, false);
+        } elseif ($type === 'guest' && $user->role->role === 'guest') {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse([],
+                    "This permission is not available for guests.",
+                    403, false)
+            );
         }
     }
 }

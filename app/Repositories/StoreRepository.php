@@ -16,7 +16,7 @@ class StoreRepository
 
     public function findByUserId()
     {
-        return Store::where('user_id', auth()->id())->first();
+        return Store::where('user_id', auth()->id())->get();
     }
 
     public function orderBy($column, $direction, $page, $items)

@@ -16,6 +16,14 @@ use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
+    public function update_role($user_id, $new_role)
+    {
+        $user = User::find($user_id);
+        $user->role->update([
+            'role' => $new_role,
+        ]);
+    }
+
     public function register(RegisterRequest $request): JsonResponse
     {
         $inputs = $request->all();
@@ -34,9 +42,7 @@ class UserService
             'user' => UserResource::make($user),
         ];
 
-        $user->role->update([
-            'role' => 'user',
-        ]);
+        $this->update_role($user->id, 'user');
 
         return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
     }

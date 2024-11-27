@@ -19,55 +19,94 @@ class StoreService
 
     protected StoreRepository $storeRepository;
 
-    public function __construct(StoreRepository $storeRepository)
+    protected UserService $userService;
+
+    public function __construct(StoreRepository $storeRepository, UserService $userService)
     {
         $this->storeRepository = $storeRepository;
+        $this->userService = $userService;
     }
 
     public function getAllStores(Request $request)
     {
-        $items = $request->query('items', 20);
-        $page = $request->query('page', 1);
-        $stores = $this->storeRepository->getAll($items, $page);
+        try {
+            $items = $request->query('items', 20);
+            $page = $request->query('page', 1);
+            $this->checkAccount(null, 'Store', 'show', 'guest');
+            $stores = $this->storeRepository->getAll($items, $page);
 
-        $hasMorePages = $stores->hasMorePages();
+            $hasMorePages = $stores->hasMorePages();
 
-        $data = [
-            'Stores' => StoreResource::collection($stores),
-            'hasMorePages' => $hasMorePages,
-        ];
+            $data = [
+                'Stores' => StoreResource::collection($stores),
+                'hasMorePages' => $hasMorePages,
+            ];
+            $response = ResponseHelper::jsonResponse($data, 'Stores retrieved successfully');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+        }
 
-        return ResponseHelper::jsonResponse($data, 'Stores retrieved successfully');
+        return $response;
+
     }
 
     public function getMyStoreById(Store $store)
     {
-        $this->checkOwnership($store, 'Store', 'show', 'admin');
-        $data = ['Store' => StoreResource::make($store)];
+        try {
+            $this->checkOwnership($store, 'Store', 'show', 'admin');
+            $this->checkAccount(null, 'Store', 'show', 'guest');
+            $data = ['Store' => StoreResource::make($store)];
+            $response = ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+        }
 
-        return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
+        return $response;
+
     }
 
     public function createStore(array $data): JsonResponse
     {
-        try {
-            $this->checkStores();
-            $data['user_id'] = auth()->id();
-            if($data['user_id']->role->role=='user')
-
-            $existingStore = $this->storeRepository->findByUserId();
-            if ($existingStore) {
-                return ResponseHelper::jsonResponse([],
-                    'You already own a store. You cannot create another one.',
-                    403, false);
-            }
+        $data['user_id'] = auth()->id();
+        if (auth()->user()->role->role == 'user') {
+            $this->userService->update_role(auth()->id(), 'admin');
+        }
+        $this->checkAccount(null, 'Store', 'create');
+        $stores = $this->storeRepository->findByUserId();
+        if ($stores->isEmpty()) {
             $this->validateStoreData($data);
             $store = $this->storeRepository->create($data);
             $data = [
                 'Store' => StoreResource::make($store),
             ];
 
-            $response = ResponseHelper::jsonResponse($data, 'Store created successfully!', 201);
+            return ResponseHelper::jsonResponse($data, 'Store created successfully!');
+
+        }
+
+        return ResponseHelper::jsonResponse([], 'You already own a store. You cannot create another one.', 403, false);
+    }
+
+    public function getStoresOrderedBy($column, $direction, Request $request)
+    {
+        try {
+            $this->checkAccount(null, 'Store', 'order', 'guest');
+            $validColumns = ['name', 'created_at', 'updated_at'];
+            $validDirections = ['asc', 'desc'];
+
+            if (!in_array($column, $validColumns) || !in_array($direction, $validDirections)) {
+                return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
+            }
+            $page = $request->query('page', 1);
+            $items = $request->query('items', 20);
+            $stores = $this->storeRepository->orderBy($column, $direction, $page, $items);
+            $hasMorePages = $stores->hasMorePages();
+            $data = [
+                'Stores' => StoreResource::collection($stores),
+                'hasMorePages' => $hasMorePages,
+            ];
+
+            $response = ResponseHelper::jsonResponse($data, 'Stores ordered successfully!');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
         }
@@ -75,30 +114,11 @@ class StoreService
         return $response;
     }
 
-    public function getStoresOrderedBy($column, $direction, Request $request)
-    {
-        $validColumns = ['name', 'created_at', 'updated_at'];
-        $validDirections = ['asc', 'desc'];
-
-        if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
-            return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
-        }
-        $page = $request->query('page', 1);
-        $items = $request->query('items', 20);
-        $stores = $this->storeRepository->orderBy($column, $direction, $page, $items);
-        $hasMorePages = $stores->hasMorePages();
-        $data = [
-            'Stores' => StoreResource::collection($stores),
-            'hasMorePages' => $hasMorePages,
-        ];
-
-        return ResponseHelper::jsonResponse($data, 'Stores ordered successfully!');
-    }
-
     public function updateStore(Store $store, array $data)
     {
         try {
             $this->checkOwnership($store, 'Store', 'update', 'admin');
+            $this->checkAccount(null, 'Store', 'update', 'guest');
             $this->validateStoreData($data, 'sometimes');
             $store = $this->storeRepository->update($store, $data);
             $data = [
@@ -117,6 +137,7 @@ class StoreService
     {
         try {
             $this->checkOwnership($store, 'Store', 'delete', 'admin');
+            $this->checkAccount(null, 'Store', 'delete', 'guest');
             $this->storeRepository->delete($store);
             $response = ResponseHelper::jsonResponse([], 'Store deleted successfully!');
         } catch (HttpResponseException $e) {

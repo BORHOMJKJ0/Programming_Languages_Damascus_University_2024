@@ -12,6 +12,7 @@ class StoreResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
             'location' => $this->location,
             'User' => UserResource::make($this->user),
         ];
