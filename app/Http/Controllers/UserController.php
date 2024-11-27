@@ -15,6 +15,7 @@ class UserController extends Controller
     {
         $this->userService = $userService;
     }
+
     public function register(RegisterRequest $request)
     {
         return $this->userService->register($request);
@@ -34,6 +35,7 @@ class UserController extends Controller
     {
         return $this->userService->login($request);
     }
+
     public function logout(Request $request)
     {
         return $this->userService->logout($request);

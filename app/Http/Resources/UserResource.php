@@ -21,7 +21,7 @@ class UserResource extends JsonResource
             'mobile_number' => $this->mobile_number,
             'location' => $this->location,
             'image' => $this->image
-                ? config('app.url') . '/storage/' . $this->image
+                ? config('app.url').'/storage/'.$this->image
                 : null,
         ];
     }
