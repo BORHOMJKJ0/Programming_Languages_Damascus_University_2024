@@ -24,7 +24,30 @@ class UserService
         ]);
     }
 
-    public function register(RegisterRequest $request): JsonResponse
+    public function register(RegisterRequest $request)
+    {
+        $inputs = $request->all();
+
+        $inputs['password'] = Hash::make($inputs['password']);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images', 'public');
+            $inputs['image'] = $path;
+        }
+        $role = Role::create([
+            'role' => 'user',
+        ]);
+        $inputs['role_id'] = $role->id;
+
+        $user = User::create($inputs);
+
+        $data = [
+            'user' => UserResource::make($user),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
+    }
+
+    public function register_for_guest(RegisterRequest $request, $guest_id): JsonResponse
     {
         $inputs = $request->all();
 
@@ -34,7 +57,13 @@ class UserService
             $inputs['image'] = $path;
         }
 
-        $user = User::where('id', $inputs['id'])->first();
+        $user = User::where('id', $guest_id)->first();
+        if (! $user) {
+            return ResponseHelper::jsonResponse([], 'User not found', 404, false);
+        }
+        if ($user->role != 'guest') {
+            return ResponseHelper::jsonResponse([], 'registered already', 404, false);
+        }
         $user->update($inputs);
         $user->save();
 

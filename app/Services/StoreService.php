@@ -70,8 +70,9 @@ class StoreService
         $data['user_id'] = auth()->id();
         if (auth()->user()->role->role == 'user') {
             $this->userService->update_role(auth()->id(), 'admin');
+        } else {
+            $this->checkAccount(null, 'Store', 'create');
         }
-        $this->checkAccount(null, 'Store', 'create');
         $stores = $this->storeRepository->findByUserId();
         if ($stores->isEmpty()) {
             $this->validateStoreData($data);
@@ -94,7 +95,7 @@ class StoreService
             $validColumns = ['name', 'created_at', 'updated_at'];
             $validDirections = ['asc', 'desc'];
 
-            if (!in_array($column, $validColumns) || !in_array($direction, $validDirections)) {
+            if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
                 return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
             }
             $page = $request->query('page', 1);

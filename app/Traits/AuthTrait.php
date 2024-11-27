@@ -32,7 +32,7 @@ trait AuthTrait
         } elseif ($type === 'guest' && $user->role->role === 'guest') {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse([],
-                    "This permission is not available for guests.",
+                    'This permission is not available for guests.',
                     403, false)
             );
         }
