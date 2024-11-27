@@ -59,6 +59,9 @@ public function register_for_guest(RegisterRequest $request, $guest_id) : JsonRe
     }
 
     $user =  User::where('id',$guest_id)->first();
+    if(!$user){
+        return ResponseHelper::jsonResponse([], 'User not found',404,false);
+    }
     $user->update($inputs);
     $user->save();
 
