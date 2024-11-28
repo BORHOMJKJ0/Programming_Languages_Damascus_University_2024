@@ -5,10 +5,11 @@ namespace App\Http\Middleware;
 use App\Helpers\ResponseHelper;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpFoundation\Response;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class AuthMiddleware
 {
@@ -20,11 +21,13 @@ class AuthMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $user = Auth::guard('api')->user();
+            $user = JWTAuth::parseToken()->authenticate();
         } catch (TokenInvalidException $ex) {
             return ResponseHelper::jsonResponse([], 'Invalid token', 401, false);
         } catch (TokenExpiredException $ex) {
             return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
+        } catch (JWTException $ex){
+            return ResponseHelper::jsonResponse([], 'token is missing', 401, false);
         }
         if (! $user) {
             return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
