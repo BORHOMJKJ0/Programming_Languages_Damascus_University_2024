@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
 use App\Models\User\User;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +19,13 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class UserService
 {
+    protected CartService $cartService;
+
+    public function __construct(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     public function refresh_Token()
     {
         try {
@@ -138,6 +145,7 @@ class UserService
             'user' => UserResource::make($user),
             'token' => $token,
         ];
+        $this->cartService->createCart();
 
         return ResponseHelper::jsonResponse($data, 'Logged in successfully');
     }

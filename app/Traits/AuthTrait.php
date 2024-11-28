@@ -17,6 +17,12 @@ trait AuthTrait
                     "You are not authorized to {$action} this {$modelType}.",
                     403, false)
             );
+        } elseif ($model && $model->user_id !== $user->id) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse([],
+                    "You are not authorized to {$action} this {$modelType}.",
+                    403, false)
+            );
         }
     }
 

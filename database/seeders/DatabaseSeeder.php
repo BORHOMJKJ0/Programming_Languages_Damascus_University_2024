@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Cart\CartItemsSeeder;
+use Database\Seeders\Cart\CartSeeder;
 use Database\Seeders\Category\CategorySeeder;
 use Database\Seeders\Product\ProductSeeder;
 use Database\Seeders\Store\StoreSeeder;
@@ -22,6 +24,8 @@ class DatabaseSeeder extends Seeder
                 CategorySeeder::class,
                 ProductSeeder::class,
                 ProductsStoreSeeder::class,
+                CartSeeder::class,
+                CartItemsSeeder::class,
             ]);
         });
     }

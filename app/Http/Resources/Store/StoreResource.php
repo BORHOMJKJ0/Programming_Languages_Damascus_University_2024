@@ -3,7 +3,7 @@
 namespace App\Http\Resources\Store;
 
 use App\Http\Resources\Product\ProductsDetailsResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserNameResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,7 +15,7 @@ class StoreResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'location' => $this->location,
-            'user' => UserResource::make($this->user),
+            'user' => UserNameResource::make($this->user),
         ];
 
         if ($request->routeIs('stores.show')) {
