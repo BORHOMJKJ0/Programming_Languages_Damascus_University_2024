@@ -20,6 +20,7 @@ class UserController extends Controller
     {
         return $this->userService->refresh_token();
     }
+
     public function register(RegisterRequest $request)
     {
         return $this->userService->register($request);

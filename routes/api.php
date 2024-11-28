@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Product\FavoriteProductController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\UserController;
@@ -26,6 +27,11 @@ Route::middleware('api')->group(function () {
     Route::prefix('products')->controller(ProductController::class)->group(function () {
         Route::post('/{product}', 'update');
         Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+    Route::prefix('products/favorites')->controller(FavoriteProductController::class)->group(function () {
+        Route::get('/index', 'index');
+        Route::post('/store/{product}', 'store');
+        Route::delete('/destroy/{product}', 'destroy');
     });
     Route::prefix('categories')->controller(CategoryController::class)->group(function () {
         Route::get('/', 'index');

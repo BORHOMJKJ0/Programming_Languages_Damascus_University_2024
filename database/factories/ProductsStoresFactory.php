@@ -6,7 +6,7 @@ use App\Models\Product\Product;
 use App\Models\Store\Store;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ProductsStoreFactory extends Factory
+class ProductsStoresFactory extends Factory
 {
     public function definition(): array
     {

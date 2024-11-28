@@ -120,7 +120,7 @@ return [
     |
     */
 
-    'refresh_ttl' => env('JWT_REFRESH_TTL', 60*24),
+    'refresh_ttl' => env('JWT_REFRESH_TTL', 60 * 24),
 
     /*
     |--------------------------------------------------------------------------
@@ -285,7 +285,6 @@ return [
 
         'auth' => PHPOpenSourceSaver\JWTAuth\Providers\Auth\Illuminate::class,
 
-
         /*
         |--------------------------------------------------------------------------
         | Storage Provider
@@ -296,7 +295,6 @@ return [
         */
 
         'storage' => PHPOpenSourceSaver\JWTAuth\Providers\Storage\Illuminate::class,
-
 
     ],
 
