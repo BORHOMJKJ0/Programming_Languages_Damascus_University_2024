@@ -55,6 +55,7 @@ class StoreService
         try {
             $this->checkOwnership($store, 'Store', 'show', 'admin');
             $this->checkAccount(null, 'Store', 'show', 'guest');
+            $store->load('products');
             $data = ['Store' => StoreResource::make($store)];
             $response = ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
         } catch (HttpResponseException $e) {

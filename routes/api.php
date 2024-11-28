@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +18,18 @@ use Illuminate\Support\Facades\Route;
 */
 Route::middleware('api')->group(function () {
     Route::apiResource('stores', StoreController::class);
+    Route::apiResource('products', ProductController::class);
     Route::prefix('stores')->controller(StoreController::class)->group(function () {
+        Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+
+    Route::prefix('products')->controller(ProductController::class)->group(function () {
+        Route::post('/{product}', 'update');
+        Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+    Route::prefix('categories')->controller(CategoryController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('/{category}', 'show');
         Route::get('/order/{column}/{direction}', 'orderBy');
     });
 });

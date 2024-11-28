@@ -11,7 +11,7 @@ class StoreRepository
 
     public function getAll($items, $page)
     {
-        return Store::paginate($items, ['*'], 'page', $page);
+        return Store::with('products')->paginate($items, ['*'], 'page', $page);
     }
 
     public function findByUserId()

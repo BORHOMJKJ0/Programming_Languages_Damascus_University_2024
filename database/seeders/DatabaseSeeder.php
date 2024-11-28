@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Category\CategorySeeder;
+use Database\Seeders\Product\ProductSeeder;
 use Database\Seeders\Store\StoreSeeder;
 use Database\Seeders\User\RoleSeeder;
 use Database\Seeders\User\UserSeeder;
@@ -17,6 +19,9 @@ class DatabaseSeeder extends Seeder
                 RoleSeeder::class,
                 UserSeeder::class,
                 StoreSeeder::class,
+                CategorySeeder::class,
+                ProductSeeder::class,
+                ProductsStoreSeeder::class,
             ]);
         });
     }
