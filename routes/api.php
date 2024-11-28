@@ -24,6 +24,7 @@ Route::middleware('api')->group(function () {
     Route::apiResource('products', ProductController::class);
     Route::apiResource('cart_items', CartItemsController::class);
     Route::prefix('stores')->controller(StoreController::class)->group(function () {
+        Route::get('my/{store}', 'getMy');
         Route::get('/order/{column}/{direction}', 'orderBy');
     });
 

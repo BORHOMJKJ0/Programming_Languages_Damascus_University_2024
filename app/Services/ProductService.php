@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product\Product;
+use App\Models\Store\Store;
 use App\Repositories\ProductRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -43,7 +44,6 @@ class ProductService
 
     public function getProductById(Product $product)
     {
-        $product->load('stores');
         $data = ['product' => ProductResource::make($product)];
 
         return ResponseHelper::jsonResponse($data, 'Product retrieved successfully!');
@@ -52,27 +52,13 @@ class ProductService
     public function createProduct(array $data, Request $request): JsonResponse
     {
         try {
-            $this->checkAccount(null, 'Product', 'create');
+            $this->checkGuest('Product', 'create');
+            $this->checkAdmin('Product', 'create');
             $this->validateProductData($data);
             $path = $request->file('image')->store('images', 'public');
             $data['image'] = $path;
-            $userStore = auth()->user()->store;
-            if (! $userStore) {
-                throw new HttpResponseException(ResponseHelper::jsonResponse(
-                    null,
-                    'User does not have an associated store.',
-                    403
-                ));
-            }
-            $storeId = $userStore->id;
-            $price = $data['price'];
-            $amount = $data['amount'];
-            unset($data['price'], $data['amount']);
+            $data['store_id'] = Store::where('user_id', auth()->id())->first()->id;
             $product = $this->productRepository->create($data);
-            $product->stores()->attach($storeId, [
-                'price' => $price,
-                'amount' => $amount,
-            ]);
             $data = [
                 'Product' => ProductResource::make($product),
             ];
@@ -109,21 +95,10 @@ class ProductService
     public function updateProduct(Product $product, array $data)
     {
         try {
-            $userStore = auth()->user()->store;
-            if (! $userStore) {
-                throw new HttpResponseException(ResponseHelper::jsonResponse(
-                    null,
-                    'User does not have an associated store.',
-                    403
-                ));
-            }
-
-            $storeId = $userStore->id;
-
+            $this->checkGuest('Product', 'update');
             $this->validateProductData($data, 'sometimes');
-            $this->checkOwnership($product, 'Product', 'update', 'admin');
-            $this->checkAccount($product, 'Product', 'update');
-
+            $this->checkAdmin('Product', 'update');
+            $this->checkOwnershipForProducts($product, 'Product', 'update');
             if (isset($data['image'])) {
                 if ($product->image && Storage::disk('public')->exists($product->image)) {
                     Storage::disk('public')->delete($product->image);
@@ -131,18 +106,7 @@ class ProductService
                 $path = $data['image']->store('images', 'public');
                 $data['image'] = $path;
             }
-
-            $price = $data['price'] ?? null;
-            $amount = $data['amount'] ?? null;
-
-            unset($data['price'], $data['amount']);
-
             $product = $this->productRepository->update($product, $data);
-
-            $product->stores()->updateExistingPivot($storeId, array_filter([
-                'price' => $price,
-                'amount' => $amount,
-            ]));
 
             $data = [
                 'Product' => ProductResource::make($product),
@@ -158,9 +122,9 @@ class ProductService
     public function deleteProduct(Product $product)
     {
         try {
-            $this->checkOwnership($product, 'Product', 'delete', 'admin');
-            $this->checkAccount($product, 'Product', 'delete');
-            $product->stores()->detach();
+            $this->checkGuest('Product', 'delete');
+            $this->checkAdmin('Product', 'delete');
+            $this->checkOwnershipForProducts($product, 'Product', 'delete');
             $this->productRepository->delete($product);
             $response = ResponseHelper::jsonResponse([], 'Product deleted successfully!');
         } catch (HttpResponseException $e) {

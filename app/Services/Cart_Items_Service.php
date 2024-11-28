@@ -7,7 +7,6 @@ use App\Http\Resources\Cart\CartItemsResource;
 use App\Models\Cart\Cart;
 use App\Models\Cart\Cart_items;
 use App\Models\Product\Product;
-use App\Models\Store\Store;
 use App\Repositories\CartItemsRepository;
 use App\Traits\AuthTrait;
 use App\Traits\ValidationTrait;
@@ -31,7 +30,7 @@ class Cart_Items_Service
     {
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);
-
+        $this->checkGuest('Cart_Item', 'perform');
         $cart_item = $this->cartItemsRepository->getAll($items, $page);
         $hasMorePages = $cart_item->hasMorePages();
 
@@ -47,6 +46,7 @@ class Cart_Items_Service
     {
         try {
             $cart = Cart::where('id', $cart_item->cart_id)->first();
+            $this->checkGuest('Cart_Item', 'show');
 
             $this->checkOwnership($cart, 'Cart_items', 'perform');
 
@@ -63,10 +63,10 @@ class Cart_Items_Service
     public function createCart_items(array $data)
     {
         try {
+            $this->checkGuest('Cart_Item', 'create');
             $this->validate_Cart_items_Data($data);
             $product = Product::where('id', $data['product_id'])->first();
-            $store = Store::where('id', $data['store_id'])->first(); // Fetch store by store_id
-            $this->checkAmount($data, $product, $store);
+            $this->checkAmount($data, $product);
             $cart_item = $this->cartItemsRepository->create($data);
             $data = ['Cart_items' => CartItemsResource::make($cart_item)];
             $response = ResponseHelper::jsonResponse($data, 'Cart_item created successfully!', 201);
@@ -79,6 +79,7 @@ class Cart_Items_Service
 
     public function getCart_items_OrderedBy($column, $direction, Request $request)
     {
+        $this->checkGuest('Cart_Item', 'order');
         $validColumns = ['quantity', 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
 
@@ -103,15 +104,14 @@ class Cart_Items_Service
     public function updateCart_items(Cart_items $cart_item, array $data)
     {
         try {
+            $this->checkGuest('Cart_Item', 'update');
             $this->validate_Cart_items_Data($data, 'sometimes');
             $cart = Cart::where('id', $cart_item->cart_id)->first();
             $this->checkOwnership($cart, 'Cart_items', 'update');
             $product_id = $data['product_id'] ?? $cart_item->product->id;
-            $store_id = $data['store_id'] ?? $cart_item->store->id;
             $product = Product::where('id', $product_id)->first();
-            $store = Store::where('id', $store_id)->first();
             $data['quantity'] = $data['quantity'] ?? $cart_item->quantity;
-            $this->checkAmount($data, $product, $store);
+            $this->checkAmount($data, $product);
             $cart_item = $this->cartItemsRepository->update($cart_item, $data);
             $data = ['Cart_items' => CartItemsResource::make($cart_item)];
             $response = ResponseHelper::jsonResponse($data, 'Cart_item updated successfully!');
@@ -125,6 +125,7 @@ class Cart_Items_Service
     public function deleteCart_items(Cart_items $cart_item)
     {
         try {
+            $this->checkGuest('Cart_Item', 'delete');
             $cart = Cart::where('id', $cart_item->cart_id)->first();
             $this->checkOwnership($cart, 'Cart_items', 'delete');
             $this->cartItemsRepository->delete($cart_item);
@@ -141,7 +142,6 @@ class Cart_Items_Service
         $validator = Validator::make($data, [
             'quantity' => "$rule",
             'product_id' => "$rule|exists:products,id",
-            'store_id' => "$rule|exists:stores,id",
         ]);
 
         if ($validator->fails()) {

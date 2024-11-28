@@ -11,9 +11,7 @@ class ProductRepository
 
     public function getAll($items, $page)
     {
-        return Product::with(['stores' => function ($query) {
-            $query->withPivot('price', 'amount');
-        }])->paginate($items, ['*'], 'page', $page);
+        return Product::paginate($items, ['*'], 'page', $page);
     }
 
     public function orderBy($column, $direction, $page, $items)

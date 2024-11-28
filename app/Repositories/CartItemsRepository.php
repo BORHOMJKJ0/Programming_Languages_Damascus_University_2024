@@ -2,9 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Helpers\ResponseHelper;
 use App\Models\Cart\Cart;
 use App\Models\Cart\Cart_items;
 use App\Traits\Lockable;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CartItemsRepository
 {
@@ -27,7 +29,13 @@ class CartItemsRepository
     public function create(array $data)
     {
         $cart = Cart::where('user_id', auth()->id())->first();
-
+        if ($cart === null) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse([],
+                    'There is no cart ,Please login.',
+                    403, false)
+            );
+        }
         $data['cart_id'] = $cart->id;
 
         return $this->lockForCreate(function () use ($data) {

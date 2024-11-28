@@ -19,12 +19,10 @@ class StoreResource extends JsonResource
         ];
 
         if ($request->routeIs('stores.show')) {
-            $data['products'] = $this->whenLoaded('products', function () {
-                return $this->products->map(function ($product) {
-                    return [
-                        ProductsDetailsResource::make($product),
-                    ];
-                });
+            $data['products'] = $this->products->map(function ($product) {
+                return [
+                    ProductsDetailsResource::make($product),
+                ];
             });
         }
 

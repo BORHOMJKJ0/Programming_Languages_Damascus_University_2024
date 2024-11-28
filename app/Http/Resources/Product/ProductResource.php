@@ -17,14 +17,10 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'image' => $imageUrl ?? null,
+            'amount' => $this->amount,
+            'price' => $this->price,
             'isFavorite' => $this->favorites()->where(['user_id' => auth()->id(), 'product_id' => $this->id])->exists() ? 1 : 0,
-            'stores' => StoreResource::collection($this->stores)->map(function ($store) {
-                return [
-                    'store' => $store,
-                    'price' => $store->pivot->price ?? null,
-                    'amount' => $store->pivot->amount ?? null,
-                ];
-            }),
+            'store' => StoreResource::make($this->store),
             'category' => $this->category->name,
         ];
 

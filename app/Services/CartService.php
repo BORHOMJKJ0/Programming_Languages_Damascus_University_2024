@@ -22,7 +22,11 @@ class CartService
 
     public function getCartById()
     {
+        $this->checkGuest('Cart', 'perform');
         $cart = Cart::where('user_id', auth()->id())->first();
+        if (! $cart) {
+            return ResponseHelper::jsonResponse([], 'No cart found for the user Please login.', 404, false);
+        }
         $data = ['Cart' => CartResource::make($cart)];
 
         return ResponseHelper::jsonResponse($data, 'Cart retrieved successfully!');
@@ -30,6 +34,7 @@ class CartService
 
     public function createCart()
     {
+        $this->checkGuest('Cart', 'create');
         $carts = Cart::where('user_id', auth()->id())->get();
         if ($carts->isEmpty()) {
             $cart = $this->cartRepository->create();
@@ -46,6 +51,7 @@ class CartService
     public function updateCart()
     {
         try {
+            $this->checkGuest('Cart', 'update');
             $cart = Cart::where('user_id', auth()->id())->first();
             $this->checkOwnership($cart, 'Cart', 'update');
             $cart = $this->cartRepository->update($cart);
@@ -64,6 +70,7 @@ class CartService
     public function deleteCart()
     {
         try {
+            $this->checkGuest('Cart', 'delete');
             $cart = Cart::where('user_id', auth()->id())->first();
             $this->checkOwnership($cart, 'Cart', 'delete');
             $this->cartRepository->delete($cart);

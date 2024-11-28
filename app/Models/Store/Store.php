@@ -20,8 +20,6 @@ class Store extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'products_stores')
-            ->withPivot('price', 'amount')
-            ->withTimestamps();
+        return $this->hasMany(Product::class);
     }
 }

@@ -29,10 +29,8 @@ class Product extends Model
         return $this->belongsToMany(User::class, 'favorite_products', 'product_id', 'user_id')->withTimestamps();
     }
 
-    public function stores()
+    public function store()
     {
-        return $this->belongsToMany(Store::class, 'products_stores')
-            ->withPivot('price', 'amount')
-            ->withTimestamps();
+        return $this->belongsTo(Store::class);
     }
 }

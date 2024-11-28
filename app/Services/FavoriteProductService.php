@@ -5,11 +5,14 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\Product\ProductResource;
 use App\Repositories\UserRepository;
+use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FavoriteProductService
 {
+    use AuthTrait;
+
     private $userRepository;
 
     public function __construct(UserRepository $userRepository)
@@ -19,6 +22,7 @@ class FavoriteProductService
 
     public function index(Request $request): JsonResponse
     {
+        $this->checkGuest('FavoriteProducts', 'perform');
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);
 
@@ -35,6 +39,7 @@ class FavoriteProductService
 
     public function store($product_id): JsonResponse
     {
+        $this->checkGuest('FavoriteProducts', 'create');
         $user = $this->userRepository->findById(auth()->user()->id);
         $user->favoriteProducts()->attach($product_id);
 
@@ -43,7 +48,11 @@ class FavoriteProductService
 
     public function destroy($product_id): JsonResponse
     {
+        $this->checkGuest('FavoriteProducts', 'delete');
         $user = $this->userRepository->findById(auth()->user()->id);
+        if (! $user->favoriteProducts()->where('product_id', $product_id)->exists()) {
+            return ResponseHelper::jsonResponse([], 'This product is not in your favorites', 404, false);
+        }
         $user->favoriteProducts()->detach($product_id);
 
         return ResponseHelper::jsonResponse([], 'Product removed from favorites');

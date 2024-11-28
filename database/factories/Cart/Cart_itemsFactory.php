@@ -10,15 +10,12 @@ class Cart_itemsFactory extends Factory
 {
     public function definition(): array
     {
-        $product = Product::has('stores')->inRandomOrder()->first();
-
-        $store = $product->stores()->inRandomOrder()->first();
+        $product = Product::has('store')->inRandomOrder()->first();
 
         return [
-            'quantity' => fake()->numberBetween(1, $store->pivot->amount),
+            'quantity' => fake()->numberBetween(1, $product->amount),
             'product_id' => $product->id,
             'cart_id' => Cart::all()->random()->id,
-            'store_id' => $store->id,
         ];
     }
 }

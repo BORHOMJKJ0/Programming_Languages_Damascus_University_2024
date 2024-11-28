@@ -14,7 +14,7 @@ class CartItemsResource extends JsonResource
         return [
             'id' => $this->id,
             'quantity' => $this->quantity,
-            'store' => StoreResource::make($this->store),
+            'store' => StoreResource::make($this->product->store),
             'product' => ProductsNamesResource::make($this->product),
         ];
     }
