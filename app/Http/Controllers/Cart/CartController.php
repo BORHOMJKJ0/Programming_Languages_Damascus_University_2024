@@ -12,7 +12,7 @@ class CartController extends Controller
 
     public function __construct(CartService $cartService)
     {
-        $this->middleware('auth:api');
+        $this->middleware('guestOrAuth');
         $this->cartService = $cartService;
     }
 

@@ -14,8 +14,8 @@ class FavoriteProductController extends Controller
 
     public function __construct(FavoriteProductService $service)
     {
+        $this->middleware('guestOrAuth');
         $this->service = $service;
-        $this->middleware('auth:api');
     }
 
     public function index(Request $request): JsonResponse

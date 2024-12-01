@@ -14,7 +14,7 @@ class ProductController extends Controller
 
     public function __construct(ProductService $productService)
     {
-        $this->middleware('auth:api')->except(['index', 'show', 'orderBy']);
+        $this->middleware('guestOrAuth');
         $this->productService = $productService;
     }
 

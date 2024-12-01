@@ -14,7 +14,7 @@ class CartItemsController extends Controller
 
     public function __construct(Cart_Items_Service $cart_items_items_Service)
     {
-        $this->middleware('auth:api');
+        $this->middleware('guestOrAuth');
         $this->cart_items_Service = $cart_items_items_Service;
     }
 
