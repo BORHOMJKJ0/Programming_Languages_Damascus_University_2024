@@ -49,6 +49,7 @@ class UserService
         $inputs = $request->all();
 
         $inputs['password'] = Hash::make($inputs['password']);
+        $inputs['password_confirmation'] = Hash::make($inputs['password_confirmation']);
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('images', 'public');
             $inputs['image'] = $path;
@@ -71,6 +72,7 @@ public function register_for_guest(RegisterRequest $request, $guest_id) : JsonRe
     $inputs = $request->all();
 
     $inputs['password'] = Hash::make($inputs['password']);
+    $inputs['password_confirmation'] = Hash::make($inputs['password_confirmation']);
     if ($request->hasFile('image')) {
         $path = $request->file('image')->store('images', 'public');
         $inputs['image'] = $path;
@@ -81,7 +83,7 @@ public function register_for_guest(RegisterRequest $request, $guest_id) : JsonRe
         return ResponseHelper::jsonResponse([], 'User not found',404,false);
     }
     if($user->role->role != 'guest'){
-        return  ResponseHelper::jsonResponse([], 'registered already',404,false);
+        return  ResponseHelper::jsonResponse([], 'you have this account before',403,false);
     }
     $user->update($inputs);
     $user->save();
@@ -122,7 +124,7 @@ public function login(LoginRequest $request)
     $token = JWTAuth::attempt($credentials);
 
     if(!$token) {
-        return ResponseHelper::jsonResponse([],'mistake password',401, false);
+        return ResponseHelper::jsonResponse([],'Incorrect password',400, false);
     }
 
     $user = JWTAuth::user();

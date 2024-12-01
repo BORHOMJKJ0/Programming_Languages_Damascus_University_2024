@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('mobile_number')->unique()->nullable();
             $table->string('password')->nullable();
+            $table->string('password_confirmation')->nullable();
             $table->string('location')->nullable();
             $table->string('image')->nullable();
             $table->rememberToken();
