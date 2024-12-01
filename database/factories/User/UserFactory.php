@@ -14,6 +14,7 @@ class UserFactory extends Factory
             'last_Name' => fake()->optional()->lastName,
             'mobile_number' => fake()->unique()->phoneNumber,
             'password' => bcrypt('password'),
+            'password_confirmation' => bcrypt('password'),
             'location' => fake()->optional()->address,
             'image' => fake()->optional()->imageUrl(200, 200),
             'role_id' => Role::all()->random()->id,
