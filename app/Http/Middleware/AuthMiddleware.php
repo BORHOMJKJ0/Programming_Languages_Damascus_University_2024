@@ -26,7 +26,7 @@ class AuthMiddleware
             return ResponseHelper::jsonResponse([], 'Invalid token', 401, false);
         } catch (TokenExpiredException $ex) {
             return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
-        } catch (JWTException $ex){
+        } catch (JWTException $ex) {
             return ResponseHelper::jsonResponse([], 'token is missing', 401, false);
         }
         if (! $user) {

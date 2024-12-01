@@ -3,7 +3,8 @@
 namespace App\Models\User;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Cart;
+use App\Models\Cart\Cart;
+use App\Models\Product\Product;
 use App\Models\Store\Store;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -50,5 +51,10 @@ class User extends Authenticatable implements JWTSubject
     public function cart()
     {
         return $this->hasOne(Cart::class);
+    }
+
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class, 'favorite_products', 'user_id', 'product_id')->withTimestamps();
     }
 }

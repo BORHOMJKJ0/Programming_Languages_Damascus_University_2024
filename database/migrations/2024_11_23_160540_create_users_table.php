@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('password_confirmation')->nullable();
             $table->string('location')->nullable();
             $table->string('image')->nullable();
-            $table->rememberToken();
             $table->string('fcm_token')->nullable();
             $table->timestamps();
         });

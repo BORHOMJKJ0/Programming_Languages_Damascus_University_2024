@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
 use App\Models\User\User;
 use Illuminate\Http\JsonResponse;
@@ -21,18 +21,19 @@ class UserService
 {
     public function refresh_Token()
     {
-        try{
-        $new_token = JWTAuth::parseToken()->refresh();
+        try {
+            $new_token = JWTAuth::parseToken()->refresh();
         } catch (TokenInvalidException $ex) {
             return ResponseHelper::jsonResponse([], 'Invalid token', 401, false);
         } catch (TokenExpiredException $ex) {
             return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
-        } catch (JWTException $ex){
+        } catch (JWTException $ex) {
             return ResponseHelper::jsonResponse([], 'token is missing', 401, false);
         }
         $data = [
             'token' => $new_token,
         ];
+
         return ResponseHelper::jsonResponse($data, 'Token refreshed');
     }
 
@@ -40,7 +41,7 @@ class UserService
     {
         $user = User::find($user_id);
         $user->role->update([
-            'role' => $new_role
+            'role' => $new_role,
         ]);
     }
 
@@ -55,7 +56,7 @@ class UserService
             $inputs['image'] = $path;
         }
         $role = Role::create([
-            'role' => 'user'
+            'role' => 'user',
         ]);
         $inputs['role_id'] = $role->id;
 
@@ -65,113 +66,117 @@ class UserService
             'user' => UserResource::make($user),
         ];
 
-        return ResponseHelper::jsonResponse($data, 'Register successfully',201);
-    }
-public function register_for_guest(RegisterRequest $request, $guest_id) : JsonResponse
-{
-    $inputs = $request->all();
-
-    $inputs['password'] = Hash::make($inputs['password']);
-    $inputs['password_confirmation'] = Hash::make($inputs['password_confirmation']);
-    if ($request->hasFile('image')) {
-        $path = $request->file('image')->store('images', 'public');
-        $inputs['image'] = $path;
+        return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
     }
 
-    $user =  User::where('id',$guest_id)->first();
-    if(!$user){
-        return ResponseHelper::jsonResponse([], 'User not found',404,false);
-    }
-    if($user->role->role != 'guest'){
-        return  ResponseHelper::jsonResponse([], 'you have this account before',403,false);
-    }
-    $user->update($inputs);
-    $user->save();
+    public function register_for_guest(RegisterRequest $request, $guest_id): JsonResponse
+    {
+        $inputs = $request->all();
 
-    $data = [
-        'user' => UserResource::make($user),
-    ];
+        $inputs['password'] = Hash::make($inputs['password']);
+        $inputs['password_confirmation'] = Hash::make($inputs['password_confirmation']);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images', 'public');
+            $inputs['image'] = $path;
+        }
 
-    $this->update_role($user->id, 'user');
+        $user = User::where('id', $guest_id)->first();
+        if (! $user) {
+            return ResponseHelper::jsonResponse([], 'User not found', 404, false);
+        }
+        if ($user->role->role != 'guest') {
+            return ResponseHelper::jsonResponse([], 'You have this account before', 403, false);
+        }
+        $user->update($inputs);
+        $user->save();
 
-    return ResponseHelper::jsonResponse($data, 'Register successfully',201);
-}
+        $data = [
+            'user' => UserResource::make($user),
+        ];
 
-public function getStarted()
-{
-    $role = Role::create([
-        'role' => 'guest'
-    ]);
-    $guest = User::create([
-        'role_id' => $role->id,
-    ]);
+        $this->update_role($user->id, 'user');
 
-    $data = [
-        'guest_id' => $guest->id
-    ];
-    return ResponseHelper::jsonResponse($data, 'Get started successfully',201);
-}
-
-public function login(LoginRequest $request)
-{
-    $inputs = $request->all();
-
-    if(isset($inputs['remember_me']) && $inputs['remember_me']){
-        JWTAuth::factory()->setTTL(60*24*30*3);
+        return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
     }
 
-    $credentials = $request->only('mobile_number', 'password');
-    $token = JWTAuth::attempt($credentials);
+    public function getStarted()
+    {
+        $role = Role::create([
+            'role' => 'guest',
+        ]);
+        $guest = User::create([
+            'role_id' => $role->id,
+        ]);
 
-    if(!$token) {
-        return ResponseHelper::jsonResponse([],'Incorrect password',400, false);
+        $data = [
+            'guest_id' => $guest->id,
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'Get started successfully', 201);
     }
 
-    $user = JWTAuth::user();
+    public function login(LoginRequest $request)
+    {
+        $inputs = $request->all();
 
-    $user->update([
-        'fcm_token' => $inputs['fcm_token'],
-    ]);
+        if (isset($inputs['remember_me']) && $inputs['remember_me']) {
+            JWTAuth::factory()->setTTL(60 * 24 * 30 * 3);
+        }
 
-    $data=[
-        'user' => UserResource::make($user),
-        'token' => $token,
-    ];
-    return ResponseHelper::jsonResponse($data,'Logged in successfully');
-}
+        $credentials = $request->only('mobile_number', 'password');
+        $token = JWTAuth::attempt($credentials);
 
-public function logout(Request $request)
-{
-    $token = $request->header('Authorization');
-    JWTAuth::invalidate($token);
+        if (! $token) {
+            return ResponseHelper::jsonResponse([], 'mistake password', 401, false);
+        }
 
-    return ResponseHelper::jsonResponse([], 'Logged out successfully!');
-}
+        $user = JWTAuth::user();
 
-public function getProfile()
-{
-    $user = JWTAuth::user();
-    $data = [
-        'user' => UserResource::make($user),
-    ];
+        $user->update([
+            'fcm_token' => $inputs['fcm_token'],
+        ]);
 
-    return ResponseHelper::jsonResponse($data,'Get profile successfully');
-}
+        $data = [
+            'user' => UserResource::make($user),
+            'token' => $token,
+        ];
 
-    public function updateProfile(Request $request){
+        return ResponseHelper::jsonResponse($data, 'Logged in successfully');
+    }
+
+    public function logout(Request $request)
+    {
+        $token = $request->header('Authorization');
+        JWTAuth::invalidate($token);
+
+        return ResponseHelper::jsonResponse([], 'Logged out successfully!');
+    }
+
+    public function getProfile()
+    {
+        $user = JWTAuth::user();
+        $data = [
+            'user' => UserResource::make($user),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'Get profile successfully');
+    }
+
+    public function updateProfile(Request $request)
+    {
         $inputs = $request->all();
 
         $user = JWTAuth::user();
 
-        if($request->hasFile('image')){
-            if($request->image && Storage::disk('public')->exists($request->image)){
+        if ($request->hasFile('image')) {
+            if ($request->image && Storage::disk('public')->exists($request->image)) {
                 $path = $inputs['image']->store('images', 'public');
                 $inputs['image'] = $path;
             }
         }
         if ($request->hasFile('image')) {
-            if($user->image){
-                if(Storage::disk('public')->exists($user->image)){
+            if ($user->image) {
+                if (Storage::disk('public')->exists($user->image)) {
                     Storage::disk('public')->delete($user->image);
                 }
             }
@@ -185,7 +190,7 @@ public function getProfile()
             'user' => UserResource::make($user),
         ];
 
-        return ResponseHelper::jsonResponse($data, 'profile updated successfully',201);
+        return ResponseHelper::jsonResponse($data, 'profile updated successfully', 201);
     }
 
     public function resetPassword(Request $request)
@@ -193,8 +198,8 @@ public function getProfile()
         $inputs = $request->all();
         $user = JWTAuth::user();
 
-        if(!Hash::check($inputs['old_password'], $user->password)){
-            return ResponseHelper::jsonResponse([], 'old password is incorrect',401,false);
+        if (! Hash::check($inputs['old_password'], $user->password)) {
+            return ResponseHelper::jsonResponse([], 'old password is incorrect', 401, false);
         }
 
         $inputs['new_password'] = Hash::make($inputs['new_password']);
@@ -204,5 +209,4 @@ public function getProfile()
 
         return ResponseHelper::jsonResponse([], 'Password reset successfully');
     }
-
 }

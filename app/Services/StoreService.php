@@ -32,7 +32,7 @@ class StoreService
         try {
             $items = $request->query('items', 20);
             $page = $request->query('page', 1);
-            $this->checkAccount(null, 'Store', 'show', 'guest');
+            $this->checkGuest('Store', 'perform');
             $stores = $this->storeRepository->getAll($items, $page);
 
             $hasMorePages = $stores->hasMorePages();
@@ -53,8 +53,8 @@ class StoreService
     public function getMyStoreById(Store $store)
     {
         try {
-            $this->checkOwnership($store, 'Store', 'show', 'admin');
-            $this->checkAccount(null, 'Store', 'show', 'guest');
+            $this->checkOwnership($store, 'Store', 'perform');
+            $this->checkAdmin('Store', 'perform');
             $data = ['Store' => StoreResource::make($store)];
             $response = ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
         } catch (HttpResponseException $e) {
@@ -65,13 +65,22 @@ class StoreService
 
     }
 
+    public function getStoreById(Store $store)
+    {
+        $this->checkGuest('Store', 'perform');
+        $data = ['Store' => StoreResource::make($store)];
+
+        return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
+    }
+
     public function createStore(array $data): JsonResponse
     {
+        $this->checkGuest('Store', 'create');
         $data['user_id'] = auth()->id();
         if (auth()->user()->role->role == 'user') {
             $this->userService->update_role(auth()->id(), 'admin');
         } else {
-            $this->checkAccount(null, 'Store', 'create');
+            $this->checkAdmin('Store', 'create');
         }
         $stores = $this->storeRepository->findByUserId();
         if ($stores->isEmpty()) {
@@ -91,7 +100,7 @@ class StoreService
     public function getStoresOrderedBy($column, $direction, Request $request)
     {
         try {
-            $this->checkAccount(null, 'Store', 'order', 'guest');
+            $this->checkGuest('Store', 'order');
             $validColumns = ['name', 'created_at', 'updated_at'];
             $validDirections = ['asc', 'desc'];
 
@@ -118,8 +127,9 @@ class StoreService
     public function updateStore(Store $store, array $data)
     {
         try {
-            $this->checkOwnership($store, 'Store', 'update', 'admin');
-            $this->checkAccount(null, 'Store', 'update', 'guest');
+            $this->checkGuest('Store', 'perform');
+            $this->checkOwnership($store, 'Store', 'update');
+            $this->checkAdmin('Store', 'update');
             $this->validateStoreData($data, 'sometimes');
             $store = $this->storeRepository->update($store, $data);
             $data = [
@@ -137,8 +147,8 @@ class StoreService
     public function deleteStore(Store $store)
     {
         try {
-            $this->checkOwnership($store, 'Store', 'delete', 'admin');
-            $this->checkAccount(null, 'Store', 'delete', 'guest');
+            $this->checkOwnership($store, 'Store', 'delete');
+            $this->checkAdmin('Store', 'delete');
             $this->storeRepository->delete($store);
             $response = ResponseHelper::jsonResponse([], 'Store deleted successfully!');
         } catch (HttpResponseException $e) {

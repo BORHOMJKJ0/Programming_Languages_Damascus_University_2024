@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Models\Store;
+namespace App\Models\Cart;
 
-use App\Models\Product\Product;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Store extends Model
+class Cart extends Model
 {
     use HasFactory;
 
@@ -18,8 +17,8 @@ class Store extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function products()
+    public function cart_items()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Cart_items::class);
     }
 }

@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Models\Store;
+namespace App\Models;
 
 use App\Models\Product\Product;
-use App\Models\User\User;
+use App\Models\Store\Store;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Store extends Model
+class ProductsStores extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
 
-    public function user()
+    public function store()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Store::class);
     }
 
     public function products()

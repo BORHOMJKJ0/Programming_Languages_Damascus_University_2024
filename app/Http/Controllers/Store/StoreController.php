@@ -28,9 +28,14 @@ class StoreController extends Controller
         return $this->storeService->createStore($request->all());
     }
 
-    public function show(Store $store): JsonResponse
+    public function getMy(Store $store): JsonResponse
     {
         return $this->storeService->getMyStoreById($store);
+    }
+
+    public function show(Store $store): JsonResponse
+    {
+        return $this->storeService->getStoreById($store);
     }
 
     public function orderBy($column, $direction, Request $request): JsonResponse
