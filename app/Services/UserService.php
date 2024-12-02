@@ -113,6 +113,7 @@ class UserService
 
         $data = [
             'guest_id' => $guest->id,
+            'role' => RoleResource::make($guest->role),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Get started successfully', 201);
