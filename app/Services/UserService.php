@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Resources\Role\RoleResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
 use App\Models\User\User;
@@ -127,17 +130,18 @@ class UserService
         $token = JWTAuth::attempt($credentials);
 
         if (! $token) {
-            return ResponseHelper::jsonResponse([], 'mistake password', 401, false);
+            return ResponseHelper::jsonResponse([], 'Incorrect password', 401, false);
         }
 
         $user = JWTAuth::user();
 
-        $user->update([
-            'fcm_token' => $inputs['fcm_token'],
-        ]);
+//        $user->update([
+//            'fcm_token' => $inputs['fcm_token'],
+//        ]);
 
         $data = [
             'user' => UserResource::make($user),
+            'role' => RoleResource::make($user->role),
             'token' => $token,
         ];
 
@@ -162,7 +166,7 @@ class UserService
         return ResponseHelper::jsonResponse($data, 'Get profile successfully');
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $inputs = $request->all();
 
@@ -193,9 +197,10 @@ class UserService
         return ResponseHelper::jsonResponse($data, 'profile updated successfully', 201);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
         $inputs = $request->all();
+
         $user = JWTAuth::user();
 
         if (! Hash::check($inputs['old_password'], $user->password)) {
@@ -203,8 +208,10 @@ class UserService
         }
 
         $inputs['new_password'] = Hash::make($inputs['new_password']);
+        $inputs['new_password_confirmation'] = Hash::make($inputs['new_password_confirmation']);
         $user->update([
             'password' => $inputs['new_password'],
+            'password_confirmation' => $inputs['new_password_confirmation'],
         ]);
 
         return ResponseHelper::jsonResponse([], 'Password reset successfully');
