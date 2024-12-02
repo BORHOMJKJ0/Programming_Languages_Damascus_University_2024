@@ -19,10 +19,16 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::middleware('api')->group(function () {
+Route::middleware('check_auth:api')->group(function () {
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('cart_items', CartItemsController::class);
+    Route::prefix('users')->controller(UserController::class)->group(function () {
+        Route::post('/logout', 'logout')->name('users.logout');
+        Route::get('/getProfile', 'getProfile')->name('users.getProfile');
+        Route::post('/updateProfile', 'updateProfile')->name('users.updateProfile');
+        Route::post('/resetPassword', 'resetPassword')->name('users.resetPassword');
+    });
     Route::prefix('stores')->controller(StoreController::class)->group(function () {
         Route::get('my/{store}', 'getMy');
         Route::get('/order/{column}/{direction}', 'orderBy');
@@ -59,10 +65,4 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/register/{id}', 'register_for_guest');
     Route::post('/login', 'login');
-    Route::middleware('check_auth:api')->group(function () {
-        Route::post('/logout', 'logout');
-        Route::get('/getProfile', 'getProfile');
-        Route::post('/updateProfile', 'updateProfile');
-        Route::post('/resetPassword', 'resetPassword');
-    });
 });

@@ -14,7 +14,6 @@ class FavoriteProductController extends Controller
 
     public function __construct(FavoriteProductService $service)
     {
-        $this->middleware('guestOrAuth');
         $this->service = $service;
     }
 

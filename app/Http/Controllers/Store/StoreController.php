@@ -14,7 +14,6 @@ class StoreController extends Controller
 
     public function __construct(StoreService $storeService)
     {
-        $this->middleware('guestOrAuth');
         $this->storeService = $storeService;
     }
 

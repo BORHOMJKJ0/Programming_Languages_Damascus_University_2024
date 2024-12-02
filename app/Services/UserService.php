@@ -135,9 +135,9 @@ class UserService
 
         $user = JWTAuth::user();
 
-//        $user->update([
-//            'fcm_token' => $inputs['fcm_token'],
-//        ]);
+        //        $user->update([
+        //            'fcm_token' => $inputs['fcm_token'],
+        //        ]);
 
         $data = [
             'user' => UserResource::make($user),
