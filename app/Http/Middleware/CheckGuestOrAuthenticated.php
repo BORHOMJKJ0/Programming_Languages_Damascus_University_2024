@@ -14,12 +14,23 @@ class CheckGuestOrAuthenticated
             return $next($request);
         }
 
+        $authOnlyRoutes = [
+            'users.logout',
+            'users.getProfile',
+            'users.updateProfile',
+            'users.resetPassword',
+        ];
+
+        if (in_array($request->route()->getName(), $authOnlyRoutes)) {
+            return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
+        }
+
         if ($request->query('guest') === 'true') {
             return $next($request);
         }
 
         return ResponseHelper::jsonResponse([],
             'You must either register or explicitly enter as a guest.',
-            403, false);
+            401, false);
     }
 }

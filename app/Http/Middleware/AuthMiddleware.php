@@ -13,11 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         try {
@@ -25,10 +20,13 @@ class AuthMiddleware
         } catch (TokenInvalidException $ex) {
             return ResponseHelper::jsonResponse([], 'Invalid token', 401, false);
         } catch (TokenExpiredException $ex) {
-            return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
+            return ResponseHelper::jsonResponse([], 'Expired token, please refresh it', 401, false);
         } catch (JWTException $ex) {
-            return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
+            $guestMiddleware = new CheckGuestOrAuthenticated;
+
+            return $guestMiddleware->handle($request, $next);
         }
+
         if (! $user) {
             return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
         }
