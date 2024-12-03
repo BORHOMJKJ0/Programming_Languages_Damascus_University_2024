@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\ResetPasswordRequest;
-use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\RegisterRequest;
+use App\Http\Requests\User\ResetPasswordRequest;
+use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\Role\RoleResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
@@ -31,7 +31,7 @@ class UserService
         } catch (TokenExpiredException $ex) {
             return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
         } catch (JWTException $ex) {
-            return ResponseHelper::jsonResponse([], 'token is missing', 401, false);
+            return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
         }
         $data = [
             'token' => $new_token,

@@ -27,7 +27,7 @@ class AuthMiddleware
         } catch (TokenExpiredException $ex) {
             return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
         } catch (JWTException $ex) {
-            return ResponseHelper::jsonResponse([], 'token is missing', 401, false);
+            return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
         }
         if (! $user) {
             return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
