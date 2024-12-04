@@ -2,18 +2,19 @@
 
 namespace App\Repositories;
 
-use App\Helpers\ResponseHelper;
 use App\Models\Cart\Cart;
 use App\Models\Cart\Cart_items;
+use App\Traits\AuthTrait;
 use App\Traits\Lockable;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CartItemsRepository
 {
-    use Lockable;
+    use AuthTrait,Lockable;
 
     public function getAll($items, $page)
     {
+        $this->checkCart();
+
         return Cart_items::whereHas('cart', function ($query) {
             $query->where('user_id', auth()->id());
         })->paginate($items, ['*'], 'page', $page);
@@ -21,6 +22,8 @@ class CartItemsRepository
 
     public function orderBy($column, $direction, $page, $items)
     {
+        $this->checkCart();
+
         return Cart_items::whereHas('cart', function ($query) {
             $query->where('user_id', auth()->id());
         })->orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
@@ -28,14 +31,8 @@ class CartItemsRepository
 
     public function create(array $data)
     {
+        $this->checkCart();
         $cart = Cart::where('user_id', auth()->id())->first();
-        if ($cart === null) {
-            throw new HttpResponseException(
-                ResponseHelper::jsonResponse([],
-                    'There is no cart ,Please login.',
-                    403, false)
-            );
-        }
         $data['cart_id'] = $cart->id;
 
         return $this->lockForCreate(function () use ($data) {
@@ -45,6 +42,8 @@ class CartItemsRepository
 
     public function update(Cart_items $cart_items, array $data)
     {
+        $this->checkCart();
+
         return $this->lockForUpdate(Cart_items::class, $cart_items->id, function ($locked_Cart_items) use ($data) {
             $locked_Cart_items->update($data);
 
@@ -54,6 +53,8 @@ class CartItemsRepository
 
     public function delete(Cart_items $cart_items)
     {
+        $this->checkCart();
+
         return $this->lockForDelete(Cart_items::class, $cart_items->id, function ($locked_Cart_items) {
             return $locked_Cart_items->delete();
         });

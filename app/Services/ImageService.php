@@ -99,7 +99,7 @@ class ImageService
             $data['image'] = $path;
 
             $product = Product::findOrFail($data['product_id']);
-            $this->checkOwnership($product, 'Image', 'create');
+            $this->checkOwnershipForProducts($product, 'Image', 'create');
 
             $hasMainImage = Image::where('product_id', $data['product_id'])
                 ->where('main', 1)

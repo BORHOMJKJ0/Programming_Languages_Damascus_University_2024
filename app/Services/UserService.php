@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\ResetPasswordRequest;
-use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\RegisterRequest;
+use App\Http\Requests\User\ResetPasswordRequest;
+use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\Role\RoleResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
@@ -22,6 +22,13 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class UserService
 {
+    protected $cartService;
+
+    public function __construct(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     public function refresh_Token()
     {
         try {
@@ -31,7 +38,7 @@ class UserService
         } catch (TokenExpiredException $ex) {
             return ResponseHelper::jsonResponse([], 'Expired token', 401, false);
         } catch (JWTException $ex) {
-            return ResponseHelper::jsonResponse([], 'token is missing', 401, false);
+            return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
         }
         $data = [
             'token' => $new_token,
@@ -135,11 +142,11 @@ class UserService
         }
 
         $user = JWTAuth::user();
-
+        $this->cartService->createCart();
         //        $user->update([
         //            'fcm_token' => $inputs['fcm_token'],
         //        ]);
-
+        $this->
         $data = [
             'user' => UserResource::make($user),
             'role' => RoleResource::make($user->role),

@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Helpers\ResponseHelper;
+use App\Models\Cart\Cart;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait AuthTrait
@@ -50,6 +51,18 @@ trait AuthTrait
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse([],
                     'This permission is not available for guests.',
+                    403, false)
+            );
+        }
+    }
+
+    public function checkCart()
+    {
+        $cart = Cart::where('user_id', auth()->id())->first();
+        if ($cart === null) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse([],
+                    'There is no cart ,Please login.',
                     403, false)
             );
         }
