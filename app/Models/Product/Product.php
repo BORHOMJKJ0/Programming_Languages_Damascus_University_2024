@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Category\Category;
+use App\Models\Image\Image;
 use App\Models\Store\Store;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,11 +20,6 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function favorites()
     {
         return $this->belongsToMany(User::class, 'favorite_products', 'product_id', 'user_id')->withTimestamps();
@@ -32,5 +28,10 @@ class Product extends Model
     public function store()
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class);
     }
 }

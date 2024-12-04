@@ -10,6 +10,7 @@ use App\Traits\AuthTrait;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -73,7 +74,7 @@ class StoreService
         return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
     }
 
-    public function createStore(array $data): JsonResponse
+    public function createStore(array $data, Request $request): JsonResponse
     {
         $this->checkGuest('Store', 'create');
         $data['user_id'] = auth()->id();
@@ -82,6 +83,9 @@ class StoreService
         } else {
             $this->checkAdmin('Store', 'create');
         }
+        $path = $request->file('image')->store('images', 'public');
+        $data['image'] = $path;
+        $data['store_id'] = Store::where('user_id', auth()->id())->first()->id;
         $stores = $this->storeRepository->findByUserId();
         if ($stores->isEmpty()) {
             $this->validateStoreData($data);
@@ -131,6 +135,13 @@ class StoreService
             $this->checkOwnership($store, 'Store', 'update');
             $this->checkAdmin('Store', 'update');
             $this->validateStoreData($data, 'sometimes');
+            if (isset($data['image'])) {
+                if ($store->image && Storage::disk('public')->exists($store->image)) {
+                    Storage::disk('public')->delete($product->image);
+                }
+                $path = $data['image']->store('images', 'public');
+                $data['image'] = $path;
+            }
             $store = $this->storeRepository->update($store, $data);
             $data = [
                 'Store' => StoreResource::make($store),
@@ -162,6 +173,7 @@ class StoreService
     {
         $validator = Validator::make($data, [
             'name' => "$rule|unique:stores,name",
+            'image' => "$rule",
             'location' => "$rule|nullable",
         ]);
 

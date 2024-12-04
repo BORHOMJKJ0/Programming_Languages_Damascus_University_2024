@@ -11,7 +11,6 @@ use App\Traits\AuthTrait;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -49,14 +48,12 @@ class ProductService
         return ResponseHelper::jsonResponse($data, 'Product retrieved successfully!');
     }
 
-    public function createProduct(array $data, Request $request): JsonResponse
+    public function createProduct(array $data): JsonResponse
     {
         try {
             $this->checkGuest('Product', 'create');
             $this->checkAdmin('Product', 'create');
             $this->validateProductData($data);
-            $path = $request->file('image')->store('images', 'public');
-            $data['image'] = $path;
             $data['store_id'] = Store::where('user_id', auth()->id())->first()->id;
             $product = $this->productRepository->create($data);
             $data = [
@@ -99,13 +96,6 @@ class ProductService
             $this->validateProductData($data, 'sometimes');
             $this->checkAdmin('Product', 'update');
             $this->checkOwnershipForProducts($product, 'Product', 'update');
-            if (isset($data['image'])) {
-                if ($product->image && Storage::disk('public')->exists($product->image)) {
-                    Storage::disk('public')->delete($product->image);
-                }
-                $path = $data['image']->store('images', 'public');
-                $data['image'] = $path;
-            }
             $product = $this->productRepository->update($product, $data);
 
             $data = [
@@ -141,7 +131,6 @@ class ProductService
             'description' => "$rule",
             'amount' => "$rule",
             'price' => "$rule",
-            'image' => "$rule",
             'category_id' => "$rule|exists:categories,id",
         ]);
 

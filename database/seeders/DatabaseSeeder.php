@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Database\Seeders\Cart\CartItemsSeeder;
 use Database\Seeders\Cart\CartSeeder;
 use Database\Seeders\Category\CategorySeeder;
+use Database\Seeders\Image\ImageSeeder;
 use Database\Seeders\Product\ProductSeeder;
 use Database\Seeders\Store\StoreSeeder;
 use Database\Seeders\User\RoleSeeder;
@@ -23,6 +24,7 @@ class DatabaseSeeder extends Seeder
                 StoreSeeder::class,
                 CategorySeeder::class,
                 ProductSeeder::class,
+                ImageSeeder::class,
                 CartSeeder::class,
                 CartItemsSeeder::class,
             ]);

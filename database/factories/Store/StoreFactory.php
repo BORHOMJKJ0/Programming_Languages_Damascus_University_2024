@@ -11,6 +11,7 @@ class StoreFactory extends Factory
     {
         return [
             'name' => fake()->name,
+            'image' => fake()->imageUrl(200, 200),
             'location' => fake()->optional()->address,
             'user_id' => User::all()->random()->id,
         ];

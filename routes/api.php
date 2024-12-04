@@ -3,6 +3,7 @@
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Cart\CartItemsController;
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Image\ImageController;
 use App\Http\Controllers\Product\FavoriteProductController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Store\StoreController;
@@ -23,6 +24,7 @@ Route::middleware('check_auth:api')->group(function () {
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('cart_items', CartItemsController::class);
+    Route::apiResource('images', ImageController::class);
     Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::post('/logout', 'logout')->name('users.logout');
         Route::get('/getProfile', 'getProfile')->name('users.getProfile');
@@ -35,7 +37,6 @@ Route::middleware('check_auth:api')->group(function () {
     });
 
     Route::prefix('products')->controller(ProductController::class)->group(function () {
-        Route::post('/{product}', 'update');
         Route::get('/order/{column}/{direction}', 'orderBy');
     });
     Route::prefix('products/favorites')->controller(FavoriteProductController::class)->group(function () {
@@ -47,6 +48,12 @@ Route::middleware('check_auth:api')->group(function () {
         Route::get('/', 'index');
         Route::get('/{category}', 'show');
         Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+    Route::prefix('images')->controller(ImageController::class)->group(function () {
+        Route::get('/order/{column}/{direction}', 'orderBy');
+        Route::get('/my/order/{column}/{direction}', 'MyImagesOrderBy');
+        Route::get('/my/random', 'MyImages');
+        Route::post('/update/{image}', 'update');
     });
     Route::prefix('carts')->controller(CartController::class)->group(function () {
         Route::get('/', 'show');

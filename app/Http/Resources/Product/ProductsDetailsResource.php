@@ -16,7 +16,6 @@ class ProductsDetailsResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image' => $imageUrl ?? null,
             'category' => $this->category->name,
             'description' => $this->description,
             'price' => $this->price,

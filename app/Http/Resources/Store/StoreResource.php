@@ -11,8 +11,12 @@ class StoreResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $imageUrl = $this->image
+            ? config('app.url').'/storage/'.$this->image
+            : null;
         $data = [
             'id' => $this->id,
+            'image' => $imageUrl,
             'name' => $this->name,
             'location' => $this->location,
             'user' => UserNameResource::make($this->user),
