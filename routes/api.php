@@ -3,6 +3,7 @@
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Cart\CartItemsController;
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Product\FavoriteProductController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Store\StoreController;
@@ -56,6 +57,9 @@ Route::middleware('check_auth:api')->group(function () {
     });
     Route::prefix('cart_items')->controller(CartItemsController::class)->group(function () {
         Route::get('/order/{column}/{direction}', 'orderBy');
+    });
+    Route::prefix('orders')->controller(OrderController::class)->group(function () {
+        Route::post('/placeOrder', 'placeOrder');
     });
 });
 

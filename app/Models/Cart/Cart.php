@@ -2,6 +2,7 @@
 
 namespace App\Models\Cart;
 
+use App\Models\Product\Product;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

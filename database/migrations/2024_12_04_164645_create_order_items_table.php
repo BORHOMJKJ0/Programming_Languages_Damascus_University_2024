@@ -19,7 +19,8 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->constrained()->restrictOnDelete()->restrictOnUpdate();
             $table->integer('quantity');
             $table->double('price');
-            $table->string('item_status');
+            $table->enum('item_status',['Pending', 'Shipped', 'Rejected', 'Delivered','Cancelled'])
+                ->default('Pending');
             $table->timestamps();
         });
     }
