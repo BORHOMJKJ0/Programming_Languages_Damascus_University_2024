@@ -209,7 +209,9 @@ class UserService
         $inputs = $request->all();
 
         $user = JWTAuth::user();
-
+        if (! $user) {
+            return ResponseHelper::jsonResponse([], 'Unauthenticated', 401, false);
+        }
         if (! Hash::check($inputs['old_password'], $user->password)) {
             return ResponseHelper::jsonResponse([], 'old password is incorrect', 401, false);
         }
