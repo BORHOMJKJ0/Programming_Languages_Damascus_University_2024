@@ -14,18 +14,7 @@ class ImageController extends Controller
 
     public function __construct(ImageService $imageService)
     {
-        $this->middleware('auth:api');
         $this->imageService = $imageService;
-    }
-
-    public function index(Request $request): JsonResponse
-    {
-        return $this->imageService->getAllImages($request);
-    }
-
-    public function MyImages(Request $request): JsonResponse
-    {
-        return $this->imageService->getMyImages($request);
     }
 
     public function store(Request $request): JsonResponse
@@ -36,16 +25,6 @@ class ImageController extends Controller
     public function show(Image $image): JsonResponse
     {
         return $this->imageService->getImageById($image);
-    }
-
-    public function orderBy($column, $direction, Request $request): JsonResponse
-    {
-        return $images = $this->imageService->getImagesOrderedBy($column, $direction, $request);
-    }
-
-    public function MyImagesOrderBy($column, $direction, Request $request): JsonResponse
-    {
-        return $this->imageService->getMyImagesOrderedBy($column, $direction, $request);
     }
 
     public function update(Image $image, Request $request): JsonResponse

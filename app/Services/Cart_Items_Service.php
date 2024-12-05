@@ -13,7 +13,6 @@ use App\Traits\ValidationTrait;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class Cart_Items_Service
 {
@@ -145,7 +144,14 @@ class Cart_Items_Service
         ]);
 
         if ($validator->fails()) {
-            throw new ValidationException($validator);
+            $errors = $validator->errors()->first();
+            throw new HttpResponseException(
+                response()->json([
+                    'successful' => false,
+                    'message' => $errors,
+                    'status_code' => 400,
+                ], 400)
+            );
         }
     }
 }

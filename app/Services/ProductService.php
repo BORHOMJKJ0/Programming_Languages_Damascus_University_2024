@@ -12,7 +12,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ProductService
 {
@@ -51,10 +50,16 @@ class ProductService
     public function createProduct(array $data): JsonResponse
     {
         try {
+            if (isset($data['store_id'])) {
+                return ResponseHelper::jsonResponse([], "You can't add Store the product immediately add to your store ", 403, false);
+            }
             $this->checkGuest('Product', 'create');
             $this->checkAdmin('Product', 'create');
             $this->validateProductData($data);
             $data['store_id'] = Store::where('user_id', auth()->id())->first()->id;
+            if (! $data['store_id']) {
+                return ResponseHelper::jsonResponse([], 'No store found for this user', 404, false);
+            }
             $product = $this->productRepository->create($data);
             $data = [
                 'Product' => ProductResource::make($product),
@@ -92,12 +97,14 @@ class ProductService
     public function updateProduct(Product $product, array $data)
     {
         try {
+            if (isset($data['store_id'])) {
+                return ResponseHelper::jsonResponse([], "You can't update store for this product ", 403, false);
+            }
             $this->checkGuest('Product', 'update');
             $this->validateProductData($data, 'sometimes');
             $this->checkAdmin('Product', 'update');
-            $this->checkOwnershipForProducts($product, 'Product', 'update');
+            $this->checkOwnership($product->store, 'Product', 'update');
             $product = $this->productRepository->update($product, $data);
-
             $data = [
                 'Product' => ProductResource::make($product),
             ];
@@ -114,7 +121,7 @@ class ProductService
         try {
             $this->checkGuest('Product', 'delete');
             $this->checkAdmin('Product', 'delete');
-            $this->checkOwnershipForProducts($product, 'Product', 'delete');
+            $this->checkOwnership($product->store, 'Product', 'delete');
             $this->productRepository->delete($product);
             $response = ResponseHelper::jsonResponse([], 'Product deleted successfully!');
         } catch (HttpResponseException $e) {
@@ -135,7 +142,14 @@ class ProductService
         ]);
 
         if ($validator->fails()) {
-            throw new ValidationException($validator);
+            $errors = $validator->errors()->first();
+            throw new HttpResponseException(
+                response()->json([
+                    'successful' => false,
+                    'message' => $errors,
+                    'status_code' => 400,
+                ], 400)
+            );
         }
     }
 }

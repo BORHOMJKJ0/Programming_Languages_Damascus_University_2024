@@ -24,7 +24,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('check_auth:api')->group(function () {
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);
-    Route::apiResource('images', ImageController::class);
     Route::apiResource('cart_items', CartItemsController::class);
     Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::post('/logout', 'logout')->name('users.logout');
@@ -33,9 +32,9 @@ Route::middleware('check_auth:api')->group(function () {
         Route::post('/resetPassword', 'resetPassword')->name('users.resetPassword');
     });
     Route::prefix('stores')->controller(StoreController::class)->group(function () {
-        Route::get('my/{store}', 'getMy');
+        Route::get('/my/{store}', 'getMy');
         Route::get('/order/{column}/{direction}', 'orderBy');
-        Route::post('/{image}', 'update');
+        Route::post('/{store}', 'update');
     });
 
     Route::prefix('products')->controller(ProductController::class)->group(function () {
@@ -48,10 +47,10 @@ Route::middleware('check_auth:api')->group(function () {
         Route::delete('/destroy/{product}', 'destroy');
     });
     Route::prefix('images')->controller(ImageController::class)->group(function () {
-        Route::get('/order/{column}/{direction}', 'orderBy');
-        Route::get('/my/order/{column}/{direction}', 'MyImagesOrderBy');
-        Route::get('/my/random', 'MyImages');
+        Route::get('/{image}', 'show');
+        Route::post('/', 'store');
         Route::post('/update/{image}', 'update');
+        Route::delete('/{image}', 'destroy');
     });
     Route::prefix('categories')->controller(CategoryController::class)->group(function () {
         Route::get('/', 'index');

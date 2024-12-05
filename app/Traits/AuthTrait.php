@@ -14,7 +14,7 @@ trait AuthTrait
         if ($model && $model->user_id !== $user->id) {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse([],
-                    "You are not authorized to {$action} this {$modelType}.",
+                    "You are not authorized to {$action} this {$modelType} . This {$modelType} isn't for you",
                     403, false)
             );
         }
@@ -26,7 +26,7 @@ trait AuthTrait
         if ($model && $model->store->user_id !== $user->id) {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse([],
-                    "You are not authorized to {$action} this {$modelType}.",
+                    "You are not authorized to {$action} this {$modelType} Because this isn't your product.",
                     403, false)
             );
         }

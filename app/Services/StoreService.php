@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Resources\Store\MyStoreResource;
 use App\Http\Resources\Store\StoreResource;
 use App\Models\Store\Store;
 use App\Repositories\StoreRepository;
@@ -12,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class StoreService
 {
@@ -56,14 +56,13 @@ class StoreService
         try {
             $this->checkOwnership($store, 'Store', 'perform');
             $this->checkAdmin('Store', 'perform');
-            $data = ['Store' => StoreResource::make($store)];
+            $data = ['Store' => MyStoreResource::make($store)];
             $response = ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
         }
 
         return $response;
-
     }
 
     public function getStoreById(Store $store)
@@ -85,7 +84,6 @@ class StoreService
         }
         $path = $request->file('image')->store('images', 'public');
         $data['image'] = $path;
-        $data['store_id'] = Store::where('user_id', auth()->id())->first()->id;
         $stores = $this->storeRepository->findByUserId();
         if ($stores->isEmpty()) {
             $this->validateStoreData($data);
@@ -131,13 +129,13 @@ class StoreService
     public function updateStore(Store $store, array $data)
     {
         try {
-            $this->checkGuest('Store', 'perform');
+            $this->checkGuest('Store', 'update');
             $this->checkOwnership($store, 'Store', 'update');
             $this->checkAdmin('Store', 'update');
             $this->validateStoreData($data, 'sometimes');
             if (isset($data['image'])) {
                 if ($store->image && Storage::disk('public')->exists($store->image)) {
-                    Storage::disk('public')->delete($product->image);
+                    Storage::disk('public')->delete($store->image);
                 }
                 $path = $data['image']->store('images', 'public');
                 $data['image'] = $path;
@@ -178,7 +176,14 @@ class StoreService
         ]);
 
         if ($validator->fails()) {
-            throw new ValidationException($validator);
+            $errors = $validator->errors()->first();
+            throw new HttpResponseException(
+                response()->json([
+                    'successful' => false,
+                    'message' => $errors,
+                    'status_code' => 400,
+                ], 400)
+            );
         }
     }
 }

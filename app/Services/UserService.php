@@ -146,7 +146,6 @@ class UserService
         //        $user->update([
         //            'fcm_token' => $inputs['fcm_token'],
         //        ]);
-        $this->
         $data = [
             'user' => UserResource::make($user),
             'role' => RoleResource::make($user->role),

@@ -12,7 +12,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ImageService
 {
@@ -23,51 +22,6 @@ class ImageService
     public function __construct(ImageRepository $imageRepository)
     {
         $this->imageRepository = $imageRepository;
-    }
-
-    public function getAllImages(Request $request)
-    {
-        try {
-            $page = $request->query('page', 1);
-            $items = $request->query('items', 20);
-            $this->checkGuest('Image', 'perform');
-            $images = $this->imageRepository->getAll($items, $page);
-            $hasMorePages = $images->hasMorePages();
-
-            $data = [
-                'Images' => ImageResource::collection($images),
-                'hasMorePages' => $hasMorePages,
-            ];
-
-            $response = ResponseHelper::jsonResponse($data, 'Images retrieved successfully');
-        } catch (HttpResponseException $e) {
-            $response = $e->getResponse();
-        }
-
-        return $response;
-    }
-
-    public function getMyImages(Request $request)
-    {
-        try {
-            $page = $request->query('page', 1);
-            $items = $request->query('items', 20);
-            $this->checkGuest('Image', 'perform');
-            $this->checkAdmin('Image', 'perform');
-            $images = $this->imageRepository->getMy($items, $page);
-            $hasMorePages = $images->hasMorePages();
-
-            $data = [
-                'Images' => ImageResource::collection($images),
-                'hasMorePages' => $hasMorePages,
-            ];
-
-            $response = ResponseHelper::jsonResponse($data, 'Images retrieved successfully');
-        } catch (HttpResponseException $e) {
-            $response = $e->getResponse();
-        }
-
-        return $response;
     }
 
     public function getImageById(Image $image)
@@ -121,61 +75,6 @@ class ImageService
         }
     }
 
-    public function getImagesOrderedBy($column, $direction, Request $request)
-    {
-        try {
-            $this->checkGuest('Image', 'order');
-            $validColumns = ['created_at', 'updated_at'];
-            $validDirections = ['asc', 'desc'];
-            if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
-                return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
-            }
-            $page = $request->query('page', 1);
-            $items = $request->query('items', 20);
-
-            $images = $this->imageRepository->orderBy($column, $direction, $page, $items);
-            $hasMorePages = $images->hasMorePages();
-            $data = [
-                'Images' => ImageResource::collection($images),
-                'hasMorePages' => $hasMorePages,
-            ];
-
-            $response = ResponseHelper::jsonResponse($data, 'Images ordered successfully!');
-        } catch (HttpResponseException $e) {
-            $response = $e->getResponse();
-        }
-
-        return $response;
-    }
-
-    public function getMyImagesOrderedBy($column, $direction, Request $request)
-    {
-        try {
-            $this->checkGuest('Image', 'order');
-            $this->checkAdmin('Image', 'order');
-            $validColumns = ['created_at', 'updated_at'];
-            $validDirections = ['asc', 'desc'];
-            if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
-                return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
-            }
-            $page = $request->query('page', 1);
-            $items = $request->query('items', 20);
-
-            $images = $this->imageRepository->orderMyBy($column, $direction, $page, $items);
-            $hasMorePages = $images->hasMorePages();
-            $data = [
-                'Images' => ImageResource::collection($images),
-                'hasMorePages' => $hasMorePages,
-            ];
-
-            $response = ResponseHelper::jsonResponse($data, 'Images ordered successfully!');
-        } catch (HttpResponseException $e) {
-            $response = $e->getResponse();
-        }
-
-        return $response;
-    }
-
     public function updateImage(Image $image, array $data)
     {
         try {
@@ -184,9 +83,10 @@ class ImageService
             if (isset($data['main'])) {
                 $data['main'] = filter_var($data['main'], FILTER_VALIDATE_BOOLEAN);
             }
-
+            $this->checkOwnership($image->product->store, 'Image', 'update');
             $this->validateImageData($data, 'sometimes');
-            $this->checkOwnershipForProducts($image->product, 'Image', 'update');
+            $product = Product::findOrFail($data['product_id']);
+            $this->checkOwnershipForProducts($product, 'Image', 'update');
 
             if (isset($data['image'])) {
                 if ($image->image && Storage::disk('public')->exists($image->image)) {
@@ -215,7 +115,7 @@ class ImageService
         try {
             $this->checkGuest('Image', 'delete');
             $this->checkAdmin('Image', 'delete');
-            $this->checkOwnershipForProducts($image->product, 'Image', 'delete');
+            $this->checkOwnership($image->product, 'Image', 'delete');
             $this->imageRepository->delete($image);
             $response = ResponseHelper::jsonResponse([], 'Image deleted successfully!');
         } catch (HttpResponseException $e) {
@@ -234,7 +134,14 @@ class ImageService
         ]);
 
         if ($validator->fails()) {
-            throw new ValidationException($validator);
+            $errors = $validator->errors()->first();
+            throw new HttpResponseException(
+                response()->json([
+                    'successful' => false,
+                    'message' => $errors,
+                    'status_code' => 400,
+                ], 400)
+            );
         }
     }
 }

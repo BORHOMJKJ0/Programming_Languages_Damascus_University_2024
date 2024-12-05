@@ -53,6 +53,9 @@ class CartService
         try {
             $this->checkGuest('Cart', 'update');
             $cart = Cart::where('user_id', auth()->id())->first();
+            if (! $cart) {
+                return ResponseHelper::jsonResponse([], 'No cart found for this user', 404, false);
+            }
             $this->checkOwnership($cart, 'Cart', 'update');
             $cart = $this->cartRepository->update($cart);
             $data = [
@@ -72,6 +75,9 @@ class CartService
         try {
             $this->checkGuest('Cart', 'delete');
             $cart = Cart::where('user_id', auth()->id())->first();
+            if (! $cart) {
+                return ResponseHelper::jsonResponse([], 'No cart found for this user', 404, false);
+            }
             $this->checkOwnership($cart, 'Cart', 'delete');
             $this->cartRepository->delete($cart);
             $response = ResponseHelper::jsonResponse([], 'Cart deleted successfully!');
