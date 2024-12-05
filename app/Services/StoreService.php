@@ -33,7 +33,7 @@ class StoreService
         try {
             $items = $request->query('items', 20);
             $page = $request->query('page', 1);
-            $this->checkGuest('Store', 'perform');
+            $this->checkGuest();
             $stores = $this->storeRepository->getAll($items, $page);
 
             $hasMorePages = $stores->hasMorePages();
@@ -67,7 +67,7 @@ class StoreService
 
     public function getStoreById(Store $store)
     {
-        $this->checkGuest('Store', 'perform');
+        $this->checkGuest();
         $data = ['Store' => StoreResource::make($store)];
 
         return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
@@ -75,7 +75,7 @@ class StoreService
 
     public function createStore(array $data, Request $request): JsonResponse
     {
-        $this->checkGuest('Store', 'create');
+        $this->checkGuest();
         $data['user_id'] = auth()->id();
         if (auth()->user()->role->role == 'user') {
             $this->userService->update_role(auth()->id(), 'admin');
@@ -102,7 +102,7 @@ class StoreService
     public function getStoresOrderedBy($column, $direction, Request $request)
     {
         try {
-            $this->checkGuest('Store', 'order');
+            $this->checkGuest();
             $validColumns = ['name', 'created_at', 'updated_at'];
             $validDirections = ['asc', 'desc'];
 
@@ -129,7 +129,7 @@ class StoreService
     public function updateStore(Store $store, array $data)
     {
         try {
-            $this->checkGuest('Store', 'update');
+            $this->checkGuest();
             $this->checkOwnership($store, 'Store', 'update');
             $this->checkAdmin('Store', 'update');
             $this->validateStoreData($data, 'sometimes');

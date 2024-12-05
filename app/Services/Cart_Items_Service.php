@@ -29,7 +29,7 @@ class Cart_Items_Service
     {
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);
-        $this->checkGuest('Cart_Item', 'perform');
+        $this->checkGuest();
         $cart_item = $this->cartItemsRepository->getAll($items, $page);
         $hasMorePages = $cart_item->hasMorePages();
 
@@ -45,7 +45,7 @@ class Cart_Items_Service
     {
         try {
             $cart = Cart::where('id', $cart_item->cart_id)->first();
-            $this->checkGuest('Cart_Item', 'show');
+            $this->checkGuest();
 
             $this->checkOwnership($cart, 'Cart_items', 'perform');
 
@@ -62,7 +62,7 @@ class Cart_Items_Service
     public function createCart_items(array $data)
     {
         try {
-            $this->checkGuest('Cart_Item', 'create');
+            $this->checkGuest();
             $this->validate_Cart_items_Data($data);
             $product = Product::where('id', $data['product_id'])->first();
             $this->checkAmount($data, $product);
@@ -78,7 +78,7 @@ class Cart_Items_Service
 
     public function getCart_items_OrderedBy($column, $direction, Request $request)
     {
-        $this->checkGuest('Cart_Item', 'order');
+        $this->checkGuest();
         $validColumns = ['quantity', 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
 
@@ -103,7 +103,7 @@ class Cart_Items_Service
     public function updateCart_items(Cart_items $cart_item, array $data)
     {
         try {
-            $this->checkGuest('Cart_Item', 'update');
+            $this->checkGuest();
             $this->validate_Cart_items_Data($data, 'sometimes');
             $cart = Cart::where('id', $cart_item->cart_id)->first();
             $this->checkOwnership($cart, 'Cart_items', 'update');
@@ -124,7 +124,7 @@ class Cart_Items_Service
     public function deleteCart_items(Cart_items $cart_item)
     {
         try {
-            $this->checkGuest('Cart_Item', 'delete');
+            $this->checkGuest();
             $cart = Cart::where('id', $cart_item->cart_id)->first();
             $this->checkOwnership($cart, 'Cart_items', 'delete');
             $this->cartItemsRepository->delete($cart_item);

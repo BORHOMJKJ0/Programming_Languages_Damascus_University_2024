@@ -50,16 +50,14 @@ class ProductService
     public function createProduct(array $data): JsonResponse
     {
         try {
-            if (isset($data['store_id'])) {
-                return ResponseHelper::jsonResponse([], "You can't add Store the product immediately add to your store ", 403, false);
-            }
-            $this->checkGuest('Product', 'create');
+            $this->checkGuest();
             $this->checkAdmin('Product', 'create');
             $this->validateProductData($data);
-            $data['store_id'] = Store::where('user_id', auth()->id())->first()->id;
-            if (! $data['store_id']) {
+            $store = Store::where('user_id', auth()->id())->first();
+            if (! $store) {
                 return ResponseHelper::jsonResponse([], 'No store found for this user', 404, false);
             }
+            $data['store_id'] = $store->id;
             $product = $this->productRepository->create($data);
             $data = [
                 'Product' => ProductResource::make($product),
@@ -97,10 +95,7 @@ class ProductService
     public function updateProduct(Product $product, array $data)
     {
         try {
-            if (isset($data['store_id'])) {
-                return ResponseHelper::jsonResponse([], "You can't update store for this product ", 403, false);
-            }
-            $this->checkGuest('Product', 'update');
+            $this->checkGuest();
             $this->validateProductData($data, 'sometimes');
             $this->checkAdmin('Product', 'update');
             $this->checkOwnership($product->store, 'Product', 'update');
@@ -119,7 +114,7 @@ class ProductService
     public function deleteProduct(Product $product)
     {
         try {
-            $this->checkGuest('Product', 'delete');
+            $this->checkGuest();
             $this->checkAdmin('Product', 'delete');
             $this->checkOwnership($product->store, 'Product', 'delete');
             $this->productRepository->delete($product);

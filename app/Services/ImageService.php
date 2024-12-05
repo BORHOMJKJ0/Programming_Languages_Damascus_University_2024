@@ -27,7 +27,7 @@ class ImageService
     public function getImageById(Image $image)
     {
         try {
-            $this->checkGuest('Image', 'perform');
+            $this->checkGuest();
             $data = ['Image' => ImageResource::make($image)];
 
             $response = ResponseHelper::jsonResponse($data, 'Image retrieved successfully!');
@@ -41,7 +41,7 @@ class ImageService
     public function createImage(array $data, Request $request)
     {
         try {
-            $this->checkGuest('Image', 'create');
+            $this->checkGuest();
             $this->checkAdmin('Image', 'create');
             if (isset($data['main'])) {
                 $data['main'] = filter_var($data['main'], FILTER_VALIDATE_BOOLEAN);
@@ -78,7 +78,7 @@ class ImageService
     public function updateImage(Image $image, array $data)
     {
         try {
-            $this->checkGuest('Image', 'update');
+            $this->checkGuest();
             $this->checkAdmin('Image', 'update');
             if (isset($data['main'])) {
                 $data['main'] = filter_var($data['main'], FILTER_VALIDATE_BOOLEAN);
@@ -113,7 +113,7 @@ class ImageService
     public function deleteImage(Image $image)
     {
         try {
-            $this->checkGuest('Image', 'delete');
+            $this->checkGuest();
             $this->checkAdmin('Image', 'delete');
             $this->checkOwnership($image->product, 'Image', 'delete');
             $this->imageRepository->delete($image);

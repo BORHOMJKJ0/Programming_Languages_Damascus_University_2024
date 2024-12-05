@@ -44,7 +44,7 @@ trait AuthTrait
         }
     }
 
-    public function checkGuest($modelType, $action)
+    public function checkGuest()
     {
         $user = auth()->user();
         if ($user->role->role === 'guest') {

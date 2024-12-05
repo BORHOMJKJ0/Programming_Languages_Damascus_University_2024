@@ -22,7 +22,7 @@ class FavoriteProductService
 
     public function index(Request $request): JsonResponse
     {
-        $this->checkGuest('FavoriteProducts', 'perform');
+        $this->checkGuest();
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);
 
@@ -39,7 +39,7 @@ class FavoriteProductService
 
     public function store($product_id): JsonResponse
     {
-        $this->checkGuest('FavoriteProducts', 'create');
+        $this->checkGuest();
         $user = $this->userRepository->findById(auth()->user()->id);
         $user->favoriteProducts()->attach($product_id);
 
@@ -48,7 +48,7 @@ class FavoriteProductService
 
     public function destroy($product_id): JsonResponse
     {
-        $this->checkGuest('FavoriteProducts', 'delete');
+        $this->checkGuest();
         $user = $this->userRepository->findById(auth()->user()->id);
         if (! $user->favoriteProducts()->where('product_id', $product_id)->exists()) {
             return ResponseHelper::jsonResponse([], 'This product is not in your favorites', 404, false);
