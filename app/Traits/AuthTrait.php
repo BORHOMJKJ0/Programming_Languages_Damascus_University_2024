@@ -47,7 +47,7 @@ trait AuthTrait
     public function checkGuest()
     {
         $user = auth()->user();
-        if ($user->role->role === 'guest') {
+        if ((! $user) || ($user->role->role === 'guest')) {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse([],
                     'This permission is not available for guests.',
