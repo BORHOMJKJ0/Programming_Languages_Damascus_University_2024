@@ -142,7 +142,7 @@ class UserService
         }
 
         $user = JWTAuth::user();
-        $this->cartService->createCart();
+        $this->cartService->createCart($user);
         //        $user->update([
         //            'fcm_token' => $inputs['fcm_token'],
         //        ]);

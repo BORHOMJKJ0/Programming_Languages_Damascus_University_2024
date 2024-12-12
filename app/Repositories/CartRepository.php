@@ -9,10 +9,10 @@ class CartRepository
 {
     use Lockable;
 
-    public function create()
+    public function create($user_id)
     {
         $data = [
-            'user_id' => auth()->id(),
+            'user_id' => $user_id,
         ];
 
         return $this->lockForCreate(function () use ($data) {

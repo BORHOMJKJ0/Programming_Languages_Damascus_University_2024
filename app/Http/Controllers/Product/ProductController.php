@@ -24,7 +24,7 @@ class ProductController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        return $this->productService->createProduct($request->all());
+        return $this->productService->createProduct($request->all(), $request);
     }
 
     public function show(Product $product): JsonResponse

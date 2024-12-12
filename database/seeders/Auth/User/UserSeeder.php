@@ -1,17 +1,17 @@
 <?php
 
-namespace Database\Seeders\User;
+namespace Database\Seeders\Auth\User;
 
-use App\Models\User\Role;
+use App\Models\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class RoleSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     public function run(): void
     {
         DB::transaction(function () {
-            Role::factory(10)->create();
+            User::factory(10)->create();
         });
     }
 }

@@ -56,15 +56,37 @@ trait AuthTrait
         }
     }
 
-    public function checkCart()
+    public function checkCart($user_id)
     {
-        $cart = Cart::where('user_id', auth()->id())->first();
+        $cart = Cart::where('user_id', $user_id)->first();
+
         if ($cart === null) {
-            throw new HttpResponseException(
-                ResponseHelper::jsonResponse([],
-                    'There is no cart ,Please login.',
-                    403, false)
-            );
+            if (auth()->user()->role->role === 'super_admin') {
+                throw new HttpResponseException(
+                    ResponseHelper::jsonResponse(
+                        [],
+                        'Mr.SuperAdmin : There is no cart for this user.',
+                        403,
+                        false
+                    )
+                );
+            } else {
+                throw new HttpResponseException(
+                    ResponseHelper::jsonResponse(
+                        [],
+                        'There is no cart, please login.',
+                        403,
+                        false
+                    )
+                );
+            }
         }
+
+        return $cart;
+    }
+
+    protected function checkSuperAdmin(): bool
+    {
+        return auth()->user() && auth()->user()->role->role === 'super_admin';
     }
 }

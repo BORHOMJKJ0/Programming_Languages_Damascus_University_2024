@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\Cart\CartResource;
 use App\Models\Cart\Cart;
+use App\Models\User\User;
 use App\Repositories\CartRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -20,24 +21,35 @@ class CartService
         $this->cartRepository = $cartRepository;
     }
 
-    public function getCartById()
+    public function getCartByUserId(?User $user)
     {
-        $this->checkGuest();
-        $cart = Cart::where('user_id', auth()->id())->first();
+        if (! $this->checkSuperAdmin()) {
+            $this->checkGuest();
+        }
+        $user = $this->checkSuperAdmin() ? $user ?? auth()->user() : auth()->user();
+
+        $cart = Cart::where('user_id', $user->id)->first();
         if (! $cart) {
-            return ResponseHelper::jsonResponse([], 'No cart found for the user Please login.', 404, false);
+            if (! $this->checkSuperAdmin()) {
+                return ResponseHelper::jsonResponse([], 'No cart found for the user Please login.', 404, false);
+            } else {
+                return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : please create cart for this user', 404, false);
+            }
         }
         $data = ['Cart' => CartResource::make($cart)];
 
         return ResponseHelper::jsonResponse($data, 'Cart retrieved successfully!');
     }
 
-    public function createCart()
+    public function createCart(?User $user)
     {
-        $this->checkGuest();
-        $carts = Cart::where('user_id', auth()->id())->get();
+        if (! $this->checkSuperAdmin()) {
+            $this->checkGuest();
+        }
+        $user = $this->checkSuperAdmin() ? $user ?? auth()->user() : auth()->user();
+        $carts = Cart::where('user_id', $user->id)->get();
         if ($carts->isEmpty()) {
-            $cart = $this->cartRepository->create();
+            $cart = $this->cartRepository->create($user->id);
             $data = [
                 'Cart' => CartResource::make($cart),
             ];
@@ -45,18 +57,28 @@ class CartService
             return ResponseHelper::jsonResponse($data, 'Cart created successfully!');
         }
 
-        return ResponseHelper::jsonResponse([], 'Cart created before');
+        return ResponseHelper::jsonResponse([], 'Cart created before', 403);
     }
 
-    public function updateCart()
+    public function updateCart(?User $user)
     {
         try {
-            $this->checkGuest();
-            $cart = Cart::where('user_id', auth()->id())->first();
-            if (! $cart) {
-                return ResponseHelper::jsonResponse([], 'No cart found for this user', 404, false);
+            $user = $this->checkSuperAdmin() ? $user ?? auth()->user() : auth()->user();
+            $cart = Cart::where('user_id', $user->id)->first();
+
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkOwnership($cart, 'Cart', 'update');
+
             }
-            $this->checkOwnership($cart, 'Cart', 'update');
+
+            if (! $cart) {
+                if (! $this->checkSuperAdmin()) {
+                    return ResponseHelper::jsonResponse([], 'No cart found for the user Please login.', 404, false);
+                } else {
+                    return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : please create cart for this user', 404, false);
+                }
+            }
             $cart = $this->cartRepository->update($cart);
             $data = [
                 'Cart' => CartResource::make($cart),
@@ -70,15 +92,23 @@ class CartService
         return $response;
     }
 
-    public function deleteCart()
+    public function deleteCart(?User $user)
     {
         try {
-            $this->checkGuest();
-            $cart = Cart::where('user_id', auth()->id())->first();
-            if (! $cart) {
-                return ResponseHelper::jsonResponse([], 'No cart found for this user', 404, false);
+            $user = $this->checkSuperAdmin() ? $user ?? auth()->user() : auth()->user();
+            $cart = Cart::where('user_id', $user->id)->first();
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkOwnership($cart, 'Cart', 'delete');
+
             }
-            $this->checkOwnership($cart, 'Cart', 'delete');
+            if (! $cart) {
+                if (! $this->checkSuperAdmin()) {
+                    return ResponseHelper::jsonResponse([], 'No cart found for the user Please login.', 404, false);
+                } else {
+                    return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : please create cart for this user', 404, false);
+                }
+            }
             $this->cartRepository->delete($cart);
             $response = ResponseHelper::jsonResponse([], 'Cart deleted successfully!');
         } catch (HttpResponseException $e) {
