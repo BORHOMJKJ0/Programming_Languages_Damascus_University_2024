@@ -27,7 +27,9 @@ class ImageService
     public function getImageById(Image $image)
     {
         try {
-            $this->checkGuest();
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+            }
             $data = ['Image' => ImageResource::make($image)];
 
             $response = ResponseHelper::jsonResponse($data, 'Image retrieved successfully!');
@@ -41,8 +43,12 @@ class ImageService
     public function createImage(array $data, Request $request)
     {
         try {
-            $this->checkGuest();
-            $this->checkAdmin('Image', 'create');
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Image', 'create');
+                $product = Product::findOrFail($data['product_id']);
+                $this->checkOwnershipForProducts($product, 'Image', 'update');
+            }
             if (isset($data['main'])) {
                 $data['main'] = filter_var($data['main'], FILTER_VALIDATE_BOOLEAN);
             }
@@ -51,9 +57,6 @@ class ImageService
 
             $path = $request->file('image')->store('images', 'public');
             $data['image'] = $path;
-
-            $product = Product::findOrFail($data['product_id']);
-            $this->checkOwnershipForProducts($product, 'Image', 'create');
 
             $hasMainImage = Image::where('product_id', $data['product_id'])
                 ->where('main', 1)
@@ -78,15 +81,18 @@ class ImageService
     public function updateImage(Image $image, array $data)
     {
         try {
-            $this->checkGuest();
-            $this->checkAdmin('Image', 'update');
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Image', 'update');
+                $this->checkOwnership($image->product->store, 'Image', 'update');
+                $product = Product::findOrFail($data['product_id']);
+                $this->checkOwnershipForProducts($product, 'Image', 'update');
+
+            }
             if (isset($data['main'])) {
                 $data['main'] = filter_var($data['main'], FILTER_VALIDATE_BOOLEAN);
             }
-            $this->checkOwnership($image->product->store, 'Image', 'update');
             $this->validateImageData($data, 'sometimes');
-            $product = Product::findOrFail($data['product_id']);
-            $this->checkOwnershipForProducts($product, 'Image', 'update');
 
             if (isset($data['image'])) {
                 if ($image->image && Storage::disk('public')->exists($image->image)) {
@@ -95,7 +101,14 @@ class ImageService
                 $path = $data['image']->store('images', 'public');
                 $data['image'] = $path;
             }
+            $product_id = $data['product_id'] ?? $image->product_id;
+            $hasMainImage = Image::where('product_id', $product_id)
+                ->where('main', 1)
+                ->exists();
 
+            if ($hasMainImage && isset($data['main']) && $data['main'] == 1) {
+                return ResponseHelper::jsonResponse([], 'This product already has a main image.', 400);
+            }
             $updatedImage = $this->imageRepository->update($image, $data);
 
             $data = [
@@ -113,9 +126,11 @@ class ImageService
     public function deleteImage(Image $image)
     {
         try {
-            $this->checkGuest();
-            $this->checkAdmin('Image', 'delete');
-            $this->checkOwnership($image->product, 'Image', 'delete');
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Image', 'delete');
+                $this->checkOwnershipForProducts($image->product, 'Image', 'delete');
+            }
             $this->imageRepository->delete($image);
             $response = ResponseHelper::jsonResponse([], 'Image deleted successfully!');
         } catch (HttpResponseException $e) {
@@ -127,6 +142,19 @@ class ImageService
 
     public function validateImageData(array $data, $rule = 'required')
     {
+        $allowedAttributes = ['image', 'main', 'product_id'];
+
+        $unexpectedAttributes = array_diff(array_keys($data), $allowedAttributes);
+        if (! empty($unexpectedAttributes)) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                    [],
+                    'You are not allowed to send the following attributes: '.implode(', ', $unexpectedAttributes),
+                    400,
+                    false
+                )
+            );
+        }
         $validator = Validator::make($data, [
             'image' => "$rule",
             'main' => "$rule",
@@ -136,11 +164,12 @@ class ImageService
         if ($validator->fails()) {
             $errors = $validator->errors()->first();
             throw new HttpResponseException(
-                response()->json([
-                    'successful' => false,
-                    'message' => $errors,
-                    'status_code' => 400,
-                ], 400)
+                ResponseHelper::jsonResponse(
+                    [],
+                    $errors,
+                    400,
+                    false
+                )
             );
         }
     }

@@ -9,11 +9,16 @@ class StoreFactory extends Factory
 {
     public function definition(): array
     {
+        $user = User::doesntHave('store')
+            ->where('id', '!=', 11)
+            ->inRandomOrder()
+            ->first();
+
         return [
             'name' => fake()->name,
-            'image' => fake()->imageUrl(200, 200),
+            'image' => fake()->optional()->imageUrl(200, 200),
             'location' => fake()->optional()->address,
-            'user_id' => User::all()->random()->id,
+            'user_id' => $user->id,
         ];
     }
 }

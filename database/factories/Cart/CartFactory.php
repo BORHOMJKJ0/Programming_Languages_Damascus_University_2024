@@ -9,8 +9,12 @@ class CartFactory extends Factory
 {
     public function definition(): array
     {
+        $user = User::doesntHave('cart')
+            ->inRandomOrder()
+            ->first();
+
         return [
-            'user_id' => User::all()->random()->id,
+            'user_id' => $user->id,
         ];
     }
 }

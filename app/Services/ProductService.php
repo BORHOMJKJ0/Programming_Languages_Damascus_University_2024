@@ -50,13 +50,25 @@ class ProductService
     public function createProduct(array $data): JsonResponse
     {
         try {
-            $this->checkGuest();
-            $this->checkAdmin('Product', 'create');
-            $this->validateProductData($data);
-            $store = Store::where('user_id', auth()->id())->first();
-            if (! $store) {
-                return ResponseHelper::jsonResponse([], 'No store found for this user', 404, false);
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Product', 'create');
             }
+            if (isset($data['store_id']) && $this->checkSuperAdmin()) {
+                $store = Store::where('id', $data['store_id'])->first();
+                if (! $store) {
+                    return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : No store found for this user', 404, false);
+                }
+                unset($data['store_id']);
+            } else {
+                $store = Store::where('user_id', auth()->id())->first();
+                if (! $store) {
+                    return ResponseHelper::jsonResponse([], "I don't have a store ): .", 404, false);
+
+                }
+            }
+            $this->validateProductData($data);
+
             $data['store_id'] = $store->id;
             $product = $this->productRepository->create($data);
             $data = [
@@ -73,11 +85,17 @@ class ProductService
 
     public function getProductsOrderedBy($column, $direction, Request $request)
     {
-        $validColumns = ['name', 'price', 'created_at', 'updated_at'];
+        $validColumns = ['name', 'price', 'description', 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
 
         if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
-            return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
+            return ResponseHelper::jsonResponse(
+                [],
+                'Invalid sort column or direction. Allowed columns: '.implode(', ', $validColumns).
+                '. Allowed directions: '.implode(', ', $validDirections).'.',
+                400,
+                false
+            );
         }
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);
@@ -95,10 +113,20 @@ class ProductService
     public function updateProduct(Product $product, array $data)
     {
         try {
-            $this->checkGuest();
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Product', 'update');
+                $this->checkOwnership($product->store, 'Product', 'update');
+            }
+            if (isset($data['store_id']) && $this->checkSuperAdmin()) {
+                $store = Store::where('id', $data['store_id'])->first();
+                if (! $store) {
+                    return ResponseHelper::jsonResponse([], 'No store found for this user', 404, false);
+                }
+                unset($data['store_id']);
+            }
             $this->validateProductData($data, 'sometimes');
-            $this->checkAdmin('Product', 'update');
-            $this->checkOwnership($product->store, 'Product', 'update');
+            $data['store_id'] = $store->id;
             $product = $this->productRepository->update($product, $data);
             $data = [
                 'Product' => ProductResource::make($product),
@@ -114,9 +142,11 @@ class ProductService
     public function deleteProduct(Product $product)
     {
         try {
-            $this->checkGuest();
-            $this->checkAdmin('Product', 'delete');
-            $this->checkOwnership($product->store, 'Product', 'delete');
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Product', 'delete');
+                $this->checkOwnership($product->store, 'Product', 'delete');
+            }
             $this->productRepository->delete($product);
             $response = ResponseHelper::jsonResponse([], 'Product deleted successfully!');
         } catch (HttpResponseException $e) {
@@ -128,6 +158,19 @@ class ProductService
 
     protected function validateProductData(array $data, $rule = 'required'): void
     {
+        $allowedAttributes = ['name', 'description', 'amount', 'price', 'category_id'];
+
+        $unexpectedAttributes = array_diff(array_keys($data), $allowedAttributes);
+        if (! empty($unexpectedAttributes)) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                    [],
+                    'You are not allowed to send the following attributes: '.implode(', ', $unexpectedAttributes),
+                    400,
+                    false
+                )
+            );
+        }
         $validator = Validator::make($data, [
             'name' => "$rule|unique:products,name",
             'description' => "$rule",
@@ -139,11 +182,12 @@ class ProductService
         if ($validator->fails()) {
             $errors = $validator->errors()->first();
             throw new HttpResponseException(
-                response()->json([
-                    'successful' => false,
-                    'message' => $errors,
-                    'status_code' => 400,
-                ], 400)
+                ResponseHelper::jsonResponse(
+                    [],
+                    $errors,
+                    400,
+                    false
+                )
             );
         }
     }

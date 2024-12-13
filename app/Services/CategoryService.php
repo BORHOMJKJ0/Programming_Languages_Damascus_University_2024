@@ -47,7 +47,13 @@ class CategoryService
         $validColumns = ['name', 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
         if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
-            return ResponseHelper::jsonResponse([], 'Invalid column or direction', 400, false);
+            return ResponseHelper::jsonResponse(
+                [],
+                'Invalid sort column or direction. Allowed columns: '.implode(', ', $validColumns).
+                '. Allowed directions: '.implode(', ', $validDirections).'.',
+                400,
+                false
+            );
         }
         $page = $request->query('page', 1);
         $items = $request->query('items', 20);

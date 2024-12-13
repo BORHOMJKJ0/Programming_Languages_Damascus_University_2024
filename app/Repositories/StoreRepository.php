@@ -14,9 +14,11 @@ class StoreRepository
         return Store::paginate($items, ['*'], 'page', $page);
     }
 
-    public function findByUserId()
+    public function findByUserId($user_id = null)
     {
-        return Store::where('user_id', auth()->id())->get();
+        $userId = $user_id ?? auth()->id();
+
+        return Store::where('user_id', $userId)->get();
     }
 
     public function orderBy($column, $direction, $page, $items)

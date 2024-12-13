@@ -23,29 +23,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::middleware('check_auth:api')->group(function () {
-    Route::apiResource('stores', StoreController::class);
-    Route::apiResource('products', ProductController::class);
-    Route::apiResource('cart_items', CartItemsController::class);
+    Route::prefix('stores')->controller(StoreController::class)->group(function () {
+        Route::get('/my', 'getMy');
+        Route::get('/order/{column}/{direction}', 'orderBy');
+        Route::post('/{store}', 'update');
+    });
     Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::post('/logout', 'logout')->name('users.logout');
         Route::get('/getProfile', 'getProfile')->name('users.getProfile');
         Route::post('/updateProfile', 'updateProfile')->name('users.updateProfile');
         Route::post('/resetPassword', 'resetPassword')->name('users.resetPassword');
     });
-    Route::prefix('stores')->controller(StoreController::class)->group(function () {
-        Route::get('/my/{store}', 'getMy');
-        Route::get('/order/{column}/{direction}', 'orderBy');
-        Route::post('/{store}', 'update');
-    });
-
     Route::prefix('products')->controller(ProductController::class)->group(function () {
         Route::post('/{product}', 'update');
         Route::get('/order/{column}/{direction}', 'orderBy');
     });
     Route::prefix('products/favorites')->controller(FavoriteProductController::class)->group(function () {
-        Route::get('/index', 'index');
-        Route::post('/store/{product}', 'store');
-        Route::delete('/destroy/{product}', 'destroy');
+        Route::get('/index/{user?}', 'index');
+        Route::post('/store/{product}/{user?}', 'store');
+        Route::delete('/destroy/{product}/{user?}', 'destroy');
     });
     Route::prefix('images')->controller(ImageController::class)->group(function () {
         Route::get('/{image}', 'show');
@@ -59,10 +55,10 @@ Route::middleware('check_auth:api')->group(function () {
         Route::get('/order/{column}/{direction}', 'orderBy');
     });
     Route::prefix('carts')->controller(CartController::class)->group(function () {
-        Route::get('/', 'show');
-        Route::post('/', 'store');
-        Route::put('/', 'update');
-        Route::delete('/', 'destroy');
+        Route::get('/{user?}', 'show');
+        Route::post('/{user?}', 'store');
+        Route::put('/{user?}', 'update');
+        Route::delete('/{user?}', 'destroy');
     });
     Route::prefix('cart_items')->controller(CartItemsController::class)->group(function () {
         Route::get('/order/{column}/{direction}', 'orderBy');
@@ -76,6 +72,9 @@ Route::middleware('check_auth:api')->group(function () {
             Route::get('/{store}', 'show');
         });
     });
+    Route::apiResource('stores', StoreController::class);
+    Route::apiResource('products', ProductController::class);
+    Route::apiResource('cart_items', CartItemsController::class);
 });
 
 Route::prefix('users')->controller(UserController::class)->group(function () {
