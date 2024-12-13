@@ -2,6 +2,8 @@
 
 namespace App\Models\Store;
 
+use App\Models\Order\Order;
+use App\Models\Order\Order_items;
 use App\Models\Product\Product;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,4 +24,26 @@ class Store extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function order_items()
+    {
+        return $this->hasManyThrough(
+            Order_items::class,
+            Product::class,
+            'store_id',
+            'product_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasManyThrough(
+            Order::class,
+            Product::class,
+            'store_id',
+            'id',
+            'id',
+            'product_id'
+        )->using(Order_items::class);
+    }
+
 }

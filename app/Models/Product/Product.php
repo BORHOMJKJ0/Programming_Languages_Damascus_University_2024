@@ -4,6 +4,7 @@ namespace App\Models\Product;
 
 use App\Models\Category\Category;
 use App\Models\Image\Image;
+use App\Models\Order\Order;
 use App\Models\Store\Store;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,11 @@ class Product extends Model
     public function store()
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class,'order_items');
     }
 
     public function images()

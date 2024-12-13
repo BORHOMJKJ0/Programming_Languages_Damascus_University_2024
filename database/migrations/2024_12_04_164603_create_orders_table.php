@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete()->restrictOnUpdate();
             $table->integer('total_amount')->default(0);
             $table->double('total_price')->default(0);
-            $table->enum('order_status', ['Pending', 'Shipped', 'Rejected', 'Delivered', 'Cancelled'])
+            $table->enum('order_status', ['Pending', 'Processing', 'Rejected', 'Delivered', 'Cancelled', 'Completed'])
                 ->default('Pending');
             $table->timestamps();
         });
