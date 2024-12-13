@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete()->restrictOnUpdate();
+            $table->integer('store_id');
             $table->integer('total_amount')->default(0);
             $table->double('total_price')->default(0);
             $table->enum('order_status', ['Pending', 'Processing', 'Rejected', 'Delivered', 'Cancelled', 'Completed'])

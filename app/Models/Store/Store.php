@@ -34,16 +34,4 @@ class Store extends Model
             'product_id');
     }
 
-    public function orders()
-    {
-        return $this->hasManyThrough(
-            Order::class,
-            Product::class,
-            'store_id',
-            'id',
-            'id',
-            'product_id'
-        )->using(Order_items::class);
-    }
-
 }

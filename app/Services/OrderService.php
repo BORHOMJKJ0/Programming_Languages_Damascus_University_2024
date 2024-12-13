@@ -39,6 +39,7 @@ class OrderService
             if (! isset($order_ids[$product->store_id])) {
                 $order = Order::create([
                     'user_id' => auth()->id(),
+                    'store_id' => $product->store_id,
                 ]);
                 $order_ids[$product->store_id] = $order->id;
             } else {
@@ -81,11 +82,12 @@ class OrderService
         $store = Store::where('id', $store_id)->first();
         $this->checkOwnership($store, 'Store', 'show orders of ');
 
-        $orders = $store->orders;
+        $orders = Order::where('store_id', $store->id)->get();
 
-        $orders = $store->orders()->with('products')->get();
-
-        return ResponseHelper::jsonResponse($orders);
+        $data = [
+            'orders' => OrderResource::collection($orders),
+        ];
+        return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
 }
