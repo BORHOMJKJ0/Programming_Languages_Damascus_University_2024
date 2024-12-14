@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\Order\editItemRequest;
 use App\Http\Resources\Order\Order_itemsResource;
 use App\Http\Resources\Order\OrderResource;
 use App\Models\Order\Order;
@@ -106,4 +107,51 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get order details successfully');
     }
 
+    public function edit($item_id, editItemRequest $request)
+    {
+        $inputs = $request->validated();
+
+        $item = Order_items::where('id', $item_id)->first();
+        if(!$item){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        if($item->order->user_id != auth()->id()){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t edit this item, this item not for you',
+                403,
+                false
+            );
+        }
+
+        $available_status = ['Pending', 'Preparing'];
+        if(!in_array($item->item_status, $available_status)){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t edit this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+        $product = $item->product;
+        if($inputs['quantity'] > $product->amount){
+            return ResponseHelper::jsonResponse(
+                [],
+                'not available quantity',
+                404,
+                false
+            );
+        }
+        $item->update([
+            'quantity' => $inputs['quantity'],
+            ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been edited');
+    }
 }

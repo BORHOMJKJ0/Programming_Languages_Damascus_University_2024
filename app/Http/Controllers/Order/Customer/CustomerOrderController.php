@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Order\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Order\editItemRequest;
 use App\Services\OrderService;
 
 class CustomerOrderController extends Controller
@@ -24,5 +25,9 @@ class CustomerOrderController extends Controller
         return $this->orderService->getAllMyOrders();
     }
 
+    public function edit($item_id, editItemRequest $request)
+    {
+        return $this->orderService->edit($item_id, $request);
+    }
 
 }

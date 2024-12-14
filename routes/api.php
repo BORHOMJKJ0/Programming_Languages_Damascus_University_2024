@@ -73,6 +73,7 @@ Route::middleware('check_auth:api')->group(function () {
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
             Route::get('/my','show');
+            Route::post('/edit/{item_id}','edit');
         });
         Route::controller(StoreOrderController::class)->group(function () {
             Route::get('/{store}', 'show');
