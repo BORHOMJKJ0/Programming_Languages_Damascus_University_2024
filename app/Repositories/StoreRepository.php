@@ -9,9 +9,9 @@ class StoreRepository
 {
     use Lockable;
 
-    public function getAll($items, $page)
+    public function getAll($items)
     {
-        return Store::paginate($items, ['*'], 'page', $page);
+        return Store::paginate($items);
     }
 
     public function findByUserId($user_id = null)
@@ -21,9 +21,9 @@ class StoreRepository
         return Store::where('user_id', $userId)->get();
     }
 
-    public function orderBy($column, $direction, $page, $items)
+    public function orderBy($column, $direction, $items)
     {
-        return Store::orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
+        return Store::orderBy($column, $direction)->paginate($items);
     }
 
     public function create(array $data)

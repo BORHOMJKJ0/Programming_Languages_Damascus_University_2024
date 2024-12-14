@@ -37,14 +37,14 @@ class Cart_Items_Service
             ? $validated['user_id']
             : auth()->id();
         $cart = $this->checkCart($user_id);
-        $page = $request->query('page', 1);
         $items = $request->query('items', 20);
-        $cart_item = $this->cartItemsRepository->getAll($items, $page, $user_id);
-        $hasMorePages = $cart_item->hasMorePages();
+        $cart_items = $this->cartItemsRepository->getAll($items, $user_id);
 
         $data = [
-            'Cart_items' => CartItemsResource::collection($cart_item),
-            'hasMorePages' => $hasMorePages,
+            'Cart_items' => CartItemsResource::collection($cart_items),
+            'total_pages' => $cart_items->lastPage(),
+            'current_page' => $cart_items->currentPage(),
+            'hasMorePages' => $cart_items->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Cart_items retrieved successfully!');
@@ -120,14 +120,14 @@ class Cart_Items_Service
             );
         }
 
-        $page = $request->query('page', 1);
         $items = $request->query('items', 20);
-        $cart_items = $this->cartItemsRepository->orderBy($column, $direction, $page, $items, $user_id);
-        $hasMorePages = $cart_items->hasMorePages();
+        $cart_items = $this->cartItemsRepository->orderBy($column, $direction, $items, $user_id);
 
         $data = [
             'Cart_items' => CartItemsResource::collection($cart_items),
-            'hasMorePages' => $hasMorePages,
+            'total_pages' => $cart_items->lastPage(),
+            'current_page' => $cart_items->currentPage(),
+            'hasMorePages' => $cart_items->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Cart_items ordered successfully');
@@ -196,7 +196,7 @@ class Cart_Items_Service
             );
         }
         $validator = Validator::make($data, [
-            'quantity' => "$rule",
+            'quantity' => "$rule|numeric|min:1",
             'product_id' => "$rule|exists:products,id",
         ]);
 

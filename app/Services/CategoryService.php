@@ -22,14 +22,14 @@ class CategoryService
 
     public function getAllCategories(Request $request)
     {
-        $page = $request->query('page', 1);
         $items = $request->query('items', 20);
-        $categories = $this->categoryRepository->getAll($items, $page);
-        $hasMorePages = $categories->hasMorePages();
+        $categories = $this->categoryRepository->getAll($items);
 
         $data = [
             'Categories' => CategoryResource::collection($categories),
-            'hasMorePages' => $hasMorePages,
+            'total_pages' => $categories->lastPage(),
+            'current_page' => $categories->currentPage(),
+            'hasMorePages' => $categories->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Categories retrieved successfully');
@@ -55,14 +55,14 @@ class CategoryService
                 false
             );
         }
-        $page = $request->query('page', 1);
         $items = $request->query('items', 20);
 
-        $products = $this->categoryRepository->orderBy($column, $direction, $page, $items);
-        $hasMorePages = $products->hasMorePages();
+        $categories = $this->categoryRepository->orderBy($column, $direction, $items);
         $data = [
-            'Categories' => CategoryResource::collection($products),
-            'hasMorePages' => $hasMorePages,
+            'Categories' => CategoryResource::collection($categories),
+            'total_pages' => $categories->lastPage(),
+            'current_page' => $categories->currentPage(),
+            'hasMorePages' => $categories->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Categories ordered successfully!');

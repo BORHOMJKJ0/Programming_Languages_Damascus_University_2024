@@ -27,14 +27,13 @@ class ProductService
     public function getAllProducts(Request $request)
     {
         $items = $request->query('items', 20);
-        $page = $request->query('page', 1);
-        $products = $this->productRepository->getAll($items, $page);
-
-        $hasMorePages = $products->hasMorePages();
+        $products = $this->productRepository->getAll($items);
 
         $data = [
             'Products' => ProductResource::collection($products),
-            'hasMorePages' => $hasMorePages,
+            'total_pages' => $products->lastPage(),
+            'current_page' => $products->currentPage(),
+            'hasMorePages' => $products->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Products retrieved successfully');
@@ -97,14 +96,14 @@ class ProductService
                 false
             );
         }
-        $page = $request->query('page', 1);
         $items = $request->query('items', 20);
 
-        $products = $this->productRepository->orderBy($column, $direction, $page, $items);
-        $hasMorePages = $products->hasMorePages();
+        $products = $this->productRepository->orderBy($column, $direction, $items);
         $data = [
             'Products' => ProductResource::collection($products),
-            'hasMorePages' => $hasMorePages,
+            'total_pages' => $products->lastPage(),
+            'current_page' => $products->currentPage(),
+            'hasMorePages' => $products->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Products ordered successfully!');
@@ -172,10 +171,10 @@ class ProductService
             );
         }
         $validator = Validator::make($data, [
-            'name' => "$rule|unique:products,name",
-            'description' => "$rule",
-            'amount' => "$rule",
-            'price' => "$rule",
+            'name' => "$rule|string|unique:products,name",
+            'description' => "$rule|string",
+            'amount' => "$rule|numeric|min:1",
+            'price' => "$rule|numeric|min:1",
             'category_id' => "$rule|exists:categories,id",
         ]);
 

@@ -9,28 +9,28 @@ class ImageRepository
 {
     use Lockable;
 
-    public function getAll($items, $page)
+    public function getAll($items)
     {
-        return Image::paginate($items, ['*'], 'page', $page);
+        return Image::paginate($items);
     }
 
-    public function getMy($items, $page)
+    public function getMy($items)
     {
         return Image::whereHas('product.store', function ($query) {
             $query->where('user_id', auth()->id());
-        })->paginate($items, ['*'], 'page', $page);
+        })->paginate($items);
     }
 
-    public function orderMyBy($column, $direction, $page, $items)
+    public function orderMyBy($column, $direction, $items)
     {
         return Image::whereHas('product.store', function ($query) {
             $query->where('user_id', auth()->id());
-        })->orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
+        })->orderBy($column, $direction)->paginate($items);
     }
 
-    public function orderBy($column, $direction, $page, $items)
+    public function orderBy($column, $direction, $items)
     {
-        return Image::orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
+        return Image::orderBy($column, $direction)->paginate($items);
     }
 
     public function create(array $data)

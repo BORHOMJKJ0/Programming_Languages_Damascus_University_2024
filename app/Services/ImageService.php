@@ -157,7 +157,7 @@ class ImageService
         }
         $validator = Validator::make($data, [
             'image' => "$rule",
-            'main' => "$rule",
+            'main' => "$rule|boolean",
             'product_id' => "$rule|exists:products,id",
         ]);
 

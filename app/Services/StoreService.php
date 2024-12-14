@@ -35,14 +35,13 @@ class StoreService
                 $this->checkGuest();
             }
             $items = $request->query('items', 20);
-            $page = $request->query('page', 1);
-            $stores = $this->storeRepository->getAll($items, $page);
-
-            $hasMorePages = $stores->hasMorePages();
+            $stores = $this->storeRepository->getAll($items);
 
             $data = [
                 'Stores' => StoreResource::collection($stores),
-                'hasMorePages' => $hasMorePages,
+                'total_pages' => $stores->lastPage(),
+                'current_page' => $stores->currentPage(),
+                'hasMorePages' => $stores->hasMorePages(),
             ];
             $response = ResponseHelper::jsonResponse($data, 'Stores retrieved successfully');
         } catch (HttpResponseException $e) {
@@ -145,13 +144,13 @@ class StoreService
                     false
                 );
             }
-            $page = $request->query('page', 1);
             $items = $request->query('items', 20);
-            $stores = $this->storeRepository->orderBy($column, $direction, $page, $items);
-            $hasMorePages = $stores->hasMorePages();
+            $stores = $this->storeRepository->orderBy($column, $direction, $items);
             $data = [
                 'Stores' => StoreResource::collection($stores),
-                'hasMorePages' => $hasMorePages,
+                'total_pages' => $stores->lastPage(),
+                'current_page' => $stores->currentPage(),
+                'hasMorePages' => $stores->hasMorePages(),
             ];
 
             $response = ResponseHelper::jsonResponse($data, 'Stores ordered successfully!');
@@ -223,9 +222,9 @@ class StoreService
             );
         }
         $validator = Validator::make($data, [
-            'name' => "$rule|unique:stores,name",
+            'name' => "$rule|string|unique:stores,name",
             'image' => 'sometimes|nullable',
-            'location' => 'sometimes|nullable',
+            'location' => 'sometimes|string|nullable',
             'user_id' => 'sometimes|exists:users,id',
         ]);
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Image\ImageController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Product\FavoriteProductController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::middleware('check_auth:api')->group(function () {
+    Route::get('/search/{model}', [SearchController::class, 'search']);
     Route::prefix('stores')->controller(StoreController::class)->group(function () {
         Route::get('/my', 'getMy');
         Route::get('/order/{column}/{direction}', 'orderBy');

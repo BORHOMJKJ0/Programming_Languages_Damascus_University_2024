@@ -12,7 +12,9 @@ class StoreResource extends JsonResource
     public function toArray(Request $request): array
     {
         $imageUrl = $this->image
-            ? config('app.url').'/storage/'.$this->image
+            ? (str_starts_with($this->image, 'https://via.placeholder.com')
+                ? $this->image
+                : config('app.url').'/storage/'.$this->image)
             : null;
         $data = [
             'id' => $this->id,

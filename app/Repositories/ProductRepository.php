@@ -9,14 +9,14 @@ class ProductRepository
 {
     use Lockable;
 
-    public function getAll($items, $page)
+    public function getAll($items)
     {
-        return Product::paginate($items, ['*'], 'page', $page);
+        return Product::paginate($items);
     }
 
-    public function orderBy($column, $direction, $page, $items)
+    public function orderBy($column, $direction, $items)
     {
-        return Product::orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
+        return Product::orderBy($column, $direction)->paginate($items);
     }
 
     public function create(array $data)

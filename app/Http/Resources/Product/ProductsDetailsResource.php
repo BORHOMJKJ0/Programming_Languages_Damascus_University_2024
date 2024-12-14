@@ -10,8 +10,10 @@ class ProductsDetailsResource extends JsonResource
     public function toArray(Request $request): array
     {
         $mainImage = $this->images->where('main', 1)->first() ?? $this->images->first();
-        $imageUrl = $mainImage && $mainImage->image
-            ? config('app.url').'/storage/'.$mainImage->image
+        $imageUrl = $this->image
+            ? (str_starts_with($this->image, 'https://via.placeholder.com')
+                ? $this->image
+                : config('app.url').'/storage/'.$this->image)
             : null;
 
         return [

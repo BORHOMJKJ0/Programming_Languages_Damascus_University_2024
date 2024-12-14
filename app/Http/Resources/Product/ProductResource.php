@@ -11,9 +11,11 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         $mainImage = $this->images->where('main', 1)->first() ?? $this->images->first();
-        $imageUrl = $mainImage && $mainImage->image
-                    ? config('app.url').'/storage/'.$mainImage->image
-                    : null;
+        $imageUrl = $this->image
+            ? (str_starts_with($this->image, 'https://via.placeholder.com')
+                ? $this->image
+                : config('app.url').'/storage/'.$this->image)
+            : null;
         $data = [
             'id' => $this->id,
             'name' => $this->name,
@@ -32,7 +34,11 @@ class ProductResource extends JsonResource
             $data['description'] = $this->description;
             unset($data['image']);
             $data['images'] = $this->images->map(function ($image) {
-                $imageUrl = config('app.url').'/storage/'.$image->image;
+                $imageUrl = $this->image
+                    ? (str_starts_with($this->image, 'https://via.placeholder.com')
+                        ? $this->image
+                        : config('app.url').'/storage/'.$this->image)
+                    : null;
 
                 return [
                     'id' => $image->id,

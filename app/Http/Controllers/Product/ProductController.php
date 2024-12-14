@@ -37,6 +37,11 @@ class ProductController extends Controller
         return $this->productService->getProductsOrderedBy($column, $direction, $request);
     }
 
+    public function search(Request $request): JsonResponse
+    {
+        return $this->productService->search($request->all());
+    }
+
     public function update(Request $request, Product $product): JsonResponse
     {
         return $this->productService->updateProduct($product, $request->all());

@@ -9,18 +9,18 @@ class CartItemsRepository
 {
     use Lockable;
 
-    public function getAll($items, $page, $user_id)
+    public function getAll($items, $user_id)
     {
         return Cart_items::whereHas('cart', function ($query) use ($user_id) {
             $query->where('user_id', $user_id);
-        })->paginate($items, ['*'], 'page', $page);
+        })->paginate($items);
     }
 
-    public function orderBy($column, $direction, $page, $items, $user_id)
+    public function orderBy($column, $direction, $items, $user_id)
     {
         return Cart_items::whereHas('cart', function ($query) use ($user_id) {
             $query->where('user_id', $user_id);
-        })->orderBy($column, $direction)->paginate($items, ['*'], 'page', $page);
+        })->orderBy($column, $direction)->paginate($items);
     }
 
     public function create(array $data)
