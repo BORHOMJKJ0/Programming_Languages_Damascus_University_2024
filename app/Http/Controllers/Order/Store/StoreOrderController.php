@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Order;
+namespace App\Http\Controllers\Order\Store;
 
 use App\Http\Controllers\Controller;
 use App\Services\OrderService;
 
-class OrderController extends Controller
+class StoreOrderController extends Controller
 {
     protected $orderService;
 
@@ -13,4 +13,10 @@ class OrderController extends Controller
     {
         $this->orderService = $orderService;
     }
+
+    public function show($store_id)
+    {
+        return $this->orderService->getAllStoreOrders($store_id);
+    }
+
 }
