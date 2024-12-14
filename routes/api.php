@@ -5,6 +5,7 @@ use App\Http\Controllers\Cart\CartItemsController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Image\ImageController;
 use App\Http\Controllers\Order\Customer\CustomerOrderController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\Store\StoreOrderController;
 use App\Http\Controllers\Product\FavoriteProductController;
 use App\Http\Controllers\Product\ProductController;
@@ -66,6 +67,9 @@ Route::middleware('check_auth:api')->group(function () {
         Route::get('/order/{column}/{direction}', 'orderBy');
     });
     Route::prefix('orders')->group(function () {
+        Route::controller(OrderController::class)->group(function () {
+            Route::get('/details/{order_id}','details');
+        });
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
             Route::get('/my','show');

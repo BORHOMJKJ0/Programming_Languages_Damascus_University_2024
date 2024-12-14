@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Resources\Order\Order_itemsResource;
 use App\Http\Resources\Order\OrderResource;
 use App\Models\Order\Order;
 use App\Models\Order\Order_items;
@@ -10,6 +11,7 @@ use App\Models\Store\Store;
 use App\Repositories\CartRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
+use function PHPUnit\Framework\isEmpty;
 
 class OrderService
 {
@@ -88,6 +90,20 @@ class OrderService
             'orders' => OrderResource::collection($orders),
         ];
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
+    }
+
+    public function details($order_id)
+    {
+        $order = Order::where('id', $order_id)->first();
+        if(!$order){
+            return ResponseHelper::jsonResponse([], 'Order not found',404, false);
+        }
+        $order_details = $order->items;
+        $data = [
+            'order' => OrderResource::make($order),
+            'order_details' => Order_itemsResource::collection($order_details),
+        ];
+        return ResponseHelper::jsonResponse($data, 'get order details successfully');
     }
 
 }

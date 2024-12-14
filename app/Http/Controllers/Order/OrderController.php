@@ -13,4 +13,9 @@ class OrderController extends Controller
     {
         $this->orderService = $orderService;
     }
+
+    public function details($order_id)
+    {
+        return $this->orderService->details($order_id);
+    }
 }
