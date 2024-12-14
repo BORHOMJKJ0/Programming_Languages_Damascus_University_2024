@@ -30,4 +30,9 @@ class CustomerOrderController extends Controller
         return $this->orderService->edit($item_id, $request);
     }
 
+    public function cancel($item_id)
+    {
+        return $this->orderService->cancel($item_id);
+    }
+
 }
