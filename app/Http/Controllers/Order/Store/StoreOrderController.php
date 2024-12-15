@@ -19,4 +19,9 @@ class StoreOrderController extends Controller
         return $this->orderService->getAllStoreOrders($store_id);
     }
 
+    public function accept($item_id)
+    {
+        return $this->orderService->accept($item_id);
+    }
+
 }

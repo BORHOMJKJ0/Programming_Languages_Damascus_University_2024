@@ -78,7 +78,8 @@ Route::middleware('check_auth:api')->group(function () {
             Route::delete('/delete/{item_id}', 'delete');
         });
         Route::controller(StoreOrderController::class)->group(function () {
-            Route::get('/{store}', 'show');
+            Route::get('/{store_id}', 'show');
+            Route::post('/accept/{item_id}', 'accept');
         });
     });
     Route::apiResource('stores', StoreController::class);
