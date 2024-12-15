@@ -29,4 +29,8 @@ class StoreOrderController extends Controller
         return $this->orderService->reject($item_id);
     }
 
+    public function ship($item_id)
+    {
+        return $this->orderService->ship($item_id);
+    }
 }
