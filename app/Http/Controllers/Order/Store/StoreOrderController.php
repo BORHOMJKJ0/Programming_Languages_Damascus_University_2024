@@ -33,4 +33,9 @@ class StoreOrderController extends Controller
     {
         return $this->orderService->ship($item_id);
     }
+
+    public function deliver($item_id)
+    {
+        return $this->orderService->deliver($item_id);
+    }
 }

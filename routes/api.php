@@ -82,6 +82,7 @@ Route::middleware('check_auth:api')->group(function () {
             Route::post('/accept/{item_id}', 'accept');
             Route::post('/reject/{item_id}','reject');
             Route::post('/ship/{item_id}', 'ship');
+            Route::post('/deliver/{item_id}', 'deliver');
         });
     });
     Route::apiResource('stores', StoreController::class);
