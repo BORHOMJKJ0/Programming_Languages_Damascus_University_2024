@@ -12,7 +12,6 @@ use App\Models\Store\Store;
 use App\Repositories\CartRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
-use function PHPUnit\Framework\isEmpty;
 
 class OrderService
 {
@@ -191,5 +190,40 @@ class OrderService
         ]);
 
         return ResponseHelper::jsonResponse([], 'The item has been cancelled');
+    }
+
+    public function deleteByCustomer($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if(!$item){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        if($item->order->user_id != auth()->id()){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t cancel this item, this item not for you',
+                403,
+                false
+            );
+        }
+
+        $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Delivered', 'Cancelled' ];
+        if(!in_array($item->item_status, $available_status)){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t delete this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+        $item->delete();
+
+        return ResponseHelper::jsonResponse([], 'The item has been deleted');
     }
 }
