@@ -282,4 +282,46 @@ class OrderService
 
         return ResponseHelper::jsonResponse([], 'The item has been accepted');
     }
+
+    public function reject($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if(!$item){
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        $product = $item->product;
+        if($product->store->user_id != auth()->id())
+        {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t accept this item, this item not for your store',
+                403,
+                false
+            );
+        }
+
+        if($item->item_status != 'Pending')
+        {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t accept this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+
+        $item->update([
+            'item_status' => 'Rejected',
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been rejected');
+    }
+
+
 }

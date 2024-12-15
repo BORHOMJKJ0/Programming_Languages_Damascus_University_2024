@@ -80,6 +80,7 @@ Route::middleware('check_auth:api')->group(function () {
         Route::controller(StoreOrderController::class)->group(function () {
             Route::get('/{store_id}', 'show');
             Route::post('/accept/{item_id}', 'accept');
+            Route::post('/reject/{item_id}','reject');
         });
     });
     Route::apiResource('stores', StoreController::class);
