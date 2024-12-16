@@ -32,7 +32,7 @@ class CustomerOrderController extends Controller
 
     public function cancel($item_id)
     {
-        return $this->orderService->cancel($item_id);
+        return $this->orderService->cancelByCustomer($item_id);
     }
 
     public function delete($item_id)

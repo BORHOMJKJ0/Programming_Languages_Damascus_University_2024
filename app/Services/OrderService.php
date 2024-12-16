@@ -158,7 +158,7 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
 
-    public function cancel($item_id)
+    public function cancelByCustomer($item_id)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -397,5 +397,43 @@ class OrderService
         ]);
 
         return ResponseHelper::jsonResponse([], 'The item has been Delivered');
+    }
+
+    public function cancelByStore($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if (! $item) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        $product = $item->product;
+        if ($product->store->user_id != auth()->id()) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t cancel this item, this item not for your store',
+                403,
+                false
+            );
+        }
+
+        if ($item->item_status != 'Preparing') {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t cancel this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+
+        $item->update([
+            'item_status' => 'Cancelled',
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been Cancelled');
     }
 }

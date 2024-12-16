@@ -38,4 +38,9 @@ class StoreOrderController extends Controller
     {
         return $this->orderService->deliver($item_id);
     }
+
+    public function cancel($item_id)
+    {
+        return $this->orderService->cancelByStore($item_id);
+    }
 }
