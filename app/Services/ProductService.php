@@ -277,25 +277,70 @@ class ProductService
 
     private function validateCreateProductRequest(Request $request): void
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'category_name' => 'required|string',
             'product_name' => 'required|string',
             'product_description' => 'required|string',
             'product_price' => 'required|numeric',
             'product_amount' => 'required|numeric',
             'store_id' => 'sometimes|exists:stores,id',
-            'images' => 'required|array',
+            'images' => 'sometimes|array',
             'images.*.image' => 'required_with:images|file',
             'images.*.main' => 'required_with:images|boolean',
         ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->first();
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                    [],
+                    $errors,
+                    400,
+                    false
+                )
+            );
+        }
+
+        $unexpectedAttributes = array_diff(array_keys($request->all()), [
+            'category_name', 'product_name', 'product_description',
+            'product_price', 'product_amount', 'store_id', 'images',
+        ]);
+
+        if (! empty($unexpectedAttributes)) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                    [],
+                    'You are not allowed to send the following attributes: '.implode(', ', $unexpectedAttributes),
+                    400,
+                    false
+                )
+            );
+        }
     }
 
     private function processProductImages(Request $request, Product $product): JsonResponse
     {
         $createdImages = [];
         $failedImages = [];
+        $images = $request->input('images', []);
+        $mainImageCount = 0;
 
-        foreach ($request->input('images') as $key => $imageData) {
+        foreach ($images as $key => $imageData) {
+            $isMain = isset($imageData['main']) ? filter_var($imageData['main'], FILTER_VALIDATE_BOOLEAN) : false;
+            if ($isMain) {
+                $mainImageCount++;
+            }
+        }
+
+        if (count($images) === 1 && $mainImageCount !== 1) {
+            return ResponseHelper::jsonResponse([], 'The single uploaded image must be marked as main.', 400, false);
+        }
+
+        if (count($images) > 1 && $mainImageCount !== 1) {
+            return ResponseHelper::jsonResponse([], 'Exactly one image must be marked as main when uploading multiple images.', 400, false);
+        }
+
+        foreach ($images as $key => $imageData) {
             try {
                 $imageFile = $request->file("images.$key.image");
                 if (! $imageFile || ! $imageFile->isValid()) {

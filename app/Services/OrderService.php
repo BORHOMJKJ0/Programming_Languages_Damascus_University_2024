@@ -34,32 +34,28 @@ class OrderService
         $items = $order->items;
 
         $status_of_items = [];
-        foreach ($items as $item)
-        {
+        foreach ($items as $item) {
             $status_of_items[] = $item->item_status;
         }
         $status_of_items = array_unique($status_of_items);
 
-        if(count($status_of_items) == 1)
-        {
+        if (count($status_of_items) == 1) {
             $order->update([
-                'order_status' => $status_of_items[0]
+                'order_status' => $status_of_items[0],
             ]);
-        }
-        else
-        {
+        } else {
             $processing = ['Pending', 'Preparing', 'Shipped'];
-            foreach ($status_of_items as $status_of_item)
-            {
-                if(in_array($status_of_item, $processing)){
+            foreach ($status_of_items as $status_of_item) {
+                if (in_array($status_of_item, $processing)) {
                     $order->update([
-                        'order_status' => 'Processing'
+                        'order_status' => 'Processing',
                     ]);
+
                     return;
                 }
             }
             $order->update([
-                'order_status' => 'Completed'
+                'order_status' => 'Completed',
             ]);
         }
     }
