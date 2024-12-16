@@ -172,7 +172,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t edit this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -218,7 +218,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t cancel this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -257,7 +257,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t delete this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -293,7 +293,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t accept this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -306,7 +306,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'not available quantity',
-                404,
+                422,
                 false
             );
         }
@@ -348,7 +348,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t reject this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -387,7 +387,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t ship this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -426,7 +426,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t deliver this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
@@ -465,7 +465,7 @@ class OrderService
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t cancel this item, item status is \''.$item->item_status.'\'',
-                404,
+                403,
                 false
             );
         }
