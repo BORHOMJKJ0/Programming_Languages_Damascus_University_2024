@@ -29,6 +29,41 @@ class OrderService
         return Order::find($order_id);
     }
 
+    public function refreshOrderStatus($order)
+    {
+        $items = $order->items;
+
+        $status_of_items = [];
+        foreach ($items as $item)
+        {
+            $status_of_items[] = $item->item_status;
+        }
+        $status_of_items = array_unique($status_of_items);
+
+        if(count($status_of_items) == 1)
+        {
+            $order->update([
+                'order_status' => $status_of_items[0]
+            ]);
+        }
+        else
+        {
+            $processing = ['Pending', 'Preparing', 'Shipped'];
+            foreach ($status_of_items as $status_of_item)
+            {
+                if(in_array($status_of_item, $processing)){
+                    $order->update([
+                        'order_status' => 'Processing'
+                    ]);
+                    return;
+                }
+            }
+            $order->update([
+                'order_status' => 'Completed'
+            ]);
+        }
+    }
+
     public function placeOrder(): JsonResponse
     {
         $cart = auth()->user()->cart;
@@ -95,9 +130,8 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
-    public function details($order_id)
+    public function details($order)
     {
-        $order = Order::where('id', $order_id)->first();
         if (! $order) {
             return ResponseHelper::jsonResponse([], 'Order not found', 404, false);
         }
@@ -192,6 +226,7 @@ class OrderService
         $item->update([
             'item_status' => 'Cancelled',
         ]);
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been cancelled');
     }
@@ -227,6 +262,7 @@ class OrderService
             );
         }
         $item->delete();
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been deleted');
     }
@@ -281,6 +317,7 @@ class OrderService
         $item->update([
             'item_status' => 'Preparing',
         ]);
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been accepted');
     }
@@ -319,6 +356,7 @@ class OrderService
         $item->update([
             'item_status' => 'Rejected',
         ]);
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been rejected');
     }
@@ -357,6 +395,7 @@ class OrderService
         $item->update([
             'item_status' => 'Shipped',
         ]);
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been shipped');
     }
@@ -395,6 +434,7 @@ class OrderService
         $item->update([
             'item_status' => 'Delivered',
         ]);
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been Delivered');
     }
@@ -433,6 +473,7 @@ class OrderService
         $item->update([
             'item_status' => 'Cancelled',
         ]);
+        $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been Cancelled');
     }

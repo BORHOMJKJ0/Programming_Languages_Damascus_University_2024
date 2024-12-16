@@ -18,7 +18,9 @@ return new class extends Migration
             $table->integer('store_id');
             $table->integer('total_amount')->default(0);
             $table->double('total_price')->default(0);
-            $table->enum('order_status', ['Pending', 'Processing', 'Rejected', 'Delivered', 'Cancelled', 'Completed'])
+            $table->enum('order_status',
+                ['Pending', 'Preparing', 'Shipped', 'Not Available',
+                    'Rejected', 'Delivered', 'Cancelled', 'Processing', 'Completed'])
                 ->default('Pending');
             $table->timestamps();
         });
