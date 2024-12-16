@@ -12,17 +12,18 @@ use App\Models\Store\Store;
 use App\Repositories\CartRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
-use function PHPUnit\Framework\isEmpty;
 
 class OrderService
 {
     use AuthTrait;
+
     protected $cartRepository;
 
-
-    public function __construct(CartRepository $cartRepository){
+    public function __construct(CartRepository $cartRepository)
+    {
         $this->cartRepository = $cartRepository;
     }
+
     public function findOrderById($order_id)
     {
         return Order::find($order_id);
@@ -31,8 +32,8 @@ class OrderService
     public function placeOrder(): JsonResponse
     {
         $cart = auth()->user()->cart;
-        if($cart->cart_items->isEmpty()){
-            return ResponseHelper::jsonResponse([], 'Your cart is empty',400, false);
+        if ($cart->cart_items->isEmpty()) {
+            return ResponseHelper::jsonResponse([], 'Your cart is empty', 400, false);
         }
         $cart_items = $cart->cart_items;
 
@@ -90,20 +91,22 @@ class OrderService
         $data = [
             'orders' => OrderResource::collection($orders),
         ];
+
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
     public function details($order_id)
     {
         $order = Order::where('id', $order_id)->first();
-        if(!$order){
-            return ResponseHelper::jsonResponse([], 'Order not found',404, false);
+        if (! $order) {
+            return ResponseHelper::jsonResponse([], 'Order not found', 404, false);
         }
         $order_details = $order->items;
         $data = [
             'order' => OrderResource::make($order),
             'order_details' => Order_itemsResource::collection($order_details),
         ];
+
         return ResponseHelper::jsonResponse($data, 'get order details successfully');
     }
 
@@ -112,7 +115,7 @@ class OrderService
         $inputs = $request->validated();
 
         $item = Order_items::where('id', $item_id)->first();
-        if(!$item){
+        if (! $item) {
             return ResponseHelper::jsonResponse(
                 [],
                 'Item not found',
@@ -121,7 +124,7 @@ class OrderService
             );
         }
 
-        if($item->order->user_id != auth()->id()){
+        if ($item->order->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t edit this item, this item not for you',
@@ -131,7 +134,7 @@ class OrderService
         }
 
         $available_status = ['Pending', 'Preparing'];
-        if(!in_array($item->item_status, $available_status)){
+        if (! in_array($item->item_status, $available_status)) {
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t edit this item, item status is \''.$item->item_status.'\'',
@@ -140,7 +143,7 @@ class OrderService
             );
         }
         $product = $item->product;
-        if($inputs['quantity'] > $product->amount){
+        if ($inputs['quantity'] > $product->amount) {
             return ResponseHelper::jsonResponse(
                 [],
                 'not available quantity',
@@ -150,7 +153,7 @@ class OrderService
         }
         $item->update([
             'quantity' => $inputs['quantity'],
-            ]);
+        ]);
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
@@ -158,7 +161,7 @@ class OrderService
     public function cancel($item_id)
     {
         $item = Order_items::where('id', $item_id)->first();
-        if(!$item){
+        if (! $item) {
             return ResponseHelper::jsonResponse(
                 [],
                 'Item not found',
@@ -167,7 +170,7 @@ class OrderService
             );
         }
 
-        if($item->order->user_id != auth()->id()){
+        if ($item->order->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t cancel this item, this item not for you',
@@ -177,7 +180,7 @@ class OrderService
         }
 
         $available_status = ['Pending', 'Preparing'];
-        if(!in_array($item->item_status, $available_status)){
+        if (! in_array($item->item_status, $available_status)) {
             return ResponseHelper::jsonResponse(
                 [],
                 'Can\'t cancel this item, item status is \''.$item->item_status.'\'',

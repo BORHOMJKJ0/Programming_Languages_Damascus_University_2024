@@ -20,7 +20,7 @@ class OrderResource extends JsonResource
             'store' => Store::where('id', $this->store_id)->first(),
             'total_price' => $this->total_price,
             'total_amount' => $this->total_amount,
-            'order_status' => $this->order_status
+            'order_status' => $this->order_status,
         ];
     }
 }

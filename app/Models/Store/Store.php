@@ -2,7 +2,6 @@
 
 namespace App\Models\Store;
 
-use App\Models\Order\Order;
 use App\Models\Order\Order_items;
 use App\Models\Product\Product;
 use App\Models\User\User;
@@ -33,5 +32,4 @@ class Store extends Model
             'store_id',
             'product_id');
     }
-
 }

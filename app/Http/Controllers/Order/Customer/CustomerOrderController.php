@@ -34,5 +34,4 @@ class CustomerOrderController extends Controller
     {
         return $this->orderService->cancel($item_id);
     }
-
 }

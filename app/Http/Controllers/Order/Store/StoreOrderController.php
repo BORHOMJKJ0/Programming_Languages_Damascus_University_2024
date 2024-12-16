@@ -18,5 +18,4 @@ class StoreOrderController extends Controller
     {
         return $this->orderService->getAllStoreOrders($store_id);
     }
-
 }

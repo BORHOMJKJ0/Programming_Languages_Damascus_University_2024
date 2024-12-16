@@ -11,11 +11,7 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         $mainImage = $this->images->where('main', 1)->first() ?? $this->images->first();
-        $imageUrl = $this->image
-            ? (str_starts_with($this->image, 'https://via.placeholder.com')
-                ? $this->image
-                : config('app.url').'/storage/'.$this->image)
-            : null;
+        $imageUrl = $this->getImageUrl($mainImage);
         $data = [
             'id' => $this->id,
             'name' => $this->name,
@@ -25,7 +21,7 @@ class ProductResource extends JsonResource
             ] : null,
             'amount' => $this->amount,
             'price' => $this->price,
-            'isFavorite' => $this->favorites()->where(['user_id' => auth()->id(), 'product_id' => $this->id])->exists() ? 1 : 0,
+            'isFavorite' => $this->isFavorite(),
             'store' => StoreResource::make($this->store),
             'category' => $this->category->name,
         ];
@@ -34,19 +30,30 @@ class ProductResource extends JsonResource
             $data['description'] = $this->description;
             unset($data['image']);
             $data['images'] = $this->images->map(function ($image) {
-                $imageUrl = $this->image
-                    ? (str_starts_with($this->image, 'https://via.placeholder.com')
-                        ? $this->image
-                        : config('app.url').'/storage/'.$this->image)
-                    : null;
 
                 return [
                     'id' => $image->id,
-                    'image' => $imageUrl,
+                    'image' => $this->getImageUrl($image),
                 ];
             });
         }
 
         return $data;
+    }
+
+    private function getImageUrl($image): ?string
+    {
+        if ($image) {
+            return str_starts_with($image->image, 'https://via.placeholder.com')
+                ? $image->image
+                : config('app.url').'/storage/'.$image->image;
+        }
+
+        return null;
+    }
+
+    private function isFavorite(): int
+    {
+        return $this->favorites()->where('user_id', auth()->id())->exists() ? 1 : 0;
     }
 }

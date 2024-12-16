@@ -24,7 +24,12 @@ class ProductController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        return $this->productService->createProduct($request->all(), $request);
+        return $this->productService->createProduct($request->all());
+    }
+
+    public function create_product_with_images(Request $request): JsonResponse
+    {
+        return $this->productService->create_product_with_details($request);
     }
 
     public function show(Product $product): JsonResponse
@@ -35,11 +40,6 @@ class ProductController extends Controller
     public function orderBy($column, $direction, Request $request): JsonResponse
     {
         return $this->productService->getProductsOrderedBy($column, $direction, $request);
-    }
-
-    public function search(Request $request): JsonResponse
-    {
-        return $this->productService->search($request->all());
     }
 
     public function update(Request $request, Product $product): JsonResponse
