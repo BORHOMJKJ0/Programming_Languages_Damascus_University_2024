@@ -202,7 +202,7 @@ class ProductService
         }
     }
 
-    public function create_product_with_details(Request $request): JsonResponse
+    public function create_product_with_images(Request $request): JsonResponse
     {
         $this->validateCreateProductRequest($request);
 

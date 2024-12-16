@@ -29,7 +29,7 @@ class ProductController extends Controller
 
     public function create_product_with_images(Request $request): JsonResponse
     {
-        return $this->productService->create_product_with_details($request);
+        return $this->productService->create_product_with_images($request);
     }
 
     public function show(Product $product): JsonResponse

@@ -195,4 +195,207 @@ class OrderService
 
         return ResponseHelper::jsonResponse([], 'The item has been cancelled');
     }
+
+    public function deleteByCustomer($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if (! $item) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        if ($item->order->user_id != auth()->id()) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t delete this item, this item not for you',
+                403,
+                false
+            );
+        }
+
+        $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Delivered', 'Cancelled'];
+        if (! in_array($item->item_status, $available_status)) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t delete this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+        $item->delete();
+
+        return ResponseHelper::jsonResponse([], 'The item has been deleted');
+    }
+
+    public function accept($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if (! $item) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        $product = $item->product;
+        if ($product->store->user_id != auth()->id()) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t accept this item, this item not for your store',
+                403,
+                false
+            );
+        }
+
+        if ($item->item_status != 'Pending') {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t accept this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+
+        if ($item->quantity > $product->amount) {
+            $item->update([
+                'item_status' => 'Not Available',
+            ]);
+
+            return ResponseHelper::jsonResponse(
+                [],
+                'not available quantity',
+                404,
+                false
+            );
+        }
+
+        $product->update([
+            'amount' => $product->amount - $item->quantity,
+        ]);
+        $item->update([
+            'item_status' => 'Preparing',
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been accepted');
+    }
+
+    public function reject($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if (! $item) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        $product = $item->product;
+        if ($product->store->user_id != auth()->id()) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t reject this item, this item not for your store',
+                403,
+                false
+            );
+        }
+
+        if ($item->item_status != 'Pending') {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t reject this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+
+        $item->update([
+            'item_status' => 'Rejected',
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been rejected');
+    }
+
+    public function ship($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if (! $item) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        $product = $item->product;
+        if ($product->store->user_id != auth()->id()) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t ship this item, this item not for your store',
+                403,
+                false
+            );
+        }
+
+        if ($item->item_status != 'Preparing') {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t ship this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+
+        $item->update([
+            'item_status' => 'Shipped',
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been shipped');
+    }
+
+    public function deliver($item_id)
+    {
+        $item = Order_items::where('id', $item_id)->first();
+        if (! $item) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Item not found',
+                404,
+                false
+            );
+        }
+
+        $product = $item->product;
+        if ($product->store->user_id != auth()->id()) {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t deliver this item, this item not for your store',
+                403,
+                false
+            );
+        }
+
+        if ($item->item_status != 'Shipped') {
+            return ResponseHelper::jsonResponse(
+                [],
+                'Can\'t deliver this item, item status is \''.$item->item_status.'\'',
+                404,
+                false
+            );
+        }
+
+        $item->update([
+            'item_status' => 'Delivered',
+        ]);
+
+        return ResponseHelper::jsonResponse([], 'The item has been Delivered');
+    }
 }
