@@ -10,11 +10,7 @@ class ProductsDetailsResource extends JsonResource
     public function toArray(Request $request): array
     {
         $mainImage = $this->images->where('main', 1)->first() ?? $this->images->first();
-        $imageUrl = $this->image
-            ? (str_starts_with($this->image, 'https://via.placeholder.com')
-                ? $this->image
-                : config('app.url').'/storage/'.$this->image)
-            : null;
+        $imageUrl = $this->getImageUrl($mainImage);
 
         return [
             'id' => $this->id,
@@ -28,5 +24,16 @@ class ProductsDetailsResource extends JsonResource
             'price' => $this->price,
             'amount' => $this->amount,
         ];
+    }
+
+    private function getImageUrl($image): ?string
+    {
+        if ($image) {
+            return str_starts_with($image->image, 'https://via.placeholder.com')
+                ? $image->image
+                : config('app.url').'/storage/'.$image->image;
+        }
+
+        return null;
     }
 }
