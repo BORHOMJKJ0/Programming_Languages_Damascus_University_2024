@@ -13,7 +13,13 @@ class ProductsNamesResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'isFavorite' => $this->isFavorite(),
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
         ];
+    }
+
+    private function isFavorite(): int
+    {
+        return $this->favorites()->where('user_id', auth()->id())->exists() ? 1 : 0;
     }
 }

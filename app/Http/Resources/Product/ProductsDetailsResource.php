@@ -21,6 +21,7 @@ class ProductsDetailsResource extends JsonResource
                 'id' => $mainImage->id,
                 'image' => $imageUrl ?? null,
             ] : null,
+            'isFavorite' => $this->isFavorite(),
             'category' => $lang === 'ar' ? $this->category->name_ar : $this->category->name_en,
             'description' => $lang === 'ar' ? $this->description_ar : $this->description_en,
             'price' => $this->price,
@@ -37,5 +38,10 @@ class ProductsDetailsResource extends JsonResource
         }
 
         return null;
+    }
+
+    private function isFavorite(): int
+    {
+        return $this->favorites()->where('user_id', auth()->id())->exists() ? 1 : 0;
     }
 }
