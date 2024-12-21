@@ -40,8 +40,4 @@ class ProductsDetailsResource extends JsonResource
         return null;
     }
 
-    private function isFavorite(): int
-    {
-        return $this->favorites()->where('user_id', auth()->id())->exists() ? 1 : 0;
-    }
 }

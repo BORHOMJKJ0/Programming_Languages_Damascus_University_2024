@@ -18,8 +18,4 @@ class ProductsNamesResource extends JsonResource
         ];
     }
 
-    private function isFavorite(): int
-    {
-        return $this->favorites()->where('user_id', auth()->id())->exists() ? 1 : 0;
-    }
 }
