@@ -44,7 +44,9 @@ class CategoryService
 
     public function getCategoriesOrderedBy($column, $direction, Request $request)
     {
-        $validColumns = ['name', 'created_at', 'updated_at'];
+        $lang = $request->header('lang', 'en');
+        $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
+        $validColumns = [$nameColumn, 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
         if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
             return ResponseHelper::jsonResponse(

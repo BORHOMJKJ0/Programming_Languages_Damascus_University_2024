@@ -9,9 +9,11 @@ class ProductsNamesResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $lang = $request->header('lang', 'en');
+
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
         ];
     }
 }

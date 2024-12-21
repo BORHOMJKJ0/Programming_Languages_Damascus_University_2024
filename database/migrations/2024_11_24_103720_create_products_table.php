@@ -12,8 +12,10 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->longText('description');
+            $table->string('name_ar');
+            $table->string('name_en');
+            $table->string('description_ar');
+            $table->string('description_en');
             $table->double('price');
             $table->integer('amount');
             $table->foreignIdFor(Category::class)->constrained()->cascadeOnUpdate()->cascadeOnDelete();

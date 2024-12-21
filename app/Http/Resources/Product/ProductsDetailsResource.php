@@ -9,18 +9,20 @@ class ProductsDetailsResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $lang = $request->header('lang', 'en');
+
         $mainImage = $this->images->where('main', 1)->first() ?? $this->images->first();
         $imageUrl = $this->getImageUrl($mainImage);
 
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
             'image' => $mainImage ? [
                 'id' => $mainImage->id,
                 'image' => $imageUrl ?? null,
             ] : null,
-            'category' => $this->category->name,
-            'description' => $this->description,
+            'category' => $lang === 'ar' ? $this->category->name_ar : $this->category->name_en,
+            'description' => $lang === 'ar' ? $this->description_ar : $this->description_en,
             'price' => $this->price,
             'amount' => $this->amount,
         ];

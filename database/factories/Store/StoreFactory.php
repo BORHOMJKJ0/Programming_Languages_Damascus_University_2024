@@ -13,9 +13,11 @@ class StoreFactory extends Factory
             ->where('id', '!=', 11)
             ->inRandomOrder()
             ->first();
+        $faker = \Faker\Factory::create('ar_SA');
 
         return [
-            'name' => fake()->name,
+            'name_en' => fake()->company(),
+            'name_ar' => $faker->company(),
             'image' => fake()->optional()->imageUrl(200, 200),
             'location' => fake()->optional()->address,
             'user_id' => $user->id,

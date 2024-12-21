@@ -107,7 +107,7 @@ class StoreService
         $path = $request->hasFile('image') ? $request->file('image')->store('images', 'public') : null;
         $data['image'] = $path;
 
-        $stores = $this->storeRepository->findByUserId();
+        $stores = $this->storeRepository->findByUserId($data['user_id']);
         if ($stores->isEmpty()) {
             $this->validateStoreData($data);
             $store = $this->storeRepository->create($data);
@@ -132,7 +132,9 @@ class StoreService
             if (! $this->checkSuperAdmin()) {
                 $this->checkGuest();
             }
-            $validColumns = ['name', 'location', 'created_at', 'updated_at'];
+            $lang = $request->header('lang', 'en');
+            $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
+            $validColumns = [$nameColumn, 'location', 'created_at', 'updated_at'];
             $validDirections = ['asc', 'desc'];
 
             if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
@@ -208,7 +210,7 @@ class StoreService
 
     public function validateStoreData(array $data, $rule = 'required'): void
     {
-        $allowedAttributes = ['name', 'image', 'location', 'user_id'];
+        $allowedAttributes = ['name_ar', 'name_en', 'image', 'location', 'user_id'];
 
         $unexpectedAttributes = array_diff(array_keys($data), $allowedAttributes);
         if (! empty($unexpectedAttributes)) {
@@ -222,7 +224,8 @@ class StoreService
             );
         }
         $validator = Validator::make($data, [
-            'name' => "$rule|string|unique:stores,name",
+            'name_en' => "$rule|string|unique:stores,name_en",
+            'name_ar' => "$rule|string|unique:stores,name_ar",
             'image' => 'sometimes|nullable',
             'location' => 'sometimes|string|nullable',
             'user_id' => 'sometimes|exists:users,id',

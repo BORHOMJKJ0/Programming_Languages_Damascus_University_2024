@@ -11,6 +11,7 @@ class MyStoreResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $lang = $request->header('lang', 'en');
         $imageUrl = $this->image
             ? (str_starts_with($this->image, 'https://via.placeholder.com')
                 ? $this->image
@@ -20,7 +21,7 @@ class MyStoreResource extends JsonResource
         return [
             'id' => $this->id,
             'image' => $imageUrl,
-            'name' => $this->name,
+            'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
             'location' => $this->location,
             'user' => UserNameResource::make($this->user),
             'products' => ProductsDetailsResource::collection($this->products),

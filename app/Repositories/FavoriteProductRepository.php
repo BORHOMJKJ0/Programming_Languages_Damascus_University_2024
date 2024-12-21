@@ -23,7 +23,7 @@ class FavoriteProductRepository
 
     public function delete($user, $product)
     {
-        return $this->lockForDelete(User::class, $user->id, function ($user, $product) {
+        return $this->lockForDelete(User::class, $user->id, function ($user) use ($product) {
             return $user->favoriteProducts()->detach($product->id);
         });
     }

@@ -95,7 +95,10 @@ class ProductService
 
     public function getProductsOrderedBy($column, $direction, Request $request)
     {
-        $validColumns = ['name', 'price', 'description', 'created_at', 'updated_at'];
+        $lang = $request->header('lang', 'en');
+        $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
+        $descriptionColumn = $lang === 'ar' ? 'description_ar' : 'description_en';
+        $validColumns = [$nameColumn, 'price', $descriptionColumn, 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
 
         if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {
@@ -123,6 +126,7 @@ class ProductService
     public function updateProduct(Product $product, array $data)
     {
         try {
+            $store = $product->store;
             if (! $this->checkSuperAdmin()) {
                 $this->checkGuest();
                 $this->checkAdmin('Product', 'update');
@@ -168,7 +172,7 @@ class ProductService
 
     protected function validateProductData(array $data, $rule = 'required'): void
     {
-        $allowedAttributes = ['name', 'description', 'amount', 'price', 'category_id'];
+        $allowedAttributes = ['name_ar', 'name_en', 'description_ar', 'description_en', 'amount', 'price', 'category_id'];
 
         $unexpectedAttributes = array_diff(array_keys($data), $allowedAttributes);
         if (! empty($unexpectedAttributes)) {
@@ -182,8 +186,10 @@ class ProductService
             );
         }
         $validator = Validator::make($data, [
-            'name' => "$rule|string|unique:products,name",
-            'description' => "$rule|string",
+            'name_en' => "$rule|string|unique:products,name_en",
+            'name_ar' => "$rule|string|unique:products,name_ar",
+            'description_en' => "$rule|string",
+            'description_ar' => "$rule|string",
             'amount' => "$rule|numeric|min:1",
             'price' => "$rule|numeric|min:1",
             'category_id' => "$rule|exists:categories,id",
@@ -207,14 +213,19 @@ class ProductService
         $this->validateCreateProductRequest($request);
 
         return DB::transaction(function () use ($request) {
-            $category_id = Category::where('name', $request->input('category_name'))->value('id');
+            $language = $request->header('lang');
+            $categoryField = $language === 'ar' ? 'name_ar' : 'name_en';
+
+            $category_id = Category::where($categoryField, $request->input('category_name'))->value('id');
             if (! $category_id) {
                 return ResponseHelper::jsonResponse([], 'Category Not Found', 404, false);
             }
 
             $productData = [
-                'name' => $request->input('product_name'),
-                'description' => $request->input('product_description'),
+                'name_ar' => $request->input('product_name_ar'),
+                'name_en' => $request->input('product_name_en'),
+                'description_ar' => $request->input('product_description_ar'),
+                'description_en' => $request->input('product_description_en'),
                 'price' => $request->input('product_price'),
                 'amount' => $request->input('product_amount'),
                 'category_id' => $category_id,
@@ -279,8 +290,10 @@ class ProductService
     {
         $validator = Validator::make($request->all(), [
             'category_name' => 'required|string',
-            'product_name' => 'required|string',
-            'product_description' => 'required|string',
+            'product_name_ar' => 'required|string',
+            'product_name_en' => 'required|string',
+            'product_description_ar' => 'required|string',
+            'product_description_en' => 'required|string',
             'product_price' => 'required|numeric',
             'product_amount' => 'required|numeric',
             'store_id' => 'sometimes|exists:stores,id',
@@ -302,7 +315,7 @@ class ProductService
         }
 
         $unexpectedAttributes = array_diff(array_keys($request->all()), [
-            'category_name', 'product_name', 'product_description',
+            'category_name', 'product_name_ar', 'product_description_ar', 'product_name_en', 'product_description_en',
             'product_price', 'product_amount', 'store_id', 'images',
         ]);
 

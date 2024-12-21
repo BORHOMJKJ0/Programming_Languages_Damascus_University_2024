@@ -10,11 +10,12 @@ class ProductResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $lang = $request->header('lang', 'en');
         $mainImage = $this->images->where('main', 1)->first() ?? $this->images->first();
         $imageUrl = $this->getImageUrl($mainImage);
         $data = [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
             'image' => $mainImage ? [
                 'id' => $mainImage->id,
                 'image' => $imageUrl ?? null,
@@ -23,11 +24,11 @@ class ProductResource extends JsonResource
             'price' => $this->price,
             'isFavorite' => $this->isFavorite(),
             'store' => StoreResource::make($this->store),
-            'category' => $this->category->name,
+            'category' => $lang === 'ar' ? $this->category->name_ar : $this->category->name_en,
         ];
 
         if ($request->routeIs('products.show')) {
-            $data['description'] = $this->description;
+            $data['description'] = $lang === 'ar' ? $this->description_ar : $this->description_en;
             unset($data['image']);
             $data['images'] = $this->images->map(function ($image) {
 

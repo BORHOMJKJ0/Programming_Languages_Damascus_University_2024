@@ -17,10 +17,19 @@ class SearchRequest extends BaseRequest
         $numericFields = ['price', 'amount', 'quantity'];
         $column = $this->input('column');
         $model = $this->route('model');
-
+        $lang = $this->header('lang', 'en');
         $this->validateModel($model);
 
         $availableFields = $this->getAvailableFields($model);
+        if ($lang == 'ar') {
+            $availableFields = array_filter($availableFields, function ($field) {
+                return ! in_array($field, ['name_en', 'description_en']);
+            });
+        } elseif ($lang == 'en') {
+            $availableFields = array_filter($availableFields, function ($field) {
+                return ! in_array($field, ['name_ar', 'description_ar']);
+            });
+        }
 
         $rules = [
             'column' => [
@@ -91,9 +100,9 @@ class SearchRequest extends BaseRequest
     {
         $modelFields = [
             'users' => ['first_name', 'last_name', 'full_name', 'location'],
-            'categories' => ['name'],
-            'stores' => ['name', 'location'],
-            'products' => ['name', 'description', 'price', 'amount'],
+            'categories' => ['name_ar', 'name_en'],
+            'stores' => ['name_ar', 'name_en', 'location'],
+            'products' => ['name_ar', 'name_en', 'description_en', 'description_ar', 'price', 'amount'],
             'cart_items' => ['quantity'],
         ];
 
