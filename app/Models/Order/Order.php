@@ -15,4 +15,11 @@ class Order extends Model
     {
         return $this->hasMany(Order_items::class);
     }
+
+    public function store()
+    {
+        $this->loadMissing('items.product.store');
+
+        return $this->items->first()?->product?->store;
+    }
 }

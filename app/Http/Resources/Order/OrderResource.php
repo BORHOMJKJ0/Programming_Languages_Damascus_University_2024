@@ -13,7 +13,7 @@ class OrderResource extends JsonResource
     {
         return [
             'order_id' => $this->id,
-            'store' => StoreResource::make(Store::where('id', $this->store_id)->first()),
+            'store' => StoreResource::make($this->store()),
             'total_price' => $this->total_price,
             'total_amount' => $this->total_amount,
             'order_status' => $this->order_status,
