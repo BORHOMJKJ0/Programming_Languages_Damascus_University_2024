@@ -102,8 +102,7 @@ class OrderService
 
     public function getAllMyOrders()
     {
-        $user_id = auth()->id();
-        $orders = Order::where('user_id', $user_id)->get();
+        $orders = Order::where('user_id', auth()->id())->get();
 
         $data = [
             'orders' => OrderResource::collection($orders),
@@ -112,9 +111,8 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
-    public function getAllStoreOrders($store_id)
+    public function getAllStoreOrders(Store $store)
     {
-        $store = Store::where('id', $store_id)->first();
         $this->checkOwnership($store, 'Store', 'show orders of ');
 
         $orders = Order::where('store_id', $store->id)->get();
@@ -126,11 +124,8 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
-    public function details($order)
+    public function details(Order $order)
     {
-        if (! $order) {
-            return ResponseHelper::jsonResponse([], 'Order not found', 404, false);
-        }
         $order_details = $order->items;
         $data = [
             'order' => OrderResource::make($order),

@@ -7,6 +7,7 @@ use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
+use App\Models\User\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 
@@ -29,9 +30,9 @@ class UserController extends Controller
         return $this->userService->register($request);
     }
 
-    public function register_for_guest(RegisterRequest $request, $guest_id)
+    public function register_for_guest(RegisterRequest $request, User $user)
     {
-        return $this->userService->register_for_guest($request, $guest_id);
+        return $this->userService->register_for_guest($request, $user);
     }
 
     public function getStarted()

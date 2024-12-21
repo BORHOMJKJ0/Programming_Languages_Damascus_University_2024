@@ -69,7 +69,7 @@ Route::middleware('check_auth:api')->group(function () {
     });
     Route::prefix('orders')->group(function () {
         Route::controller(OrderController::class)->group(function () {
-            Route::get('/details/{order_id}', 'details');
+            Route::get('/details/{order}', 'details');
         });
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
@@ -79,7 +79,7 @@ Route::middleware('check_auth:api')->group(function () {
             Route::delete('/delete/{item_id}', 'delete');
         });
         Route::controller(StoreOrderController::class)->group(function () {
-            Route::get('/{store_id}', 'show');
+            Route::get('/{store}', 'show');
             Route::post('/accept/{item_id}', 'accept');
             Route::post('/reject/{item_id}', 'reject');
             Route::post('/ship/{item_id}', 'ship');
@@ -96,6 +96,6 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
     Route::post('/refreshToken', 'refresh_token');
     Route::post('/getStarted', 'getStarted');
     Route::post('/register', 'register');
-    Route::post('/register/{id}', 'register_for_guest');
+    Route::post('/register/{user}', 'register_for_guest');
     Route::post('/login', 'login');
 });

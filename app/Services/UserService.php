@@ -79,7 +79,7 @@ class UserService
         return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
     }
 
-    public function register_for_guest(RegisterRequest $request, $guest_id): JsonResponse
+    public function register_for_guest(RegisterRequest $request, User $user): JsonResponse
     {
         $inputs = $request->all();
 
@@ -90,10 +90,6 @@ class UserService
             $inputs['image'] = $path;
         }
 
-        $user = User::where('id', $guest_id)->first();
-        if (! $user) {
-            return ResponseHelper::jsonResponse([], 'User not found', 404, false);
-        }
         if ($user->role->role != 'guest') {
             return ResponseHelper::jsonResponse([], 'You have this account before', 403, false);
         }
