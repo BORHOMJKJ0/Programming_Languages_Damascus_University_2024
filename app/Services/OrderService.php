@@ -184,10 +184,11 @@ class OrderService
         $new_quantity = $inputs['quantity'];
         $item->order->update([
             'total_amount' => $item->order->total_amount - $old_quantity + $new_quantity,
-            'total_price' => $item->order->total_price - $item->price + $new_quantity*$item->product->price,
+            'total_price' => ($item->order->total_price - $item->price) + $new_quantity*$item->product->price,
         ]);
         $item->update([
-            'quantity' => $new_quantity
+            'quantity' => $new_quantity,
+            'price' => $new_quantity*$item->product->price,
         ]);
 
 
