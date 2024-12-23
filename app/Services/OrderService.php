@@ -182,7 +182,7 @@ class OrderService
             'quantity' => $new_quantity
         ]);
         $item->order->update([
-            'total_amount' => $item->total_amount - $old_quantity + $new_quantity,
+            'total_amount' => $item->order->total_amount - $old_quantity + $new_quantity,
         ]);
 
 
