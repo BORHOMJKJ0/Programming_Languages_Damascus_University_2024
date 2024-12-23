@@ -178,12 +178,13 @@ class OrderService
         }
         $old_quantity = $item->quantity;
         $new_quantity = $inputs['quantity'];
-        $item->update([
-            'quantity' => $new_quantity
-        ]);
         $item->order->update([
             'total_amount' => $item->order->total_amount - $old_quantity + $new_quantity,
         ]);
+        $item->update([
+            'quantity' => $new_quantity
+        ]);
+
 
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
