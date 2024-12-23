@@ -176,9 +176,15 @@ class OrderService
                 false
             );
         }
+        $old_quantity = $item->quantity;
+        $new_quantity = $inputs['quantity'];
         $item->update([
-            'quantity' => $inputs['quantity'],
+            'quantity' => $new_quantity
         ]);
+        $item->order->update([
+            'total_amount' => $item->total_amount - $old_quantity + $new_quantity,
+        ]);
+
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
