@@ -44,11 +44,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product): JsonResponse
     {
-        return $this->productService->updateProduct($product, $request->all());
+        return $this->productService->updateProduct($product, $request->all(), $request);
     }
 
-    public function destroy(Product $product): JsonResponse
+    public function destroy(Product $product, Request $request): JsonResponse
     {
-        return $this->productService->deleteProduct($product);
+        return $this->productService->deleteProduct($product, $request);
     }
 }

@@ -118,7 +118,7 @@ class StoreService
             $data = [
                 'Store' => StoreResource::make($store),
             ];
-            $this->fcmService->notifyUsers($store);
+            $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
 
             return ResponseHelper::jsonResponse($data, 'Store created successfully!');
         }

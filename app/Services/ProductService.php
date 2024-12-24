@@ -126,7 +126,7 @@ class ProductService
         return ResponseHelper::jsonResponse($data, 'Products ordered successfully!');
     }
 
-    public function updateProduct(Product $product, array $data)
+    public function updateProduct(Product $product, array $data, Request $request)
     {
         try {
             $store = $product->store;
@@ -144,11 +144,11 @@ class ProductService
             }
             $this->validateProductData($data, 'sometimes');
             $data['store_id'] = $store->id;
+            $this->fcmService->notifyFavoriteProductUsers($product, 'updated', $request->header('lang', 'en'));
             $product = $this->productRepository->update($product, $data);
             $data = [
                 'Product' => ProductResource::make($product),
             ];
-            $this->fcmService->notifyFavoriteProductUsers($product, 'updated');
             $response = ResponseHelper::jsonResponse($data, 'Product updated successfully!');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
@@ -157,7 +157,7 @@ class ProductService
         return $response;
     }
 
-    public function deleteProduct(Product $product)
+    public function deleteProduct(Product $product, Request $request)
     {
         try {
             if (! $this->checkSuperAdmin()) {
@@ -165,8 +165,8 @@ class ProductService
                 $this->checkAdmin('Product', 'delete');
                 $this->checkOwnership($product->store, 'Product', 'delete');
             }
+            $this->fcmService->notifyFavoriteProductUsers($product, 'deleted', $request->header('lang', 'en'));
             $this->productRepository->delete($product);
-            $this->fcmService->notifyFavoriteProductUsers($product, 'deleted');
             $response = ResponseHelper::jsonResponse([], 'Product deleted successfully!');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
