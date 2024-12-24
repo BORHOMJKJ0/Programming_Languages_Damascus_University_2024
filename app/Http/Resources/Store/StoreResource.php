@@ -17,13 +17,14 @@ class StoreResource extends JsonResource
                 ? $this->image
                 : config('app.url').'/storage/'.$this->image)
             : null;
+
         return [
             'id' => $this->id,
             'image' => $imageUrl,
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
             'location' => $this->location,
             'user' => UserNameResource::make($this->user),
-            'products'=>ProductsDetailsResource::collection($this->products),
+            'products' => ProductsDetailsResource::collection($this->products),
         ];
     }
 }

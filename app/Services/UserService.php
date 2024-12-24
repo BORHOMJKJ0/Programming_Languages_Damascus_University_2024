@@ -139,9 +139,9 @@ class UserService
 
         $user = JWTAuth::user();
         $this->cartService->createCart($user);
-                $user->update([
-                    'fcm_token' => $inputs['fcm_token'],
-                ]);
+        $user->update([
+            'fcm_token' => $inputs['fcm_token'],
+        ]);
         $data = [
             'user' => UserResource::make($user),
             'role' => RoleResource::make($user->role),

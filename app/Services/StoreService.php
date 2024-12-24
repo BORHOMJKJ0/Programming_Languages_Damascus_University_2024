@@ -21,9 +21,10 @@ class StoreService
     protected StoreRepository $storeRepository;
 
     protected UserService $userService;
+
     protected FcmService $fcmService;
 
-    public function __construct(StoreRepository $storeRepository, UserService $userService,FcmService $fcmService)
+    public function __construct(StoreRepository $storeRepository, UserService $userService, FcmService $fcmService)
     {
         $this->storeRepository = $storeRepository;
         $this->userService = $userService;
@@ -118,6 +119,7 @@ class StoreService
                 'Store' => StoreResource::make($store),
             ];
             $this->fcmService->notifyUsers($store);
+
             return ResponseHelper::jsonResponse($data, 'Store created successfully!');
         }
 

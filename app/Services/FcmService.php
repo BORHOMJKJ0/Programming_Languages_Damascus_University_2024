@@ -32,6 +32,7 @@ class FcmService
             ->withNotification($notification)
             ->withData($data);
         \Log::info($title);
+
         return $this->messaging->send($message);
     }
 
@@ -40,22 +41,23 @@ class FcmService
         $user = auth()->user();
 
         $title = 'New Store Added';
-        $user_name = $user->first_name . ' ' . $user->last_name;
+        $user_name = $user->first_name.' '.$user->last_name;
         $role = $user->role->role;
         $roleLabel = $role === 'super_admin' ? 'SuperAdmin' : ucfirst($role);
         $body = "{$roleLabel} {$user_name} has added a new Store {$store->name}.";
         \Log::info($body);
         $users = $this->userRepository->getAllUsersHasFcmToken();
         foreach ($users as $user) {
-            $this->sendNotification($user->fcm_token, $title, $body,['store_id' => $store->id]);
+            $this->sendNotification($user->fcm_token, $title, $body, ['store_id' => $store->id]);
         }
     }
+
     public function notifyFavoriteProductUsers(Product $product, $action)
     {
         $user = auth()->user();
 
         $title = "Product {$action}";
-        $user_name = $user->first_name . ' ' . $user->last_name;
+        $user_name = $user->first_name.' '.$user->last_name;
         $role = $user->role->role;
         $roleLabel = $role === 'super_admin' ? 'SuperAdmin' : ucfirst($role);
         $body = "{$roleLabel} {$user_name} has {$action} the product {$product->name}.";

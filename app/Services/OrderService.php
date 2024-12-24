@@ -32,6 +32,9 @@ class OrderService
     public function refreshOrderStatus($order)
     {
         $items = $order->items;
+        if ($items->isEmpty()) {
+            $order->delete();
+        }
 
         $status_of_items = [];
         foreach ($items as $item) {
@@ -176,8 +179,15 @@ class OrderService
                 false
             );
         }
+        $old_quantity = $item->quantity;
+        $new_quantity = $inputs['quantity'];
+        $item->order->update([
+            'total_amount' => $item->order->total_amount - $old_quantity + $new_quantity,
+            'total_price' => ($item->order->total_price - $item->price) + $new_quantity * $item->product->price,
+        ]);
         $item->update([
-            'quantity' => $inputs['quantity'],
+            'quantity' => $new_quantity,
+            'price' => $new_quantity * $item->product->price,
         ]);
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
@@ -217,6 +227,10 @@ class OrderService
         $item->update([
             'item_status' => 'Cancelled',
         ]);
+        $item->order->update([
+            'total_amount' => $item->order->total_amount - $item->quantity,
+            'total_price' => $item->order->total_price - $item->price,
+        ]);
         $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been cancelled');
@@ -253,6 +267,10 @@ class OrderService
             );
         }
         $item->delete();
+        $item->order->update([
+            'total_amount' => $item->order->total_amount - $item->quantity,
+            'total_price' => $item->order->total_price - $item->price,
+        ]);
         $this->refreshOrderStatus($item->order);
 
         return ResponseHelper::jsonResponse([], 'The item has been deleted');
@@ -346,6 +364,10 @@ class OrderService
 
         $item->update([
             'item_status' => 'Rejected',
+        ]);
+        $item->order->update([
+            'total_amount' => $item->order->total_amount - $item->quantity,
+            'total_price' => $item->order->total_price - $item->price,
         ]);
         $this->refreshOrderStatus($item->order);
 
@@ -463,6 +485,10 @@ class OrderService
 
         $item->update([
             'item_status' => 'Cancelled',
+        ]);
+        $item->order->update([
+            'total_amount' => $item->order->total_amount - $item->quantity,
+            'total_price' => $item->order->total_price - $item->price,
         ]);
         $this->refreshOrderStatus($item->order);
 
