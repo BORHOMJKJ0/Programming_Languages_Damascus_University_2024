@@ -2,4 +2,13 @@
 
 namespace App\Repositories;
 
-class UserRepository {}
+use App\Models\User\User;
+
+class UserRepository {
+    public function getAllUsersHasFcmToken()
+    {
+        return User::where('id','!=', auth()->id())
+            ->whereNotNull('fcm_token')
+            ->get();
+    }
+}

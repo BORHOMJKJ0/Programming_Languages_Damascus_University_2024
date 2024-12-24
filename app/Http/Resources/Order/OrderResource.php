@@ -3,7 +3,6 @@
 namespace App\Http\Resources\Order;
 
 use App\Http\Resources\Store\StoreResource;
-use App\Models\Store\Store;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

@@ -27,12 +27,14 @@ class ProductService
     protected CategoryRepository $categoryRepository;
 
     protected ImageRepository $imageRepository;
+    protected FcmService $fcmService;
 
-    public function __construct(ProductRepository $productRepository, CategoryRepository $categoryRepository, ImageRepository $imageRepository)
+    public function __construct(ProductRepository $productRepository, CategoryRepository $categoryRepository, ImageRepository $imageRepository,FcmService $fcmService)
     {
         $this->productRepository = $productRepository;
         $this->imageRepository = $imageRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->fcmService=$fcmService;
     }
 
     public function getAllProducts(Request $request)
@@ -145,6 +147,7 @@ class ProductService
             $data = [
                 'Product' => ProductResource::make($product),
             ];
+            $this->fcmService->notifyFavoriteProductUsers($product,'updated');
             $response = ResponseHelper::jsonResponse($data, 'Product updated successfully!');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
@@ -162,6 +165,7 @@ class ProductService
                 $this->checkOwnership($product->store, 'Product', 'delete');
             }
             $this->productRepository->delete($product);
+            $this->fcmService->notifyFavoriteProductUsers($product,'deleted');
             $response = ResponseHelper::jsonResponse([], 'Product deleted successfully!');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
