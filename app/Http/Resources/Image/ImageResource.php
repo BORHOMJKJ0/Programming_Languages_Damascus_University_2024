@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Image;
 
-use App\Http\Resources\Product\ProductsDetailsResource;
+use App\Http\Resources\Product\ProductsNamesResource;
 use App\Http\Resources\User\UserNameResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,7 +21,7 @@ class ImageResource extends JsonResource
             'id' => $this->id,
             'image' => $imageUrl,
             'main' => $this->main,
-            'product' => ProductsDetailsResource::make($this->product),
+            'product' => ProductsNamesResource::make($this->product),
             'user' => UserNameResource::make($this->product->store->user),
         ];
     }

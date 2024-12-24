@@ -11,6 +11,7 @@ class MyStoreResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $products = $this->products()->paginate($request->query('per_page', 20));
         $lang = $request->header('lang', 'en');
         $imageUrl = $this->image
             ? (str_starts_with($this->image, 'https://via.placeholder.com')
@@ -24,7 +25,14 @@ class MyStoreResource extends JsonResource
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
             'location' => $this->location,
             'user' => UserNameResource::make($this->user),
-            'products' => ProductsDetailsResource::collection($this->products),
+            'products' => [
+                'data' => ProductsDetailsResource::collection($products),
+                'pagination' => [
+                    'total_pages' => $products->lastPage(),
+                    'current_page' => $products->currentPage(),
+                    'hasMorePages' => $products->hasMorePages(),
+                ],
+            ],
         ];
     }
 }
