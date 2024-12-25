@@ -18,13 +18,28 @@ class StoreResource extends JsonResource
                 : config('app.url').'/storage/'.$this->image)
             : null;
 
-        return [
+        $data = [
             'id' => $this->id,
             'image' => $imageUrl,
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
             'location' => $this->location,
             'user' => UserNameResource::make($this->user),
-            'products' => ProductsDetailsResource::collection($this->products),
+
         ];
+
+        if ($request->routeIs('stores.show')) {
+            $paginatedProducts = $this->products()->paginate($request->query('per_page', 20));
+
+            $data['products'] = [
+                'data' => ProductsDetailsResource::collection($paginatedProducts),
+                'pagination' => [
+                    'total_pages' => $paginatedProducts->lastPage(),
+                    'current_page' => $paginatedProducts->currentPage(),
+                    'hasMorePages' => $paginatedProducts->hasMorePages(),
+                ],
+            ];
+        }
+
+        return $data;
     }
 }
