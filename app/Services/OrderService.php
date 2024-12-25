@@ -12,16 +12,19 @@ use App\Models\Store\Store;
 use App\Repositories\CartRepository;
 use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class OrderService
 {
     use AuthTrait;
 
     protected $cartRepository;
+    protected $fcmService;
 
-    public function __construct(CartRepository $cartRepository)
+    public function __construct(CartRepository $cartRepository, FcmService $fcmService)
     {
         $this->cartRepository = $cartRepository;
+        $this->fcmService = $fcmService;
     }
 
     public function findOrderById($order_id)
@@ -63,7 +66,7 @@ class OrderService
         }
     }
 
-    public function placeOrder(): JsonResponse
+    public function placeOrder(Request $request): JsonResponse
     {
         $cart = auth()->user()->cart;
         if ($cart->cart_items->isEmpty()) {
@@ -99,6 +102,11 @@ class OrderService
 
             $this->cartRepository->update($cart);
         }
+        foreach ($order_ids as $order_id){
+            $order = $this->findOrderById($order_id);
+            $this->fcmService->notifyPlaceOrder($order, $request->header('lang', 'en'));
+        }
+
 
         return ResponseHelper::jsonResponse([], 'The order has been placed');
     }
@@ -190,53 +198,12 @@ class OrderService
             'price' => $new_quantity * $item->product->price,
         ]);
 
+        $this->fcmService->notifyٍStoreItem($item, 'update', $request->header('lang', 'en'));
+
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
 
-    public function cancelByCustomer($item_id)
-    {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
-        if ($item->order->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t cancel this item, this item not for you',
-                403,
-                false
-            );
-        }
-
-        $available_status = ['Pending', 'Preparing'];
-        if (! in_array($item->item_status, $available_status)) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t cancel this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
-
-        $item->update([
-            'item_status' => 'Cancelled',
-        ]);
-        $item->order->update([
-            'total_amount' => $item->order->total_amount - $item->quantity,
-            'total_price' => $item->order->total_price - $item->price,
-        ]);
-        $this->refreshOrderStatus($item->order);
-
-        return ResponseHelper::jsonResponse([], 'The item has been cancelled');
-    }
-
-    public function deleteByCustomer($item_id)
+    public function deleteByCustomer($item_id, Request $request)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -257,7 +224,7 @@ class OrderService
             );
         }
 
-        $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Delivered', 'Cancelled'];
+        $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Cancelled'];
         if (! in_array($item->item_status, $available_status)) {
             return ResponseHelper::jsonResponse(
                 [],
@@ -266,17 +233,19 @@ class OrderService
                 false
             );
         }
-        $item->delete();
-        $item->order->update([
-            'total_amount' => $item->order->total_amount - $item->quantity,
-            'total_price' => $item->order->total_price - $item->price,
+        $order = $item->order;
+        $order->update([
+            'total_amount' => $order->total_amount - $item->quantity,
+            'total_price' => $order->total_price - $item->price,
         ]);
-        $this->refreshOrderStatus($item->order);
+        $this->fcmService->notifyٍStoreItem($item, 'delete', $request->header('lang', 'en'));
+        $item->delete();
+        $this->refreshOrderStatus($order);
 
         return ResponseHelper::jsonResponse([], 'The item has been deleted');
     }
 
-    public function accept($item_id)
+    public function accept($item_id, Request $request)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -312,10 +281,12 @@ class OrderService
                 'item_status' => 'Not Available',
             ]);
 
+            $this->fcmService->notifyCustomerItem($item, 'not available', $request->header('lang', 'en'));
+
             return ResponseHelper::jsonResponse(
                 [],
                 'not available quantity',
-                422,
+                200,
                 false
             );
         }
@@ -328,10 +299,12 @@ class OrderService
         ]);
         $this->refreshOrderStatus($item->order);
 
+        $this->fcmService->notifyCustomerItem($item, 'accept', $request->header('lang', 'en'));
+
         return ResponseHelper::jsonResponse([], 'The item has been accepted');
     }
 
-    public function reject($item_id)
+    public function reject($item_id, Request $request)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -361,6 +334,20 @@ class OrderService
                 false
             );
         }
+        if ($item->quantity > $product->amount) {
+            $item->update([
+                'item_status' => 'Not Available',
+            ]);
+
+            $this->fcmService->notifyCustomerItem($item, 'not available', $request->header('lang', 'en'));
+
+            return ResponseHelper::jsonResponse(
+                [],
+                'The item has been rejected, the reason is not available quantity',
+                200,
+                false
+            );
+        }
 
         $item->update([
             'item_status' => 'Rejected',
@@ -371,10 +358,12 @@ class OrderService
         ]);
         $this->refreshOrderStatus($item->order);
 
+        $this->fcmService->notifyCustomerItem($item, 'reject', $request->header('lang', 'en'));
+
         return ResponseHelper::jsonResponse([], 'The item has been rejected');
     }
 
-    public function ship($item_id)
+    public function ship($item_id, Request $request)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -410,10 +399,12 @@ class OrderService
         ]);
         $this->refreshOrderStatus($item->order);
 
+        $this->fcmService->notifyCustomerItem($item, 'ship', $request->header('lang', 'en'));
+
         return ResponseHelper::jsonResponse([], 'The item has been shipped');
     }
 
-    public function deliver($item_id)
+    public function deliver($item_id, Request $request)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -449,10 +440,12 @@ class OrderService
         ]);
         $this->refreshOrderStatus($item->order);
 
+        $this->fcmService->notifyCustomerItem($item, 'deliver', $request->header('lang', 'en'));
+
         return ResponseHelper::jsonResponse([], 'The item has been Delivered');
     }
 
-    public function cancelByStore($item_id)
+    public function cancelByStore($item_id, Request $request)
     {
         $item = Order_items::where('id', $item_id)->first();
         if (! $item) {
@@ -491,6 +484,8 @@ class OrderService
             'total_price' => $item->order->total_price - $item->price,
         ]);
         $this->refreshOrderStatus($item->order);
+
+        $this->fcmService->notifyCustomerItem($item, 'cancel', $request->header('lang', 'en'));
 
         return ResponseHelper::jsonResponse([], 'The item has been Cancelled');
     }

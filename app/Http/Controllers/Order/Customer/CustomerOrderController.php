@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Order\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\editItemRequest;
 use App\Services\OrderService;
+use Illuminate\Http\Request;
 
 class CustomerOrderController extends Controller
 {
@@ -15,9 +16,9 @@ class CustomerOrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    public function placeOrder()
+    public function placeOrder(Request $request)
     {
-        return $this->orderService->placeOrder();
+        return $this->orderService->placeOrder($request);
     }
 
     public function show()
@@ -30,13 +31,8 @@ class CustomerOrderController extends Controller
         return $this->orderService->edit($item_id, $request);
     }
 
-    public function cancel($item_id)
+    public function delete($item_id, Request $request)
     {
-        return $this->orderService->cancelByCustomer($item_id);
-    }
-
-    public function delete($item_id)
-    {
-        return $this->orderService->deleteByCustomer($item_id);
+        return $this->orderService->deleteByCustomer($item_id, $request);
     }
 }

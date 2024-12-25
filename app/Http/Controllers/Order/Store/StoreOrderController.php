@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Order\Store;
 use App\Http\Controllers\Controller;
 use App\Models\Store\Store;
 use App\Services\OrderService;
+use Illuminate\Http\Request;
 
 class StoreOrderController extends Controller
 {
@@ -20,28 +21,28 @@ class StoreOrderController extends Controller
         return $this->orderService->getAllStoreOrders($store);
     }
 
-    public function accept($item_id)
+    public function accept($item_id, Request $request)
     {
-        return $this->orderService->accept($item_id);
+        return $this->orderService->accept($item_id, $request);
     }
 
-    public function reject($item_id)
+    public function reject($item_id, Request $request)
     {
-        return $this->orderService->reject($item_id);
+        return $this->orderService->reject($item_id, $request);
     }
 
-    public function ship($item_id)
+    public function ship($item_id, Request $request)
     {
-        return $this->orderService->ship($item_id);
+        return $this->orderService->ship($item_id, $request);
     }
 
-    public function deliver($item_id)
+    public function deliver($item_id, Request $request)
     {
-        return $this->orderService->deliver($item_id);
+        return $this->orderService->deliver($item_id, $request);
     }
 
-    public function cancel($item_id)
+    public function cancel($item_id, Request $request)
     {
-        return $this->orderService->cancelByStore($item_id);
+        return $this->orderService->cancelByStore($item_id, $request);
     }
 }
