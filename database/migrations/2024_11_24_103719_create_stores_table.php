@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('name_en');
             $table->string('location')->nullable();
             $table->string('image')->nullable();
+            $table->enum('status', ['pending', 'approved'])->default('pending');
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });

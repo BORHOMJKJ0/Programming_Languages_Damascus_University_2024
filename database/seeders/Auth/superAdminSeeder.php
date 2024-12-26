@@ -29,7 +29,7 @@ class superAdminSeeder extends Seeder
                 'password_confirmation' => Hash::make($password),
                 'location' => 'Headquarters',
                 'image' => null,
-                'fcm_token' => null,
+                'fcm_token' => 'dmfDir7KQ1uyyjvVbzwmcI:APA91bFvea7D9SuejxtxAMTHHDRMqaZLUUNLXY9T1MmAyA7v8y8hIb6PP3FP3Ax2eQSsnhECaNDvyV2JfRht-znmPSLT-9KjWBK0rtlBw_9YvCAybadAf5U',
             ]);
         });
     }

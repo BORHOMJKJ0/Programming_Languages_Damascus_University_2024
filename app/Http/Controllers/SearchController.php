@@ -114,6 +114,9 @@ class SearchController extends Controller
             });
         } elseif ($column && $value) {
             $query->where($column, 'LIKE', "%{$value}%");
+            if ($model === 'stores') {
+                $query->where('status', 'approved');
+            }
         }
 
         if (in_array($model, ['products', 'cart_items']) && ($min || $max)) {

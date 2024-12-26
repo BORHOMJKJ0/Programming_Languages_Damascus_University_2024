@@ -72,16 +72,20 @@ class ProductService
                 if (! $store) {
                     return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : No store found for this user', 404, false);
                 }
+                if ($store->status === 'pending') {
+                    return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : We are waiting your response for creating a store to this user .', 404, false);
+                }
                 unset($data['store_id']);
             } else {
                 $store = Store::where('user_id', auth()->id())->first();
                 if (! $store) {
                     return ResponseHelper::jsonResponse([], "I don't have a store ): .", 404, false);
-
                 }
             }
             $this->validateProductData($data);
-
+            if ($store->status === 'pending') {
+                return ResponseHelper::jsonResponse([], 'We are waiting for Super Admin response .', 404, false);
+            }
             $data['store_id'] = $store->id;
             $product = $this->productRepository->create($data);
             $data = [
@@ -139,6 +143,9 @@ class ProductService
                 $store = Store::where('id', $data['store_id'])->first();
                 if (! $store) {
                     return ResponseHelper::jsonResponse([], 'No store found for this user', 404, false);
+                }
+                if ($store->status === 'pending') {
+                    return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : We are waiting your response for creating a store to this user .', 404, false);
                 }
                 unset($data['store_id']);
             }

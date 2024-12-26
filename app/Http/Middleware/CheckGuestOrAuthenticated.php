@@ -19,6 +19,7 @@ class CheckGuestOrAuthenticated
             'users.getProfile',
             'users.updateProfile',
             'users.resetPassword',
+            'users.delete',
         ];
 
         if (in_array($request->route()->getName(), $authOnlyRoutes)) {

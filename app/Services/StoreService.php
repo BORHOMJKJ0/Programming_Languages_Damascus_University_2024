@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\RequestNotification;
 use App\Http\Resources\Store\MyStoreResource;
 use App\Http\Resources\Store\StoreResource;
 use App\Models\Store\Store;
@@ -73,6 +74,13 @@ class StoreService
                     )
                 );
             }
+            if ($store->status === 'pending') {
+                if ($this->checkSuperAdmin()) {
+                    return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : We are waiting your response for creating this store .', 404, false);
+                } else {
+                    return ResponseHelper::jsonResponse([], 'We are waiting for Super Admin response to create this store .', 404, false);
+                }
+            }
             $data = ['Store' => MyStoreResource::make($store)];
             $response = ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
         } catch (HttpResponseException $e) {
@@ -87,6 +95,13 @@ class StoreService
         if (! $this->checkSuperAdmin()) {
             $this->checkGuest();
         }
+        if ($store->status === 'pending') {
+            if ($this->checkSuperAdmin()) {
+                return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : We are waiting your response for creating this store .', 404, false);
+            } else {
+                return ResponseHelper::jsonResponse([], 'We are waiting for Super Admin response to create this store .', 404, false);
+            }
+        }
         $data = ['Store' => StoreResource::make($store)];
 
         return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
@@ -98,7 +113,14 @@ class StoreService
             $this->checkGuest();
 
             if (auth()->user()->role->role === 'user') {
-                $this->userService->update_role(auth()->id(), 'admin');
+
+                $data['user_id'] = auth()->id();
+                $data['status'] = 'pending';
+
+                $store = $this->storeRepository->create($data);
+                $this->fcmService->notifySuperAdminForApproval($store, $request->header('lang', 'en'));
+
+                return ResponseHelper::jsonResponse([], 'We have sent your request to the SuperAdmin and are waiting for his response.', 202, true);
             } else {
                 $this->checkAdmin('Store', 'create');
             }
@@ -113,12 +135,12 @@ class StoreService
         $stores = $this->storeRepository->findByUserId($data['user_id']);
         if ($stores->isEmpty()) {
             $this->validateStoreData($data);
-            $store = $this->storeRepository->create($data);
 
+            $store = $this->storeRepository->create($data);
+            $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
             $data = [
                 'Store' => StoreResource::make($store),
             ];
-            $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
 
             return ResponseHelper::jsonResponse($data, 'Store created successfully!');
         }
@@ -174,6 +196,9 @@ class StoreService
                 $this->checkGuest();
                 $this->checkOwnership($store, 'Store', 'update');
                 $this->checkAdmin('Store', 'update');
+                if (isset($data['user_id'])) {
+                    unset($data['user_id']);
+                }
             }
             $this->validateStoreData($data, 'sometimes');
             if (isset($data['image'])) {
@@ -210,6 +235,41 @@ class StoreService
         }
 
         return $response;
+    }
+
+    public function handleStoreApproval(Store $store, RequestNotification $request)
+    {
+        if ($store->status === 'approved') {
+            return ResponseHelper::jsonResponse([], 'Mr. Super Admin : We have this store in our System.', 404, false);
+        }
+        $data = $request->validated();
+        $lang = $request->header('lang', 'en');
+
+        if ($data['response'] === 'approved') {
+            $updateData = [
+                'status' => 'approved',
+            ];
+            $this->storeRepository->update($store, $updateData);
+
+            $title = $lang === 'ar' ? 'تمت الموافقة على إنشاء المتجر' : 'Approved to create a store';
+            $body = $lang === 'ar'
+                ? " تمت الموافقة على إنشاء المتجر الخاص بك: {$store->name_ar}. يمكنك الآن رؤيته وإضافة المنتجات إليه."
+                : "Your request to create your store {$store->name_en} has been approved. You can now view it and add products to it.";
+        } elseif ($data['response'] === 'rejected') {
+            $reason = $lang === 'ar' ? $data['reason_ar'] : $data['reason_en'];
+            $this->storeRepository->delete($store);
+
+            $title = $lang === 'ar' ? 'تم رفض إنشاء المتجر' : 'Rejected to create a store';
+            $body = $lang === 'ar'
+                ? " تم رفض إنشاء المتجر الخاص بك: {$store->name_ar}. السبب: {$reason}."
+                : "Your request to create your store {$store->name_en} has been rejected. Reason: {$reason}.";
+        }
+
+        $this->fcmService->sendNotification($store->user->fcm_token, $title, $body,
+            ['store_id' => $store->id, 'status' => $store->status]
+        );
+
+        return ResponseHelper::jsonResponse([], 'Response recorded successfully');
     }
 
     public function validateStoreData(array $data, $rule = 'required'): void

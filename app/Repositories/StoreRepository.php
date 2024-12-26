@@ -11,19 +11,19 @@ class StoreRepository
 
     public function getAll($items)
     {
-        return Store::paginate($items);
+        return Store::where('status', 'approved')->paginate($items);
     }
 
     public function findByUserId($user_id = null)
     {
         $userId = $user_id ?? auth()->id();
 
-        return Store::where('user_id', $userId)->get();
+        return Store::where('user_id', $userId)->where('status', 'approved')->get();
     }
 
     public function orderBy($column, $direction, $items)
     {
-        return Store::orderBy($column, $direction)->paginate($items);
+        return Store::where('status', 'approved')->orderBy($column, $direction)->paginate($items);
     }
 
     public function create(array $data)

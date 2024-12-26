@@ -11,6 +11,7 @@ use App\Http\Resources\Role\RoleResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
 use App\Models\User\User;
+use App\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,11 +23,14 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class UserService
 {
-    protected $cartService;
+    protected CartService $cartService;
 
-    public function __construct(CartService $cartService)
+    protected UserRepository $userRepository;
+
+    public function __construct(CartService $cartService, UserRepository $userRepository)
     {
         $this->cartService = $cartService;
+        $this->userRepository = $userRepository;
     }
 
     public function refresh_Token()
@@ -220,5 +224,16 @@ class UserService
         ]);
 
         return ResponseHelper::jsonResponse([], 'Password reset successfully');
+    }
+
+    public function deleteUser()
+    {
+        $user = auth()->user();
+        if ($user->role->role === 'super_admin') {
+            return ResponseHelper::jsonResponse([], "This Super Admin Account You can't delete it", 403, false);
+        }
+        $this->userRepository->delete($user);
+
+        return ResponseHelper::jsonResponse([], 'User deleted successfully!');
     }
 }

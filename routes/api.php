@@ -31,9 +31,12 @@ Route::middleware('check_auth:api')->group(function () {
         Route::get('/my', 'getMy');
         Route::get('/order/{column}/{direction}', 'orderBy');
         Route::post('/{store}', 'update');
+        Route::post('/Super_admin_response/{store}', 'handleSuperAdminResponse')
+            ->name('superAdmin.storeApprovalResponse');
     });
     Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::post('/logout', 'logout')->name('users.logout');
+        Route::delete('/removeAccount', 'deleteUser')->name('users.delete');
         Route::get('/getProfile', 'getProfile')->name('users.getProfile');
         Route::post('/updateProfile', 'updateProfile')->name('users.updateProfile');
         Route::post('/resetPassword', 'resetPassword')->name('users.resetPassword');

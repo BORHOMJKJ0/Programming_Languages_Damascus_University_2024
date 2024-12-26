@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RequestNotification;
 use App\Models\Store\Store;
 use App\Services\StoreService;
 use Illuminate\Http\JsonResponse;
@@ -50,5 +51,10 @@ class StoreController extends Controller
     public function destroy(Store $store): JsonResponse
     {
         return $this->storeService->deleteStore($store);
+    }
+
+    public function handleSuperAdminResponse(RequestNotification $request, Store $store): JsonResponse
+    {
+        return $this->storeService->handleStoreApproval($store, $request);
     }
 }

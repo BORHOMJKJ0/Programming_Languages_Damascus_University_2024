@@ -20,6 +20,7 @@ class StoreFactory extends Factory
             'name_ar' => $faker->company(),
             'image' => fake()->optional()->imageUrl(200, 200),
             'location' => fake()->optional()->address,
+            'status' => 'approved',
             'user_id' => $user->id,
         ];
     }

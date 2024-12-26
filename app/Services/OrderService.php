@@ -19,6 +19,7 @@ class OrderService
     use AuthTrait;
 
     protected $cartRepository;
+
     protected $fcmService;
 
     public function __construct(CartRepository $cartRepository, FcmService $fcmService)
@@ -102,11 +103,10 @@ class OrderService
 
             $this->cartRepository->update($cart);
         }
-        foreach ($order_ids as $order_id){
+        foreach ($order_ids as $order_id) {
             $order = $this->findOrderById($order_id);
             $this->fcmService->notifyPlaceOrder($order, $request->header('lang', 'en'));
         }
-
 
         return ResponseHelper::jsonResponse([], 'The order has been placed');
     }

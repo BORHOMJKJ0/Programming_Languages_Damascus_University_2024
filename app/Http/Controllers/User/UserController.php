@@ -64,4 +64,9 @@ class UserController extends Controller
     {
         return $this->userService->resetPassword($request);
     }
+
+    public function deleteUser()
+    {
+        return $this->userService->deleteUser();
+    }
 }

@@ -17,6 +17,7 @@ class FcmService
     protected $messaging;
 
     protected $userRepository;
+
     protected $storeRepository;
 
     public function __construct(UserRepository $userRepository, StoreRepository $storeRepository)
@@ -32,7 +33,6 @@ class FcmService
     public function sendNotification($deviceToken, $title, $body, array $data = [])
     {
         $notification = Notification::create($title, $body);
-
         $message = CloudMessage::withTarget('token', $deviceToken)
             ->withNotification($notification)
             ->withData($data);
@@ -60,9 +60,26 @@ class FcmService
         }
 
         $users = $this->userRepository->getAllUsersHasFcmToken();
+        \Log::info($users);
         foreach ($users as $user) {
             $this->sendNotification($user->fcm_token, $title, $body, ['store_id' => $store->id]);
         }
+    }
+
+    public function notifySuperAdminForApproval(Store $store, $lang = 'en')
+    {
+        $superAdmin = $this->userRepository->getSuperAdmin();
+        $title = $lang === 'ar' ? 'طلب الموافقة على انشاء المتجر' : 'Request approval to create a store';
+        $body = $lang === 'ar'
+            ? "تم طلب الموافقة على إنشاء المتجر الجديد {$store->name_ar}. نحن في انتظار رد المسؤول العام."
+            : "Approval has been requested for creating the new store {$store->name_en}. Waiting for the Super Admin's response.";
+        $data = [
+            'store_id' => $store->id,
+            'store_name' => $lang === 'ar' ? $store->name_ar : $store->name_en,
+            'callback_url' => route('superAdmin.storeApprovalResponse', ['store' => $store->id]),
+        ];
+
+        $this->sendNotification($superAdmin->fcm_token, $title, $body, $data);
     }
 
     public function notifyFavoriteProductUsers(Product $product, $action, $lang = 'en')
@@ -106,18 +123,17 @@ class FcmService
         $user = auth()->user();
         $user_name = $user->first_name.' '.$user->last_name;
 
-        if($lang === 'en') {
+        if ($lang === 'en') {
             $title = 'New Order';
             $body = "A new order has been received from the customer {$user_name}.";
-        }
-        else{
+        } else {
             $title = 'طلب جديد';
-            $body = "تم استلام طلب جديد من العميل {$user_name}.";
+            $body = " تم استلام طلب جديد من العميل {$user_name}.";
         }
 
         $data = [
             'order_number' => $order->id,
-            'location' => $user->location
+            'location' => $user->location,
         ];
 
         $deviceToken = $order->store()->user->fcm_token;
@@ -130,18 +146,16 @@ class FcmService
         $user = auth()->user();
         $user_name = $user->first_name.' '.$user->last_name;
 
-        if($lang === 'en') {
-            $title = ucfirst($action)." Item";
+        if ($lang === 'en') {
+            $title = ucfirst($action).' Item';
             $body = "The customer {$user_name} has {$action}d the item \"{$item->product->name_en}\" in order number {$item->order->id}.";
-        }
-        else{
-            if($action === 'update') {
-                $title = "تعديل عنصر";
-                $body = "قام العميل {$user_name} بتعديل العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
-            }
-            else{
-                $title = "حذف عنصر";
-                $body = "قام العميل {$user_name} بحذف العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
+        } else {
+            if ($action === 'update') {
+                $title = 'تعديل عنصر';
+                $body = " قام العميل {$user_name} بتعديل العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
+            } else {
+                $title = 'حذف عنصر';
+                $body = " قام العميل {$user_name} بحذف العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
             }
 
         }
@@ -158,26 +172,37 @@ class FcmService
     {
         $store = $item->product->store;
 
-        if($lang === 'en') {
-        $title = $store->name_en;
-        switch ($action){
-            case 'accept' : $body = "The item \"{$item->product->name_en}\" has been accepted, and it is being prepared.";break;
-            case 'reject' : $body = "We apologize, the item \"{$item->product->name_en}\" has been rejected."; break;
-            case 'not available' : $body = "We apologize, the requested quantity of the item \"{$item->product->name_en}\" is not available."; break;
-            case 'ship' : $body = "The item \"{$item->product->name_en}\" has been shipped and is on its way to the specified location."; break;
-            case 'deliver' : $body = "The item \"{$item->product->name_en}\" has been delivered. Thank you for your order."; break;
-            case 'cancel' : $body = "We apologize, the item \"{$item->product->name_en}\"has been canceled."; break;
-        }
-    }
-        else{
+        if ($lang === 'en') {
+            $title = $store->name_en;
+            switch ($action) {
+                case 'accept': $body = "The item \"{$item->product->name_en}\" has been accepted, and it is being prepared.";
+                    break;
+                case 'reject': $body = "We apologize, the item \"{$item->product->name_en}\" has been rejected.";
+                    break;
+                case 'not available': $body = "We apologize, the requested quantity of the item \"{$item->product->name_en}\" is not available.";
+                    break;
+                case 'ship': $body = "The item \"{$item->product->name_en}\" has been shipped and is on its way to the specified location.";
+                    break;
+                case 'deliver': $body = "The item \"{$item->product->name_en}\" has been delivered. Thank you for your order.";
+                    break;
+                case 'cancel': $body = "We apologize, the item \"{$item->product->name_en}\"has been canceled.";
+                    break;
+            }
+        } else {
             $title = $store->name_ar;
-            switch ($action){
-                case 'accept' : $body = "تم قبول العنصر \"{$item->product->name_ar}\", وجار العمل على تجهيزه."; break;
-                case 'reject' : $body = "نعتذر, تم رفض العنصر \"{$item->product->name_ar}\"."; break;
-                case 'not available' : $body = "نعتذر، الكمية المطلوبة من العنصر \"{$item->product->name_ar}\" غير متوفرة."; break;
-                case 'ship' : $body = "تم شحن العنصر \"{$item->product->name_ar}\", وهو في الطريق إلى العنوان المحدد."; break;
-                case 'deliver' : $body = "تم توصيل العنصر \"{$item->product->name_ar}\", شكراً لطلبك."; break;
-                case 'cancel' : $body = "نعتذر، تم إلغاء العنصر \"{$item->product->name_ar}\"."; break;
+            switch ($action) {
+                case 'accept': $body = " تم قبول العنصر \"{$item->product->name_ar}\", وجار العمل على تجهيزه.";
+                    break;
+                case 'reject': $body = " نعتذر, تم رفض العنصر \"{$item->product->name_ar}\".";
+                    break;
+                case 'not available': $body = " نعتذر، الكمية المطلوبة من العنصر \"{$item->product->name_ar}\" غير متوفرة.";
+                    break;
+                case 'ship': $body = " تم شحن العنصر \"{$item->product->name_ar}\", وهو في الطريق إلى العنوان المحدد.";
+                    break;
+                case 'deliver': $body = " تم توصيل العنصر \"{$item->product->name_ar}\", شكراً لطلبك.";
+                    break;
+                case 'cancel': $body = " نعتذر، تم إلغاء العنصر \"{$item->product->name_ar}\".";
+                    break;
             }
         }
         $data = [
