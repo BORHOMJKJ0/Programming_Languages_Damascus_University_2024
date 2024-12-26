@@ -28,6 +28,7 @@ Route::middleware('check_auth:api')->group(function () {
     Route::get('/search/{model}', [SearchController::class, 'search']);
     Route::post('/create_product_with_images', [ProductController::class, 'create_product_with_images']);
     Route::prefix('stores')->controller(StoreController::class)->group(function () {
+        Route::get('/pending_stores', 'PendingStores');
         Route::get('/my', 'getMy');
         Route::get('/order/{column}/{direction}', 'orderBy');
         Route::post('/{store}', 'update');

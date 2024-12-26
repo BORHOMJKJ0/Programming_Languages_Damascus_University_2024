@@ -70,16 +70,21 @@ class FcmService
     {
         $superAdmin = $this->userRepository->getSuperAdmin();
         $title = $lang === 'ar' ? 'طلب الموافقة على انشاء المتجر' : 'Request approval to create a store';
-        $body = $lang === 'ar'
-            ? "تم طلب الموافقة على إنشاء المتجر الجديد {$store->name_ar}. نحن في انتظار رد المسؤول العام."
+        $user_body = $lang === 'ar'
+            ? " تم طلب الموافقة على إنشاء المتجر الجديد {$store->name_ar}. نحن في انتظار رد المسؤول العام."
             : "Approval has been requested for creating the new store {$store->name_en}. Waiting for the Super Admin's response.";
+        $SuperAdmin_body = $lang === 'ar'
+            ? "المستخدم {$store->user->name} يريد إنشاء المتجر ID {$store->id}، الاسم {$store->name_ar} في النظام الخاص بك. هل تقبل أو ترفض طلب هذا المستخدم؟"
+            : "The user {$store->user->name} wants to create a store ID {$store->id}, name {$store->name_en} in your system. Do you accept or reject this user’s request?";
         $data = [
             'store_id' => $store->id,
             'store_name' => $lang === 'ar' ? $store->name_ar : $store->name_en,
             'callback_url' => route('superAdmin.storeApprovalResponse', ['store' => $store->id]),
         ];
 
-        $this->sendNotification($superAdmin->fcm_token, $title, $body, $data);
+        $this->sendNotification($store->user->fcm_token, $title, $user_body, $data);
+        unset($data['callback_url']);
+        $this->sendNotification($superAdmin->fcm_token, $title, $SuperAdmin_body, $data);
     }
 
     public function notifyFavoriteProductUsers(Product $product, $action, $lang = 'en')

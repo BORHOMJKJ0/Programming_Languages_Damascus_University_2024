@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\RequestNotification;
 use App\Http\Resources\Store\MyStoreResource;
+use App\Http\Resources\Store\PendingStoresResource;
 use App\Http\Resources\Store\StoreResource;
 use App\Models\Store\Store;
 use App\Repositories\StoreRepository;
@@ -43,6 +44,30 @@ class StoreService
 
             $data = [
                 'Stores' => StoreResource::collection($stores),
+                'total_pages' => $stores->lastPage(),
+                'current_page' => $stores->currentPage(),
+                'hasMorePages' => $stores->hasMorePages(),
+            ];
+            $response = ResponseHelper::jsonResponse($data, 'Stores retrieved successfully');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+        }
+
+        return $response;
+
+    }
+
+    public function getPendingStores(Request $request)
+    {
+        try {
+            if (! $this->checkSuperAdmin()) {
+                return ResponseHelper::jsonResponse([], "You aren't Super Admin", 403, false);
+            }
+            $items = $request->query('items', 20);
+            $stores = $this->storeRepository->getPending($items);
+
+            $data = [
+                'Stores' => PendingStoresResource::collection($stores),
                 'total_pages' => $stores->lastPage(),
                 'current_page' => $stores->currentPage(),
                 'hasMorePages' => $stores->hasMorePages(),
@@ -116,7 +141,8 @@ class StoreService
 
                 $data['user_id'] = auth()->id();
                 $data['status'] = 'pending';
-
+                $path = $request->hasFile('image') ? $request->file('image')->store('images', 'public') : null;
+                $data['image'] = $path;
                 $store = $this->storeRepository->create($data);
                 $this->fcmService->notifySuperAdminForApproval($store, $request->header('lang', 'en'));
 
@@ -227,6 +253,13 @@ class StoreService
             if (! $this->checkSuperAdmin()) {
                 $this->checkOwnership($store, 'Store', 'delete');
                 $this->checkAdmin('Store', 'delete');
+            }
+            if ($store->status === 'pending') {
+                if ($this->checkSuperAdmin()) {
+                    return ResponseHelper::jsonResponse([], "Mr.SuperAdmin : You can't delete this store before receive your response about creating this store .", 404, false);
+                } else {
+                    return ResponseHelper::jsonResponse([], "You can't delete this store before receive Super Admin response about creating this store .", 404, false);
+                }
             }
             $this->storeRepository->delete($store);
             $response = ResponseHelper::jsonResponse([], 'Store deleted successfully!');

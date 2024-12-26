@@ -57,4 +57,9 @@ class StoreController extends Controller
     {
         return $this->storeService->handleStoreApproval($store, $request);
     }
+
+    public function PendingStores(Request $request): JsonResponse
+    {
+        return $this->storeService->getPendingStores($request);
+    }
 }

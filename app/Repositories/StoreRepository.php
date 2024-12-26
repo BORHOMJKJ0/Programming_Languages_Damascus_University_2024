@@ -14,6 +14,11 @@ class StoreRepository
         return Store::where('status', 'approved')->paginate($items);
     }
 
+    public function getPending($items)
+    {
+        return Store::where('status', 'pending')->paginate($items);
+    }
+
     public function findByUserId($user_id = null)
     {
         $userId = $user_id ?? auth()->id();
