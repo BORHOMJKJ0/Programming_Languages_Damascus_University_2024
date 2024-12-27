@@ -149,15 +149,7 @@ class OrderService
     public function edit(Order_item $item, editItemRequest $request)
     {
         $inputs = $request->validated();
-
-        if ($item->order->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t edit this item, this item not for you',
-                403,
-                false
-            );
-        }
+        $this->checkOwnership($item->order, 'Order', 'edit an item from');
 
         $available_status = ['Pending', 'Preparing'];
         if (! in_array($item->item_status, $available_status)) {
@@ -192,17 +184,9 @@ class OrderService
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
-
     public function deleteByCustomer(Order_item $item, Request $request)
     {
-        if ($item->order->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t delete this item, this item not for you',
-                403,
-                false
-            );
-        }
+        $this->checkOwnership($item->order, 'Order', 'delete an item from');
 
         $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Cancelled'];
         if (! in_array($item->item_status, $available_status)) {
@@ -227,15 +211,7 @@ class OrderService
 
     public function accept(Order_item $item, Request $request)
     {
-        $product = $item->product;
-        if ($product->store->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t accept this item, this item not for your store',
-                403,
-                false
-            );
-        }
+        $this->checkOwnershipForItem($item, 'accept');
 
         if ($item->item_status != 'Pending') {
             return ResponseHelper::jsonResponse(
@@ -245,7 +221,7 @@ class OrderService
                 false
             );
         }
-
+        $product = $item->product;
         if ($item->quantity > $product->amount) {
             $item->update([
                 'item_status' => 'Not Available',
@@ -276,15 +252,7 @@ class OrderService
 
     public function reject(Order_item $item, Request $request)
     {
-        $product = $item->product;
-        if ($product->store->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t reject this item, this item not for your store',
-                403,
-                false
-            );
-        }
+        $this->checkOwnershipForItem($item, 'reject');
 
         if ($item->item_status != 'Pending') {
             return ResponseHelper::jsonResponse(
@@ -294,6 +262,7 @@ class OrderService
                 false
             );
         }
+        $product = $item->product;
         if ($item->quantity > $product->amount) {
             $item->update([
                 'item_status' => 'Not Available',
@@ -325,15 +294,7 @@ class OrderService
 
     public function ship(Order_item $item, Request $request)
     {
-        $product = $item->product;
-        if ($product->store->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t ship this item, this item not for your store',
-                403,
-                false
-            );
-        }
+        $this->checkOwnershipForItem($item, 'ship');
 
         if ($item->item_status != 'Preparing') {
             return ResponseHelper::jsonResponse(
@@ -356,15 +317,7 @@ class OrderService
 
     public function deliver(Order_item $item, Request $request)
     {
-        $product = $item->product;
-        if ($product->store->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t deliver this item, this item not for your store',
-                403,
-                false
-            );
-        }
+        $this->checkOwnershipForItem($item, 'deliver');
 
         if ($item->item_status != 'Shipped') {
             return ResponseHelper::jsonResponse(
@@ -387,15 +340,7 @@ class OrderService
 
     public function cancelByStore(Order_item $item, Request $request)
     {
-        $product = $item->product;
-        if ($product->store->user_id != auth()->id()) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t cancel this item, this item not for your store',
-                403,
-                false
-            );
-        }
+        $this->checkOwnershipForItem($item, 'cancel');
 
         if ($item->item_status != 'Preparing') {
             return ResponseHelper::jsonResponse(

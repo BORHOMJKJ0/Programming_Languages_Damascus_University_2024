@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Helpers\ResponseHelper;
 use App\Models\Cart\Cart;
+use App\Models\Order\Order_item;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait AuthTrait
@@ -28,6 +29,21 @@ trait AuthTrait
                 ResponseHelper::jsonResponse([],
                     "You are not authorized to {$action} this {$modelType} Because this isn't your product.",
                     403, false)
+            );
+        }
+    }
+
+    public function checkOwnershipForItem(Order_item $item, $action)
+    {
+        $product = $item->product;
+        if ($product->store->user_id != auth()->id()) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                [],
+                "You are not authorized to {$action} this item, this item not for your store",
+                403,
+                false
+                )
             );
         }
     }
