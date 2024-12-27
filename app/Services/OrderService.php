@@ -150,16 +150,9 @@ class OrderService
     {
         $inputs = $request->validated();
         $this->checkOwnership($item->order, 'Order', 'edit an item from');
-
         $available_status = ['Pending', 'Preparing'];
-        if (! in_array($item->item_status, $available_status)) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t edit this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
+        $this->checkIfCanChangeItemStatus($item, $available_status, 'edit');
+
         $product = $item->product;
         if ($inputs['quantity'] > $product->amount) {
             return ResponseHelper::jsonResponse(
@@ -187,16 +180,9 @@ class OrderService
     public function deleteByCustomer(Order_item $item, Request $request)
     {
         $this->checkOwnership($item->order, 'Order', 'delete an item from');
-
         $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Cancelled'];
-        if (! in_array($item->item_status, $available_status)) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t delete this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
+        $this->checkIfCanChangeItemStatus($item, $available_status, 'delete');
+
         $order = $item->order;
         $order->update([
             'total_amount' => $order->total_amount - $item->quantity,
@@ -212,15 +198,8 @@ class OrderService
     public function accept(Order_item $item, Request $request)
     {
         $this->checkOwnershipForItem($item, 'accept');
+        $this->checkIfCanChangeItemStatus($item, ['Pending'], 'accept');
 
-        if ($item->item_status != 'Pending') {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t accept this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
         $product = $item->product;
         if ($item->quantity > $product->amount) {
             $item->update([
@@ -253,15 +232,8 @@ class OrderService
     public function reject(Order_item $item, Request $request)
     {
         $this->checkOwnershipForItem($item, 'reject');
+        $this->checkIfCanChangeItemStatus($item, ['Pending'], 'reject');
 
-        if ($item->item_status != 'Pending') {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t reject this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
         $product = $item->product;
         if ($item->quantity > $product->amount) {
             $item->update([
@@ -295,15 +267,7 @@ class OrderService
     public function ship(Order_item $item, Request $request)
     {
         $this->checkOwnershipForItem($item, 'ship');
-
-        if ($item->item_status != 'Preparing') {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t ship this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
+        $this->checkIfCanChangeItemStatus($item, ['Preparing'], 'ship');
 
         $item->update([
             'item_status' => 'Shipped',
@@ -318,15 +282,7 @@ class OrderService
     public function deliver(Order_item $item, Request $request)
     {
         $this->checkOwnershipForItem($item, 'deliver');
-
-        if ($item->item_status != 'Shipped') {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t deliver this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
+        $this->checkIfCanChangeItemStatus($item, ['Shipped'], 'deliver');
 
         $item->update([
             'item_status' => 'Delivered',
@@ -341,15 +297,7 @@ class OrderService
     public function cancelByStore(Order_item $item, Request $request)
     {
         $this->checkOwnershipForItem($item, 'cancel');
-
-        if ($item->item_status != 'Preparing') {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Can\'t cancel this item, item status is \''.$item->item_status.'\'',
-                403,
-                false
-            );
-        }
+        $this->checkIfCanChangeItemStatus($item, ['Preparing'], 'cancel');
 
         $item->update([
             'item_status' => 'Cancelled',

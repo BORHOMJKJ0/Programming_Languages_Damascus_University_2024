@@ -48,6 +48,20 @@ trait AuthTrait
         }
     }
 
+    public function checkIfCanChangeItemStatus(Order_item $item, array $available_status, $action)
+    {
+        if (! in_array($item->item_status, $available_status)) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                [],
+                "You are not authorized to {$action} this item, item status is '$item->item_status'",
+                403,
+                false
+                )
+            );
+        }
+    }
+
     public function checkAdmin($modelType, $action)
     {
         $user = auth()->user();
