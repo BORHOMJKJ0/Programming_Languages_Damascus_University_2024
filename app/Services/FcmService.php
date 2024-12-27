@@ -178,35 +178,66 @@ class FcmService
         $store = $item->product->store;
 
         if ($lang === 'en') {
-            $title = $store->name_en;
+            $store_name = $store->name_en;
+            $item_name = $item->product->name_en;
             switch ($action) {
-                case 'accept': $body = "The item \"{$item->product->name_en}\" has been accepted, and it is being prepared.";
+                case 'accept':
+                    $title = "Item Accepted";
+                    $body = "The store {$store_name} has accepted the item {$item_name}, and it is now being prepared.";
                     break;
-                case 'reject': $body = "We apologize, the item \"{$item->product->name_en}\" has been rejected.";
+
+                case 'reject':
+                    $title = "Item Rejected";
+                    $body = "The store {$store_name} has rejected the item {$item_name}. We apologize.";
                     break;
-                case 'not available': $body = "We apologize, the requested quantity of the item \"{$item->product->name_en}\" is not available.";
+
+                case 'not available':
+                    $title = "Item Unavailable";
+                    $body = "The store {$store_name} has rejected the item {$item_name} due to unavailability of the requested quantity.";
                     break;
-                case 'ship': $body = "The item \"{$item->product->name_en}\" has been shipped and is on its way to the specified location.";
+
+                case 'ship':
+                    $title = "Item Shipped";
+                    $body = "The store {$store_name} has shipped the item {$item_name}, and it is on its way to the specified location.";
                     break;
-                case 'deliver': $body = "The item \"{$item->product->name_en}\" has been delivered. Thank you for your order.";
+
+                case 'deliver':
+                    $title = "Item Delivered";
+                    $body = "The store {$store_name} has delivered the item {$item_name}. Thank you for your order.";
                     break;
-                case 'cancel': $body = "We apologize, the item \"{$item->product->name_en}\"has been canceled.";
+
+                case 'cancel':
+                    $title = "Item Canceled";
+                    $body = "The store {$store_name} has canceled the item {$item_name}. We apologize.";
                     break;
             }
         } else {
-            $title = $store->name_ar;
+            $store_name = $store->name_ar;
+            $item_name = $item->product->name_ar;
             switch ($action) {
-                case 'accept': $body = " تم قبول العنصر \"{$item->product->name_ar}\", وجار العمل على تجهيزه.";
+                case 'accept':
+                    $title = "تم قبول عنصر";
+                    $body = "قام متجر {$store_name} بقبول العنصر {$item_name} ,ويتم الأن العمل على تحضيره.";
                     break;
-                case 'reject': $body = " نعتذر, تم رفض العنصر \"{$item->product->name_ar}\".";
+                case 'reject':
+                    $title = "تم رفض عنصر";
+                    $body = "قام متجر {$store_name} برفض العنصر {$item_name} ,نعتذر لكم.";
                     break;
-                case 'not available': $body = " نعتذر، الكمية المطلوبة من العنصر \"{$item->product->name_ar}\" غير متوفرة.";
+                case 'not available':
+                    $title = "العنصر غير متوفر";
+                    $body = "قام متجر {$store_name} برفض العنصر {$item_name} بسبب عدم توفر الكمية المطلوبة.";
                     break;
-                case 'ship': $body = " تم شحن العنصر \"{$item->product->name_ar}\", وهو في الطريق إلى العنوان المحدد.";
+                case 'ship':
+                    $title = "تم شحن عنصر";
+                    $body =  "قام متجر {$store_name} بشحن العنصر {$item_name} ,وهو في طربقه إلى الموقع المحدد.";
                     break;
-                case 'deliver': $body = " تم توصيل العنصر \"{$item->product->name_ar}\", شكراً لطلبك.";
+                case 'deliver':
+                    $title = "تم توصيل عنصر";
+                    $body =  "قام متجر {$store_name} بتوصيل العنصر {$item_name} ,شكراً لطلبكم.";
                     break;
-                case 'cancel': $body = " نعتذر، تم إلغاء العنصر \"{$item->product->name_ar}\".";
+                case 'cancel':
+                    $title = "تم إلغاء عنصر";
+                    $body =  "قام متجر {$store_name} بإلغاء العنصر {$item_name} ,نعتذر لكم.";
                     break;
             }
         }
