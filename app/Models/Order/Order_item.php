@@ -6,7 +6,7 @@ use App\Models\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order_items extends Model
+class Order_item extends Model
 {
     use HasFactory;
 

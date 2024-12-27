@@ -7,7 +7,7 @@ use App\Http\Requests\Order\editItemRequest;
 use App\Http\Resources\Order\Order_itemsResource;
 use App\Http\Resources\Order\OrderResource;
 use App\Models\Order\Order;
-use App\Models\Order\Order_items;
+use App\Models\Order\Order_item;
 use App\Models\Store\Store;
 use App\Repositories\CartRepository;
 use App\Traits\AuthTrait;
@@ -89,7 +89,7 @@ class OrderService
                 $order = $this->findOrderById($order_id);
             }
 
-            $order_items = Order_items::create([
+            $order_items = Order_item::create([
                 'order_id' => $order->id,
                 'product_id' => $product->id,
                 'quantity' => $cart_item->quantity,
@@ -146,19 +146,9 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get order details successfully');
     }
 
-    public function edit($item_id, editItemRequest $request)
+    public function edit(Order_item $item, editItemRequest $request)
     {
         $inputs = $request->validated();
-
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
 
         if ($item->order->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
@@ -203,18 +193,8 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
 
-    public function deleteByCustomer($item_id, Request $request)
+    public function deleteByCustomer(Order_item $item, Request $request)
     {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
         if ($item->order->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
                 [],
@@ -245,18 +225,8 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been deleted');
     }
 
-    public function accept($item_id, Request $request)
+    public function accept(Order_item $item, Request $request)
     {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
         $product = $item->product;
         if ($product->store->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
@@ -304,18 +274,8 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been accepted');
     }
 
-    public function reject($item_id, Request $request)
+    public function reject(Order_item $item, Request $request)
     {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
         $product = $item->product;
         if ($product->store->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
@@ -363,18 +323,8 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been rejected');
     }
 
-    public function ship($item_id, Request $request)
+    public function ship(Order_item $item, Request $request)
     {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
         $product = $item->product;
         if ($product->store->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
@@ -404,18 +354,8 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been shipped');
     }
 
-    public function deliver($item_id, Request $request)
+    public function deliver(Order_item $item, Request $request)
     {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
         $product = $item->product;
         if ($product->store->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(
@@ -445,18 +385,8 @@ class OrderService
         return ResponseHelper::jsonResponse([], 'The item has been Delivered');
     }
 
-    public function cancelByStore($item_id, Request $request)
+    public function cancelByStore(Order_item $item, Request $request)
     {
-        $item = Order_items::where('id', $item_id)->first();
-        if (! $item) {
-            return ResponseHelper::jsonResponse(
-                [],
-                'Item not found',
-                404,
-                false
-            );
-        }
-
         $product = $item->product;
         if ($product->store->user_id != auth()->id()) {
             return ResponseHelper::jsonResponse(

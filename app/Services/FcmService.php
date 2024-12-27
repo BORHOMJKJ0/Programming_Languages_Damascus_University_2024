@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order\Order;
-use App\Models\Order\Order_items;
+use App\Models\Order\Order_item;
 use App\Models\Product\Product;
 use App\Models\Store\Store;
 use App\Repositories\StoreRepository;
@@ -146,7 +146,7 @@ class FcmService
         $this->sendNotification($deviceToken, $title, $body, $data);
     }
 
-    public function notifyٍStoreItem(Order_items $item, $action, $lang = 'en')
+    public function notifyٍStoreItem(Order_item $item, $action, $lang = 'en')
     {
         $user = auth()->user();
         $user_name = $user->first_name.' '.$user->last_name;
@@ -173,7 +173,7 @@ class FcmService
         $this->sendNotification($deviceToken, $title, $body, $data);
     }
 
-    public function notifyCustomerItem(Order_items $item, $action, $lang = 'en')
+    public function notifyCustomerItem(Order_item $item, $action, $lang = 'en')
     {
         $store = $item->product->store;
 
