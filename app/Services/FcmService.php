@@ -146,7 +146,7 @@ class FcmService
         $this->sendNotification($deviceToken, $title, $body, $data);
     }
 
-    public function notifyٍStoreItem(Order_item $item, $action, $lang = 'en')
+    public function notifyStoreItem(Order_item $item, $action, $lang = 'en')
     {
         $user = auth()->user();
         $user_name = $user->first_name.' '.$user->last_name;

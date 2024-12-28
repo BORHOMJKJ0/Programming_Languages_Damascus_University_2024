@@ -9,6 +9,10 @@ class CartRepository
 {
     use Lockable;
 
+    public function getMyCart()
+    {
+        return auth()->user()->cart;
+    }
     public function create($user_id)
     {
         $data = [
