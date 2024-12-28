@@ -37,6 +37,8 @@ class OrderService
 
     public function placeOrder(Request $request): JsonResponse
     {
+        $this->checkGuest();
+
         $cart = $this->cartRepository->getMyCart();
         if ($cart->cart_items->isEmpty()) {
             return ResponseHelper::jsonResponse(
@@ -84,6 +86,7 @@ class OrderService
 
     public function getAllMyOrders()
     {
+        $this->checkGuest();
         $orders = $this->orderRepository->getAllOrdersByUserId();
         $data = [
             'orders' => OrderResource::collection($orders),
@@ -94,6 +97,7 @@ class OrderService
 
     public function getAllMyCompletedOrders()
     {
+        $this->checkGuest();
         $orders = $this->orderRepository->getOrdersArchivedByUserId();
         $data = [
             'orders' => OrderResource::collection($orders),
@@ -104,6 +108,7 @@ class OrderService
 
     public function getAllStoreOrders(Store $store)
     {
+        $this->checkGuest();
         $this->checkOwnership($store, 'Store', 'show orders of ');
 
         $orders = $this->orderRepository->getAllOrdersByStoreId($store->id);
@@ -117,6 +122,7 @@ class OrderService
 
     public function getAllStoreCompletedOrders(Store $store)
     {
+        $this->checkGuest();
         $this->checkOwnership($store, 'Store', 'show orders of ');
 
         $orders = $this->orderRepository->getOrdersArchivedByStoreId($store->id);
@@ -130,6 +136,7 @@ class OrderService
 
     public function details(Order $order)
     {
+        $this->checkGuest();
         $order_details = $this->orderRepository->getOrderDetails($order);
         $data = [
             'order' => OrderResource::make($order),
@@ -141,6 +148,7 @@ class OrderService
 
     public function edit(Order_item $item, editItemRequest $request)
     {
+        $this->checkGuest();
         $inputs = $request->validated();
         $this->checkOwnership($item->order, 'Order', 'edit an item from');
         $available_status = ['Pending', 'Preparing'];
@@ -173,6 +181,7 @@ class OrderService
     }
     public function deleteByCustomer(Order_item $item, Request $request)
     {
+        $this->checkGuest();
         $this->checkOwnership($item->order, 'Order', 'delete an item from');
         $available_status = ['Pending', 'Preparing', 'Not Available', 'Rejected', 'Cancelled'];
         $this->checkIfCanChangeItemStatus($item, $available_status, 'delete');
@@ -191,6 +200,7 @@ class OrderService
 
     public function accept(Order_item $item, Request $request)
     {
+        $this->checkGuest();
         $this->checkOwnershipForItem($item, 'accept');
         $this->checkIfCanChangeItemStatus($item, ['Pending'], 'accept');
 
@@ -220,6 +230,7 @@ class OrderService
 
     public function reject(Order_item $item, Request $request)
     {
+        $this->checkGuest();
         $this->checkOwnershipForItem($item, 'reject');
         $this->checkIfCanChangeItemStatus($item, ['Pending'], 'reject');
 
@@ -251,6 +262,7 @@ class OrderService
 
     public function ship(Order_item $item, Request $request)
     {
+        $this->checkGuest();
         $this->checkOwnershipForItem($item, 'ship');
         $this->checkIfCanChangeItemStatus($item, ['Preparing'], 'ship');
 
@@ -264,6 +276,7 @@ class OrderService
 
     public function deliver(Order_item $item, Request $request)
     {
+        $this->checkGuest();
         $this->checkOwnershipForItem($item, 'deliver');
         $this->checkIfCanChangeItemStatus($item, ['Shipped'], 'deliver');
 
@@ -277,6 +290,7 @@ class OrderService
 
     public function cancelByStore(Order_item $item, Request $request)
     {
+        $this->checkGuest();
         $this->checkOwnershipForItem($item, 'cancel');
         $this->checkIfCanChangeItemStatus($item, ['Preparing'], 'cancel');
 
