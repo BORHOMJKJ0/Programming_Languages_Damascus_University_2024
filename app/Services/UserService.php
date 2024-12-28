@@ -12,6 +12,7 @@ use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
 use App\Models\User\User;
 use App\Repositories\UserRepository;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -51,10 +52,24 @@ class UserService
         return ResponseHelper::jsonResponse($data, 'Token refreshed');
     }
 
-    public function update_role($user_id, $new_role_id)
+    public function update_role($user_id, $new_role)
     {
+        $allowedRoles = ['admin', 'user'];
+        if (! in_array($new_role, $allowedRoles, true)) {
+            throw new HttpResponseException(
+                ResponseHelper::jsonResponse(
+                    [],
+                    'You are not allowed to assign the role: '.$new_role,
+                    400,
+                    false
+                )
+            );
+        }
         $user = User::find($user_id);
-        $user->update(['role_id' => $new_role_id]);
+        $role = Role::where('role', $new_role)->first();
+        $user->update([
+            'role_id' => $role->id,
+        ]);
     }
 
     public function register(RegisterRequest $request)
@@ -99,7 +114,7 @@ class UserService
             'user' => UserResource::make($user),
         ];
 
-        $this->update_role($user->id, 2);
+        $this->update_role($user->id, 'user');
 
         return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
     }
@@ -224,7 +239,7 @@ class UserService
         if ($user->role->role === 'super_admin') {
             return ResponseHelper::jsonResponse([], "This Super Admin Account You can't delete it", 403, false);
         }
-        $this->userRepository->delete($user);
+        $this->userRepository->delete();
 
         return ResponseHelper::jsonResponse([], 'User deleted successfully!');
     }

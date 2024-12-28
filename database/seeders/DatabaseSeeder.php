@@ -3,13 +3,13 @@
 namespace Database\Seeders;
 
 use Database\Seeders\Auth\superAdminSeeder;
-use Database\Seeders\Role\RoleSeeder;
 use Database\Seeders\Auth\User\UserSeeder;
 use Database\Seeders\Cart\CartItemsSeeder;
 use Database\Seeders\Cart\CartSeeder;
 use Database\Seeders\Category\CategorySeeder;
 use Database\Seeders\Image\ImageSeeder;
 use Database\Seeders\Product\ProductSeeder;
+use Database\Seeders\Role\RoleSeeder;
 use Database\Seeders\Store\StoreSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

@@ -23,6 +23,7 @@ class OrderService
     protected $orderRepository;
 
     protected $orderItemRepository;
+
     protected $cartRepository;
 
     protected $fcmService;
@@ -67,7 +68,7 @@ class OrderService
                 'quantity' => $cart_item->quantity,
                 'price' => $product->price * $cart_item->quantity,
             ]);
-            $this->orderRepository->updateOrder($order,[
+            $this->orderRepository->updateOrder($order, [
                 'total_amount' => $order->total_amount + $order_item->quantity,
                 'total_price' => $order->total_price + $order_item->price,
             ]);
@@ -158,11 +159,11 @@ class OrderService
         $old_quantity = $item->quantity;
         $new_quantity = $inputs['quantity'];
 
-        $this->orderRepository->updateOrder($item->order,[
+        $this->orderRepository->updateOrder($item->order, [
             'total_amount' => $item->order->total_amount - $old_quantity + $new_quantity,
             'total_price' => ($item->order->total_price - $item->price) + $new_quantity * $item->product->price,
         ]);
-        $this->orderItemRepository->updateItem($item,[
+        $this->orderItemRepository->updateItem($item, [
             'quantity' => $new_quantity,
             'price' => $new_quantity * $item->product->price,
         ]);
@@ -171,6 +172,7 @@ class OrderService
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
+
     public function deleteByCustomer(Order_item $item, Request $request)
     {
         $this->checkOwnership($item->order, 'Order', 'delete an item from');
@@ -178,7 +180,7 @@ class OrderService
         $this->checkIfCanChangeItemStatus($item, $available_status, 'delete');
 
         $order = $item->order;
-        $this->orderRepository->updateOrder($order,[
+        $this->orderRepository->updateOrder($order, [
             'total_amount' => $order->total_amount - $item->quantity,
             'total_price' => $order->total_price - $item->price,
         ]);
@@ -198,6 +200,7 @@ class OrderService
         if ($item->quantity > $product->amount) {
             $this->orderItemRepository->updateItemStatus($item, 'Not Available');
             $this->fcmService->notifyCustomerItem($item, 'not available', $request->header('lang', 'en'));
+
             return ResponseHelper::jsonResponse(
                 [],
                 'not available quantity',
@@ -238,7 +241,7 @@ class OrderService
         }
 
         $this->orderItemRepository->updateItemStatus($item, 'Rejected');
-        $this->orderRepository->updateOrder($item->order,[
+        $this->orderRepository->updateOrder($item->order, [
             'total_amount' => $item->order->total_amount - $item->quantity,
             'total_price' => $item->order->total_price - $item->price,
         ]);
@@ -281,7 +284,7 @@ class OrderService
         $this->checkIfCanChangeItemStatus($item, ['Preparing'], 'cancel');
 
         $this->orderItemRepository->updateItemStatus($item, 'Cancelled');
-        $this->orderRepository->updateOrder($item->order,[
+        $this->orderRepository->updateOrder($item->order, [
             'total_amount' => $item->order->total_amount - $item->quantity,
             'total_price' => $item->order->total_price - $item->price,
         ]);

@@ -11,14 +11,19 @@ class OrderRepository
 
     public function getAllOrdersByUserId($user_id = null)
     {
-        if (!$user_id)
+        if (! $user_id) {
             return auth()->user()->orders;
+        }
+
         return Order::where('user_id', $user_id)->get();
     }
 
     public function getOrdersArchivedByUserId($user_id = null)
     {
-        if(!$user_id) $user_id = auth()->id();
+        if (! $user_id) {
+            $user_id = auth()->id();
+        }
+
         return Order::onlyTrashed()->where('user_id', $user_id)->get();
     }
 
@@ -41,10 +46,12 @@ class OrderRepository
     {
         return Order::where('id', $order_id)->first();
     }
+
     public function createNewOrder(array $data)
     {
         return Order::create($data);
     }
+
     public function updateOrder(Order $order, array $data)
     {
         $order->update($data);
@@ -85,12 +92,14 @@ class OrderRepository
             foreach ($status_of_items as $status_of_item) {
                 if (in_array($status_of_item, $processing)) {
                     $this->updateOrderStatus($order, 'Processing');
+
                     return;
                 }
             }
             $this->updateOrderStatus($order, 'Completed');
         }
-        if(in_array($order->order_status, ['Delivered', 'Completed', 'Cancelled', 'Rejected', 'Not Available']))
+        if (in_array($order->order_status, ['Delivered', 'Completed', 'Cancelled', 'Rejected', 'Not Available'])) {
             $this->addToArchive($order);
+        }
     }
 }

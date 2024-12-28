@@ -39,10 +39,10 @@ trait AuthTrait
         if ($product->store->user_id != auth()->id()) {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse(
-                [],
-                "You are not authorized to {$action} this item, this item not for your store",
-                403,
-                false
+                    [],
+                    "You are not authorized to {$action} this item, this item not for your store",
+                    403,
+                    false
                 )
             );
         }
@@ -53,10 +53,10 @@ trait AuthTrait
         if (! in_array($item->item_status, $available_status)) {
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse(
-                [],
-                "You are not authorized to {$action} this item, item status is '$item->item_status'",
-                403,
-                false
+                    [],
+                    "You are not authorized to {$action} this item, item status is '$item->item_status'",
+                    403,
+                    false
                 )
             );
         }

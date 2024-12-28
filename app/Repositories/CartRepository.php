@@ -13,6 +13,7 @@ class CartRepository
     {
         return auth()->user()->cart;
     }
+
     public function create($user_id)
     {
         $data = [

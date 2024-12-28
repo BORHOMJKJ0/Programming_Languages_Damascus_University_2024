@@ -137,7 +137,7 @@ class StoreService
         if (! $this->checkSuperAdmin()) {
             $this->checkGuest();
 
-            if (auth()->user()->role->role_id === 'user') {
+            if (auth()->user()->role->role === 'user') {
 
                 $data['user_id'] = auth()->id();
                 $data['status'] = 'pending';
@@ -283,7 +283,7 @@ class StoreService
                 'status' => 'approved',
             ];
             $this->storeRepository->update($store, $updateData);
-            $this->userService->update_role(auth()->id(), 3);
+            $this->userService->update_role($store->user_id, 'admin');
 
             $title = $lang === 'ar' ? 'تمت الموافقة على إنشاء المتجر' : 'Approved to create a store';
             $body = $lang === 'ar'

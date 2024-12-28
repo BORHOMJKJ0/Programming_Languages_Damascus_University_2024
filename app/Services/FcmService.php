@@ -182,32 +182,32 @@ class FcmService
             $item_name = $item->product->name_en;
             switch ($action) {
                 case 'accept':
-                    $title = "Item Accepted";
+                    $title = 'Item Accepted';
                     $body = "The store {$store_name} has accepted the item {$item_name}, and it is now being prepared.";
                     break;
 
                 case 'reject':
-                    $title = "Item Rejected";
+                    $title = 'Item Rejected';
                     $body = "The store {$store_name} has rejected the item {$item_name}. We apologize.";
                     break;
 
                 case 'not available':
-                    $title = "Item Unavailable";
+                    $title = 'Item Unavailable';
                     $body = "The store {$store_name} has rejected the item {$item_name} due to unavailability of the requested quantity.";
                     break;
 
                 case 'ship':
-                    $title = "Item Shipped";
+                    $title = 'Item Shipped';
                     $body = "The store {$store_name} has shipped the item {$item_name}, and it is on its way to the specified location.";
                     break;
 
                 case 'deliver':
-                    $title = "Item Delivered";
+                    $title = 'Item Delivered';
                     $body = "The store {$store_name} has delivered the item {$item_name}. Thank you for your order.";
                     break;
 
                 case 'cancel':
-                    $title = "Item Canceled";
+                    $title = 'Item Canceled';
                     $body = "The store {$store_name} has canceled the item {$item_name}. We apologize.";
                     break;
             }
@@ -216,28 +216,28 @@ class FcmService
             $item_name = $item->product->name_ar;
             switch ($action) {
                 case 'accept':
-                    $title = "تم قبول عنصر";
+                    $title = 'تم قبول عنصر';
                     $body = "قام متجر {$store_name} بقبول العنصر {$item_name} ,ويتم الأن العمل على تحضيره.";
                     break;
                 case 'reject':
-                    $title = "تم رفض عنصر";
+                    $title = 'تم رفض عنصر';
                     $body = "قام متجر {$store_name} برفض العنصر {$item_name} ,نعتذر لكم.";
                     break;
                 case 'not available':
-                    $title = "العنصر غير متوفر";
+                    $title = 'العنصر غير متوفر';
                     $body = "قام متجر {$store_name} برفض العنصر {$item_name} بسبب عدم توفر الكمية المطلوبة.";
                     break;
                 case 'ship':
-                    $title = "تم شحن عنصر";
-                    $body =  "قام متجر {$store_name} بشحن العنصر {$item_name} ,وهو في طربقه إلى الموقع المحدد.";
+                    $title = 'تم شحن عنصر';
+                    $body = "قام متجر {$store_name} بشحن العنصر {$item_name} ,وهو في طربقه إلى الموقع المحدد.";
                     break;
                 case 'deliver':
-                    $title = "تم توصيل عنصر";
-                    $body =  "قام متجر {$store_name} بتوصيل العنصر {$item_name} ,شكراً لطلبكم.";
+                    $title = 'تم توصيل عنصر';
+                    $body = "قام متجر {$store_name} بتوصيل العنصر {$item_name} ,شكراً لطلبكم.";
                     break;
                 case 'cancel':
-                    $title = "تم إلغاء عنصر";
-                    $body =  "قام متجر {$store_name} بإلغاء العنصر {$item_name} ,نعتذر لكم.";
+                    $title = 'تم إلغاء عنصر';
+                    $body = "قام متجر {$store_name} بإلغاء العنصر {$item_name} ,نعتذر لكم.";
                     break;
             }
         }

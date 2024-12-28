@@ -78,7 +78,7 @@ Route::middleware('check_auth:api')->group(function () {
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
             Route::get('/my', 'show');
-            Route::get('my/completed','showCompleted');
+            Route::get('my/completed', 'showCompleted');
             Route::post('/edit/{item}', 'edit');
             Route::delete('/delete/{item}', 'delete');
         });
