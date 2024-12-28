@@ -92,11 +92,34 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
+    public function getAllMyCompletedOrders()
+    {
+        $orders = $this->orderRepository->getOrdersArchivedByUserId();
+        $data = [
+            'orders' => OrderResource::collection($orders),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'get orders successfully');
+    }
+
     public function getAllStoreOrders(Store $store)
     {
         $this->checkOwnership($store, 'Store', 'show orders of ');
 
         $orders = $this->orderRepository->getAllOrdersByStoreId($store->id);
+
+        $data = [
+            'orders' => OrderResource::collection($orders),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'get orders successfully');
+    }
+
+    public function getAllStoreCompletedOrders(Store $store)
+    {
+        $this->checkOwnership($store, 'Store', 'show orders of ');
+
+        $orders = $this->orderRepository->getOrdersArchivedByStoreId($store->id);
 
         $data = [
             'orders' => OrderResource::collection($orders),

@@ -78,11 +78,13 @@ Route::middleware('check_auth:api')->group(function () {
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
             Route::get('/my', 'show');
+            Route::get('my/completed','showCompleted');
             Route::post('/edit/{item}', 'edit');
             Route::delete('/delete/{item}', 'delete');
         });
         Route::controller(StoreOrderController::class)->group(function () {
             Route::get('/{store}', 'show');
+            Route::get('/completed/{store}', 'showCompleted');
             Route::post('/accept/{item}', 'accept');
             Route::post('/reject/{item}', 'reject');
             Route::post('/ship/{item}', 'ship');

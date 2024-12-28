@@ -19,7 +19,12 @@ class OrderRepository
     public function getOrdersArchivedByUserId($user_id = null)
     {
         if(!$user_id) $user_id = auth()->id();
-        return Order::OnlyTrached()->where('user_id', $user_id)->get();
+        return Order::onlyTrashed()->where('user_id', $user_id)->get();
+    }
+
+    public function getOrdersArchivedByStoreId($store_id)
+    {
+        return Order::onlyTrashed()->where('store_id', $store_id)->get();
     }
 
     public function getAllOrdersByStoreId($store_id)
@@ -85,5 +90,7 @@ class OrderRepository
             }
             $this->updateOrderStatus($order, 'Completed');
         }
+        if(in_array($order->order_status, ['Delivered', 'Completed', 'Cancelled', 'Rejected', 'Not Available']))
+            $this->addToArchive($order);
     }
 }

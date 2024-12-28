@@ -27,6 +27,11 @@ class CustomerOrderController extends Controller
         return $this->orderService->getAllMyOrders();
     }
 
+    public function showCompleted()
+    {
+        return $this->orderService->getAllMyCompletedOrders();
+    }
+
     public function edit(Order_item $item, editItemRequest $request)
     {
         return $this->orderService->edit($item, $request);

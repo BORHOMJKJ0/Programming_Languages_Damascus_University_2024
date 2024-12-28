@@ -22,6 +22,10 @@ class StoreOrderController extends Controller
         return $this->orderService->getAllStoreOrders($store);
     }
 
+    public function showCompleted(Store $store)
+    {
+        return $this->orderService->getAllStoreCompletedOrders($store);
+    }
     public function accept(Order_item $item, Request $request)
     {
         return $this->orderService->accept($item, $request);
