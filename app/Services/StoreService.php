@@ -137,7 +137,7 @@ class StoreService
         if (! $this->checkSuperAdmin()) {
             $this->checkGuest();
 
-            if (auth()->user()->role->role === 'user') {
+            if (auth()->user()->role->role_id === 'user') {
 
                 $data['user_id'] = auth()->id();
                 $data['status'] = 'pending';

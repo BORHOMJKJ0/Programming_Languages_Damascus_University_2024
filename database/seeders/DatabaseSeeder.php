@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Seeders\Auth\superAdminSeeder;
-use Database\Seeders\Auth\User\RoleSeeder;
+use Database\Seeders\Role\RoleSeeder;
 use Database\Seeders\Auth\User\UserSeeder;
 use Database\Seeders\Cart\CartItemsSeeder;
 use Database\Seeders\Cart\CartSeeder;

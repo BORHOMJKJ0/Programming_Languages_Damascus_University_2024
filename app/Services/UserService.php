@@ -51,12 +51,10 @@ class UserService
         return ResponseHelper::jsonResponse($data, 'Token refreshed');
     }
 
-    public function update_role($user_id, $new_role)
+    public function update_role($user_id, $new_role_id)
     {
         $user = User::find($user_id);
-        $user->role->update([
-            'role' => $new_role,
-        ]);
+        $user->update(['role_id' => $new_role_id]);
     }
 
     public function register(RegisterRequest $request)
@@ -69,10 +67,7 @@ class UserService
             $path = $request->file('image')->store('images', 'public');
             $inputs['image'] = $path;
         }
-        $role = Role::create([
-            'role' => 'user',
-        ]);
-        $inputs['role_id'] = $role->id;
+        $inputs['role_id'] = 2;
 
         $user = User::create($inputs);
 
@@ -104,18 +99,15 @@ class UserService
             'user' => UserResource::make($user),
         ];
 
-        $this->update_role($user->id, 'user');
+        $this->update_role($user->id, 2);
 
         return ResponseHelper::jsonResponse($data, 'Register successfully', 201);
     }
 
     public function getStarted()
     {
-        $role = Role::create([
-            'role' => 'guest',
-        ]);
         $guest = User::create([
-            'role_id' => $role->id,
+            'role_id' => 1,
         ]);
 
         $data = [
