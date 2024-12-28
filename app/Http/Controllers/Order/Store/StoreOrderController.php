@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Order\Store;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order\Order_item;
 use App\Models\Store\Store;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
@@ -21,28 +22,32 @@ class StoreOrderController extends Controller
         return $this->orderService->getAllStoreOrders($store);
     }
 
-    public function accept($item_id, Request $request)
+    public function showCompleted(Store $store)
     {
-        return $this->orderService->accept($item_id, $request);
+        return $this->orderService->getAllStoreCompletedOrders($store);
+    }
+    public function accept(Order_item $item, Request $request)
+    {
+        return $this->orderService->accept($item, $request);
     }
 
-    public function reject($item_id, Request $request)
+    public function reject(Order_item $item, Request $request)
     {
-        return $this->orderService->reject($item_id, $request);
+        return $this->orderService->reject($item, $request);
     }
 
-    public function ship($item_id, Request $request)
+    public function ship(Order_item $item, Request $request)
     {
-        return $this->orderService->ship($item_id, $request);
+        return $this->orderService->ship($item, $request);
     }
 
-    public function deliver($item_id, Request $request)
+    public function deliver(Order_item $item, Request $request)
     {
-        return $this->orderService->deliver($item_id, $request);
+        return $this->orderService->deliver($item, $request);
     }
 
-    public function cancel($item_id, Request $request)
+    public function cancel(Order_item $item, Request $request)
     {
-        return $this->orderService->cancelByStore($item_id, $request);
+        return $this->orderService->cancelByStore($item, $request);
     }
 }

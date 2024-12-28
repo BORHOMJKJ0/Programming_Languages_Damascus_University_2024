@@ -78,16 +78,18 @@ Route::middleware('check_auth:api')->group(function () {
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
             Route::get('/my', 'show');
-            Route::post('/edit/{item_id}', 'edit');
-            Route::delete('/delete/{item_id}', 'delete');
+            Route::get('my/completed','showCompleted');
+            Route::post('/edit/{item}', 'edit');
+            Route::delete('/delete/{item}', 'delete');
         });
         Route::controller(StoreOrderController::class)->group(function () {
             Route::get('/{store}', 'show');
-            Route::post('/accept/{item_id}', 'accept');
-            Route::post('/reject/{item_id}', 'reject');
-            Route::post('/ship/{item_id}', 'ship');
-            Route::post('/deliver/{item_id}', 'deliver');
-            Route::post('/cancel/byStore/{item_id}', 'cancel');
+            Route::get('/completed/{store}', 'showCompleted');
+            Route::post('/accept/{item}', 'accept');
+            Route::post('/reject/{item}', 'reject');
+            Route::post('/ship/{item}', 'ship');
+            Route::post('/deliver/{item}', 'deliver');
+            Route::post('/cancel/byStore/{item}', 'cancel');
         });
     });
     Route::apiResource('stores', StoreController::class);

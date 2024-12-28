@@ -5,16 +5,18 @@ namespace App\Models\Order;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
     use HasFactory;
+    use softDeletes;
 
     protected $guarded = [];
 
     public function items()
     {
-        return $this->hasMany(Order_items::class);
+        return $this->hasMany(Order_item::class);
     }
 
     public function store()
@@ -28,4 +30,5 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 }

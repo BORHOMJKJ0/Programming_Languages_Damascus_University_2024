@@ -22,6 +22,7 @@ return new class extends Migration
                 ['Pending', 'Preparing', 'Shipped', 'Not Available',
                     'Rejected', 'Delivered', 'Cancelled', 'Processing', 'Completed'])
                 ->default('Pending');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
