@@ -283,6 +283,7 @@ class StoreService
                 'status' => 'approved',
             ];
             $this->storeRepository->update($store, $updateData);
+            $this->userService->update_role(auth()->id(), 3);
 
             $title = $lang === 'ar' ? 'تمت الموافقة على إنشاء المتجر' : 'Approved to create a store';
             $body = $lang === 'ar'
