@@ -12,6 +12,7 @@ use App\Http\Resources\User\UserResource;
 use App\Models\User\Role;
 use App\Models\User\User;
 use App\Repositories\UserRepository;
+use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +24,7 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class UserService
 {
+    use AuthTrait;
     protected CartService $cartService;
 
     protected UserRepository $userRepository;
@@ -149,6 +151,7 @@ class UserService
 
     public function logout(Request $request)
     {
+        $this->checkGuest();
         $token = $request->header('Authorization');
         JWTAuth::invalidate($token);
 
@@ -157,6 +160,7 @@ class UserService
 
     public function getProfile()
     {
+        $this->checkGuest();
         $user = JWTAuth::user();
         $data = [
             'user' => UserResource::make($user),
@@ -167,6 +171,7 @@ class UserService
 
     public function updateProfile(UpdateProfileRequest $request)
     {
+        $this->checkGuest();
         $inputs = $request->all();
 
         $user = JWTAuth::user();
@@ -198,6 +203,7 @@ class UserService
 
     public function resetPassword(ResetPasswordRequest $request)
     {
+        $this->checkGuest();
         $inputs = $request->all();
 
         $user = JWTAuth::user();
