@@ -23,7 +23,7 @@ class StoreRepository
     {
         $userId = $user_id ?? auth()->id();
 
-        return Store::where('user_id', $userId)->where('status', 'approved')->get();
+        return Store::where('user_id', $userId)->get();
     }
 
     public function orderBy($column, $direction, $items)
