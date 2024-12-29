@@ -85,9 +85,6 @@ class StoreService
     {
         try {
             $this->checkGuest();
-            if (! $this->checkSuperAdmin()) {
-                $this->checkAdmin('Store', 'perform');
-            }
             $store = Store::where('user_id', auth()->id())->first();
             if (! $store) {
                 throw new HttpResponseException(
@@ -105,7 +102,7 @@ class StoreService
                 $cachedData = cache()->get($cacheKey);
 
                 $body = $lang === 'ar'
-                    ? "تم رفض إنشاء المتجر الخاص بك: {$cachedData['reason_ar']}."
+                    ? " تم رفض إنشاء المتجر الخاص بك السبب :  {$cachedData['reason_ar']}."
                     : "Your request to create your store has been rejected. Reason: {$cachedData['reason_en']}.";
 
                 return ResponseHelper::jsonResponse([], $body, 403, false);
@@ -138,6 +135,13 @@ class StoreService
                 return ResponseHelper::jsonResponse([], 'We are waiting for Super Admin response to create this store .', 404, false);
             }
         }
+        if ($store->status === 'rejected') {
+            if ($this->checkSuperAdmin()) {
+                return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : you rejected creating this store .', 404, false);
+            } else {
+                return ResponseHelper::jsonResponse([], 'SuperAdmin rejected creating this store .', 404, false);
+            }
+        }
         $data = ['Store' => StoreResource::make($store)];
 
         return ResponseHelper::jsonResponse($data, 'Store retrieved successfully!');
@@ -149,7 +153,11 @@ class StoreService
             $this->checkGuest();
             if (auth()->user()->role->role === 'user') {
                 $stores = $this->storeRepository->findByUserId();
-                if ($stores->isEmpty()) {
+                $store = $stores->first();
+                if ($stores->isEmpty() || $store->status == 'rejected') {
+                    if ($store->status === 'rejected') {
+                        $this->deleteStore($store);
+                    }
                     $data['user_id'] = auth()->id();
                     $path = $request->hasFile('image') ? $request->file('image')->store('images', 'public') : null;
                     $data['image'] = $path;
@@ -157,7 +165,8 @@ class StoreService
                     $data['status'] = 'pending';
                     $store = $this->storeRepository->create($data);
                     $this->fcmService->notifySuperAdminForApproval($store, $request->header('lang', 'en'));
-                    return ResponseHelper::jsonResponse([], 'We have sent your request to the SuperAdmin and are waiting for his response.', 202, true);
+
+                    return ResponseHelper::jsonResponse([], 'We have sent your request to the SuperAdmin and are waiting for his response.', 202);
                 } else {
                     $store = $stores->first();
                     if ($store->status === 'pending') {
@@ -323,6 +332,10 @@ class StoreService
                 ? " تمت الموافقة على إنشاء المتجر الخاص بك: {$store->name_ar}. يمكنك الآن رؤيته وإضافة المنتجات إليه."
                 : "Your request to create your store {$store->name_en} has been approved. You can now view it and add products to it.";
         } elseif ($data['response'] === 'rejected') {
+            $updateData = [
+                'status' => 'rejected',
+            ];
+            $this->storeRepository->update($store, $updateData);
             $cacheKey = "store_rejection_{$store->user_id}";
             $cacheData = [
                 'store_id' => $store->id,
@@ -333,7 +346,7 @@ class StoreService
             cache()->put($cacheKey, $cacheData, now()->addHours(24));
 
             $reason = $lang === 'ar' ? $data['reason_ar'] : $data['reason_en'];
-            $this->storeRepository->delete($store);
+            // $this->storeRepository->delete($store);
 
             $title = $lang === 'ar' ? 'تم رفض إنشاء المتجر' : 'Rejected to create a store';
             $body = $lang === 'ar'
