@@ -81,10 +81,13 @@ class FcmService
             'store_name' => $lang === 'ar' ? $store->name_ar : $store->name_en,
             'callback_url' => route('superAdmin.storeApprovalResponse', ['store' => $store->id]),
         ];
-
-        $this->sendNotification($store->user->fcm_token, $title, $user_body, $data);
+        if ($store->user->fcm_token != null) {
+            $this->sendNotification($store->user->fcm_token, $title, $user_body, $data);
+        }
         unset($data['callback_url']);
-        $this->sendNotification($superAdmin->fcm_token, $title, $SuperAdmin_body, $data);
+        if ($superAdmin->fcm_token != null) {
+            $this->sendNotification($superAdmin->fcm_token, $title, $SuperAdmin_body, $data);
+        }
     }
 
     public function notifyFavoriteProductUsers(Product $product, $action, $lang = 'en')
@@ -142,8 +145,9 @@ class FcmService
         ];
 
         $deviceToken = $order->store()->user->fcm_token;
-
-        $this->sendNotification($deviceToken, $title, $body, $data);
+        if ($deviceToken != null) {
+            $this->sendNotification($deviceToken, $title, $body, $data);
+        }
     }
 
     public function notifyStoreItem(Order_item $item, $action, $lang = 'en')
@@ -169,8 +173,9 @@ class FcmService
             'order_number' => $item->order->id,
         ];
         $deviceToken = $item->order->store()->user->fcm_token;
-
-        $this->sendNotification($deviceToken, $title, $body, $data);
+        if ($deviceToken != null) {
+            $this->sendNotification($deviceToken, $title, $body, $data);
+        }
     }
 
     public function notifyCustomerItem(Order_item $item, $action, $lang = 'en')
@@ -246,7 +251,8 @@ class FcmService
         ];
 
         $deviceToken = $item->order->user->fcm_token;
-
-        $this->sendNotification($deviceToken, $title, $body, $data);
+        if ($deviceToken != null) {
+            $this->sendNotification($deviceToken, $title, $body, $data);
+        }
     }
 }

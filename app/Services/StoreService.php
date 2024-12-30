@@ -96,16 +96,18 @@ class StoreService
                     )
                 );
             }
-            $cacheKey = "store_rejection_{$store->user_id}";
-            if (cache()->has($cacheKey)) {
-                $lang = request()->header('lang', 'en');
-                $cachedData = cache()->get($cacheKey);
+            if ($store->status === 'rejected') {
+                $cacheKey = "store_rejection_{$store->user_id}";
+                if (cache()->has($cacheKey)) {
+                    $lang = request()->header('lang', 'en');
+                    $cachedData = cache()->get($cacheKey);
 
-                $body = $lang === 'ar'
-                    ? " تم رفض إنشاء المتجر الخاص بك السبب :  {$cachedData['reason_ar']}."
-                    : "Your request to create your store has been rejected. Reason: {$cachedData['reason_en']}.";
+                    $body = $lang === 'ar'
+                        ? " تم رفض إنشاء المتجر الخاص بك السبب :  {$cachedData['reason_ar']}."
+                        : "Your request to create your store has been rejected. Reason: {$cachedData['reason_en']}.";
 
-                return ResponseHelper::jsonResponse([], $body, 403, false);
+                    return ResponseHelper::jsonResponse([], $body, 403, false);
+                }
             }
             if ($store->status === 'pending') {
                 if ($this->checkSuperAdmin()) {
@@ -154,9 +156,9 @@ class StoreService
             if (auth()->user()->role->role === 'user') {
                 $stores = $this->storeRepository->findByUserId();
                 $store = $stores->first();
-                if ($stores->isEmpty() || $store->status == 'rejected') {
-                    if ($store->status === 'rejected') {
-                        $this->deleteStore($store);
+                if ($stores->isEmpty() || $store) {
+                    if ($store && $store->status === 'rejected') {
+                        $this->storeRepository->delete($store);
                     }
                     $data['user_id'] = auth()->id();
                     $path = $request->hasFile('image') ? $request->file('image')->store('images', 'public') : null;
@@ -199,11 +201,10 @@ class StoreService
 
         $path = $request->hasFile('image') ? $request->file('image')->store('images', 'public') : null;
         $data['image'] = $path;
-
         $stores = $this->storeRepository->findByUserId($data['user_id']);
         if ($stores->isEmpty()) {
             $this->validateStoreData($data);
-
+            $data['status'] = 'pending';
             $store = $this->storeRepository->create($data);
             $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
             $data = [
@@ -303,6 +304,9 @@ class StoreService
                     return ResponseHelper::jsonResponse([], "You can't delete this store before receive Super Admin response about creating this store .", 404, false);
                 }
             }
+            if ($store->user->role->role === 'admin') {
+                $this->userService->update_role($store->user_id, 'user');
+            }
             $this->storeRepository->delete($store);
             $response = ResponseHelper::jsonResponse([], 'Store deleted successfully!');
         } catch (HttpResponseException $e) {
@@ -315,7 +319,10 @@ class StoreService
     public function handleStoreApproval(Store $store, RequestNotification $request)
     {
         if ($store->status === 'approved') {
-            return ResponseHelper::jsonResponse([], 'Mr. Super Admin : We have this store in our System.', 404, false);
+            return ResponseHelper::jsonResponse([], 'Mr. Super Admin : We have this store in our System.', 403, false);
+        }
+        if ($store->status === 'rejected') {
+            return ResponseHelper::jsonResponse([], 'Mr. Super Admin : you reject creating this store .', 403, false);
         }
         $data = $request->validated();
         $lang = $request->header('lang', 'en');
@@ -346,7 +353,6 @@ class StoreService
             cache()->put($cacheKey, $cacheData, now()->addHours(24));
 
             $reason = $lang === 'ar' ? $data['reason_ar'] : $data['reason_en'];
-            // $this->storeRepository->delete($store);
 
             $title = $lang === 'ar' ? 'تم رفض إنشاء المتجر' : 'Rejected to create a store';
             $body = $lang === 'ar'
@@ -354,11 +360,13 @@ class StoreService
                 : "Your request to create your store {$store->name_en} has been rejected. Reason: {$reason}.";
             cache()->put("rejection_body_ar_{$store->user_id}", $body, now()->addHours(24));
             cache()->put("rejection_body_en_{$store->user_id}", $body, now()->addHours(24));
+            $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
         }
-
-        $this->fcmService->sendNotification($store->user->fcm_token, $title, $body,
-            ['store_id' => $store->id, 'status' => $store->status]
-        );
+        if ($store->user->fcm_token != null) {
+            $this->fcmService->sendNotification($store->user->fcm_token, $title, $body,
+                ['store_id' => $store->id, 'status' => $store->status]
+            );
+        }
 
         return ResponseHelper::jsonResponse([], 'Response recorded successfully');
     }
