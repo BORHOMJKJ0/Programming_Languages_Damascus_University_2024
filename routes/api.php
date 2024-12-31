@@ -73,7 +73,7 @@ Route::middleware('check_auth:api')->group(function () {
     });
     Route::prefix('orders')->group(function () {
         Route::controller(OrderController::class)->group(function () {
-            Route::get('/details/{order_id}', 'details');
+            Route::get('/details/{order}', 'details');
         });
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');
