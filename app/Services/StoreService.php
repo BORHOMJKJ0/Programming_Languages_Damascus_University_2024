@@ -36,9 +36,7 @@ class StoreService
     public function getAllStores(Request $request)
     {
         try {
-            if (! $this->checkSuperAdmin()) {
-                $this->checkGuest();
-            }
+            $this->checkSuperAdmin();
             $items = $request->query('items', 20);
             $stores = $this->storeRepository->getAll($items);
 
@@ -127,9 +125,7 @@ class StoreService
 
     public function getStoreById(Store $store): JsonResponse
     {
-        if (! $this->checkSuperAdmin()) {
-            $this->checkGuest();
-        }
+        $this->checkSuperAdmin();
         if ($store->status === 'pending') {
             if ($this->checkSuperAdmin()) {
                 return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : We are waiting your response for creating this store .', 404, false);
