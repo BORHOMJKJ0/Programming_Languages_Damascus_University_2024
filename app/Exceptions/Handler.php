@@ -35,9 +35,10 @@ class Handler extends ExceptionHandler
             return ResponseHelper::jsonResponse([], $exception->getMessage(), $exception->getCode(), false);
         }
 
-        if ($exception instanceof \Kreait\Firebase\Exception\Messaging\NotFound) {
+        if ($exception instanceof \Kreait\Firebase\Exception\Messaging\NotFound || $exception instanceof \Kreait\Firebase\Exception\Messaging\InvalidMessage || $exception instanceof \Kreait\Firebase\Exception\Messaging\NotFound) {
             return ResponseHelper::jsonResponse([], "Requested Firebase entity was not found. Please check the provided data (fcm_token's).", 404, false);
         }
+
         return parent::render($request, $exception);
     }
 }
