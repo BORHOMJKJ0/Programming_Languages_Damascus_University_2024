@@ -34,7 +34,6 @@ class SearchController extends Controller
         $models = $this->getModelsBasedOnRole($user);
 
         if (! array_key_exists($model, $models)) {
-            $this->checkGuest();
             throw new HttpResponseException(
                 ResponseHelper::jsonResponse(
                     [],
@@ -147,6 +146,7 @@ class SearchController extends Controller
             return [
                 'products' => Product::query(),
                 'categories' => Category::query(),
+                'stores'=>Store::query(),
             ];
         }
 
