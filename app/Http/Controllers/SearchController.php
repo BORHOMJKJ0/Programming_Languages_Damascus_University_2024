@@ -146,7 +146,7 @@ class SearchController extends Controller
             return [
                 'products' => Product::query(),
                 'categories' => Category::query(),
-                'stores'=>Store::query(),
+                'stores' => Store::query(),
             ];
         }
 

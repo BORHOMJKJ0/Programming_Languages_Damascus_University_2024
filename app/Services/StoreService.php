@@ -36,9 +36,6 @@ class StoreService
     public function getAllStores(Request $request)
     {
         try {
-            if (! $this->checkSuperAdmin()) {
-                $this->checkGuest();
-            }
             $items = $request->query('items', 20);
             $stores = $this->storeRepository->getAll($items);
 
@@ -84,7 +81,10 @@ class StoreService
     public function getMyStoreById()
     {
         try {
-            $this->checkGuest();
+            if (! $this->checkSuperAdmin()) {
+                $this->checkGuest();
+                $this->checkAdmin('Store', 'perform');
+            }
             $store = Store::where('user_id', auth()->id())->first();
             if (! $store) {
                 throw new HttpResponseException(
@@ -127,9 +127,6 @@ class StoreService
 
     public function getStoreById(Store $store): JsonResponse
     {
-        if (! $this->checkSuperAdmin()) {
-            $this->checkGuest();
-        }
         if ($store->status === 'pending') {
             if ($this->checkSuperAdmin()) {
                 return ResponseHelper::jsonResponse([], 'Mr.SuperAdmin : We are waiting your response for creating this store .', 404, false);
@@ -224,9 +221,6 @@ class StoreService
     public function getStoresOrderedBy($column, $direction, Request $request)
     {
         try {
-            if (! $this->checkSuperAdmin()) {
-                $this->checkGuest();
-            }
             $lang = $request->header('lang', 'en');
             $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
             $validColumns = [$nameColumn, 'location', 'created_at', 'updated_at'];

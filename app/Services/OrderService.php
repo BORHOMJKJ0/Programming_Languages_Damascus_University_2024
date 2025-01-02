@@ -177,7 +177,7 @@ class OrderService
             'price' => $new_quantity * $item->product->price,
         ]);
 
-        //$this->fcmService->notifyStoreItem($item, 'update', $request->header('lang', 'en'));
+        // $this->fcmService->notifyStoreItem($item, 'update', $request->header('lang', 'en'));
 
         return ResponseHelper::jsonResponse([], 'The item has been edited');
     }
@@ -194,7 +194,7 @@ class OrderService
             'total_amount' => $order->total_amount - $item->quantity,
             'total_price' => $order->total_price - $item->price,
         ]);
-        //$this->fcmService->notifyStoreItem($item, 'delete', $request->header('lang', 'en'));
+        // $this->fcmService->notifyStoreItem($item, 'delete', $request->header('lang', 'en'));
         $item->delete();
         $this->orderRepository->refreshOrderStatus($order);
 
