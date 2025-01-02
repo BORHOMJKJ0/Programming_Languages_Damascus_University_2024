@@ -24,6 +24,12 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::get('/test',function (){
+    $string=null;
+    $sub = substr($string, 0, 10);
+    dd($sub);
+});
+
 Route::middleware('check_auth:api')->group(function () {
     Route::get('/search/{model}', [SearchController::class, 'search']);
     Route::post('/create_product_with_images', [ProductController::class, 'create_product_with_images']);
@@ -73,7 +79,7 @@ Route::middleware('check_auth:api')->group(function () {
     });
     Route::prefix('orders')->group(function () {
         Route::controller(OrderController::class)->group(function () {
-            Route::get('/details/{order_id}', 'details');
+            Route::get('/details/{order}', 'details');
         });
         Route::controller(CustomerOrderController::class)->group(function () {
             Route::post('/placeOrder', 'placeOrder');

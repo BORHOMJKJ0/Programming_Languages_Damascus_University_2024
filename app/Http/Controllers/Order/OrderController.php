@@ -15,8 +15,8 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    public function details($order_id)
+    public function details(Order $order)
     {
-        return $this->orderService->details($order_id);
+        return $this->orderService->details($order);
     }
 }

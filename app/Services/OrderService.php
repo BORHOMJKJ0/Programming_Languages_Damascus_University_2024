@@ -135,10 +135,10 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
-    public function details($order_id)
+    public function details(Order $order)
     {
         $this->checkGuest();
-        $order = Order::withTrashed()->where('id', $order_id)->first();
+        $order = Order::withTrashed()->where('id', $order->id)->first();
         $order_details = $this->orderRepository->getOrderDetails($order);
         $data = [
             'order' => OrderResource::make($order),
