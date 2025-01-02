@@ -188,7 +188,7 @@ class UserService
     public function updateProfile(UpdateProfileRequest $request)
     {
         $this->checkGuest();
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
         $user = JWTAuth::user();
 
