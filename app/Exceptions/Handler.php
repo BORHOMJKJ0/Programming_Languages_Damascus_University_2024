@@ -36,7 +36,14 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof \Kreait\Firebase\Exception\Messaging\NotFound || $exception instanceof \Kreait\Firebase\Exception\Messaging\InvalidMessage || $exception instanceof \Kreait\Firebase\Exception\Messaging\NotFound) {
-            return ResponseHelper::jsonResponse([], "Requested Firebase entity was not found. Please check the provided data (fcm_token's).", 404, false);
+            $user = User::where('id', auth()->id())->first();
+            $super = User::whereHas('role', function ($query) {
+                $query->where('role', 'super_admin');
+            })->first();
+
+            return ResponseHelper::jsonResponse([], "Requested Firebase entity was not found. Please check the provided data (fcm_token's).
+            user->fcm_token={$user->fcm_token},
+            Super_admin->fcm_token={$super->fcm_token}", 404, false);
         }
 
         return parent::render($request, $exception);

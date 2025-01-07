@@ -87,10 +87,10 @@ class Cart_Items_Service
             $this->validate_Cart_items_Data($data);
             $cart = $this->checkCart($user_id);
             $data['cart_id'] = $cart->id;
-            $product=Product::where('id', $data['product_id'])->first();
-            $user=User::where('id',auth()->id())->first();
+            $product = Product::where('id', $data['product_id'])->first();
+            $user = User::where('id', auth()->id())->first();
             if ($product->store->user_id === $user->id) {
-                return ResponseHelper::jsonResponse([], "You cannot add a product from your store", 403, false);
+                return ResponseHelper::jsonResponse([], 'You cannot add a product from your store', 403, false);
             }
             $cart_item = $this->cartItemsRepository->create($data);
             $data = ['Cart_items' => CartItemsResource::make($cart_item)];

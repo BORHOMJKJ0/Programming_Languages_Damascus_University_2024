@@ -23,10 +23,8 @@ class UserRepository
         })->first();
     }
 
-    public function delete()
+    public function delete(User $user)
     {
-        $user = auth()->user();
-
         return $this->lockForDelete(User::class, $user->id, function ($lockedUser) {
             return $lockedUser->delete();
         });

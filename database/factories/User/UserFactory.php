@@ -12,7 +12,7 @@ class UserFactory extends Factory
         return [
             'first_Name' => fake()->firstName,
             'last_Name' => fake()->optional()->lastName,
-            'mobile_number' => '09' .fake()->unique()->numerify('########'),
+            'mobile_number' => '09'.fake()->unique()->numerify('########'),
             'password' => bcrypt('password'),
             'password_confirmation' => bcrypt('password'),
             'location' => fake()->optional()->address,

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\User\IdRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
@@ -240,13 +241,15 @@ class UserService
         return ResponseHelper::jsonResponse([], 'Password reset successfully');
     }
 
-    public function deleteUser()
+    public function deleteUser(IdRequest $request)
     {
+        $id = $request->input('guest_id') ?? auth()->id();
         $user = auth()->user();
         if ($user->role->role === 'super_admin') {
             return ResponseHelper::jsonResponse([], "This Super Admin Account You can't delete it", 403, false);
         }
-        $this->userRepository->delete();
+        $user = User::where('id', $id)->first();
+        $this->userRepository->delete($user);
 
         return ResponseHelper::jsonResponse([], 'User deleted successfully!');
     }

@@ -209,7 +209,7 @@ class StoreService
                 'Store' => StoreResource::make($store),
             ];
 
-            return ResponseHelper::jsonResponse($data, 'Store created successfully!',201);
+            return ResponseHelper::jsonResponse($data, 'Store created successfully!', 201);
         }
 
         if ($data['user_id'] == auth()->id()) {

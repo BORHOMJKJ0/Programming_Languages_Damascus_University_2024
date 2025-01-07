@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\IdRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
@@ -65,8 +66,8 @@ class UserController extends Controller
         return $this->userService->resetPassword($request);
     }
 
-    public function deleteUser()
+    public function deleteUser(IdRequest $request)
     {
-        return $this->userService->deleteUser();
+        return $this->userService->deleteUser($request);
     }
 }
