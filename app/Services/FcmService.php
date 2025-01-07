@@ -32,6 +32,7 @@ class FcmService
 
     public function sendNotification($deviceToken, $title, $body, array $data = [])
     {
+        \Log::info($deviceToken);
         $notification = Notification::create($title, $body);
         $message = CloudMessage::withTarget('token', $deviceToken)
             ->withNotification($notification)
@@ -81,6 +82,8 @@ class FcmService
             'store_name' => $lang === 'ar' ? $store->name_ar : $store->name_en,
             'callback_url' => route('superAdmin.storeApprovalResponse', ['store' => $store->id]),
         ];
+        \Log::info($store->user->fcm_token);
+        \Log::info($superAdmin->fcm_token);
         if ($store->user->fcm_token != null) {
             $this->sendNotification($store->user->fcm_token, $title, $user_body, $data);
         }

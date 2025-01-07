@@ -163,6 +163,7 @@ class StoreService
                     $this->validateStoreData($data);
                     $data['status'] = 'pending';
                     $store = $this->storeRepository->create($data);
+                    \Log::info($store->user->fcm_token);
                     $this->fcmService->notifySuperAdminForApproval($store, $request->header('lang', 'en'));
 
                     return ResponseHelper::jsonResponse([], 'We have sent your request to the SuperAdmin and are waiting for his response.', 202);

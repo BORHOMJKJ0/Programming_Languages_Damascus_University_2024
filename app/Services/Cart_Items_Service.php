@@ -8,6 +8,7 @@ use App\Http\Resources\Cart\CartItemsResource;
 use App\Models\Cart\Cart;
 use App\Models\Cart\Cart_items;
 use App\Models\Product\Product;
+use App\Models\User\User;
 use App\Repositories\CartItemsRepository;
 use App\Traits\AuthTrait;
 use App\Traits\ValidationTrait;
@@ -86,6 +87,11 @@ class Cart_Items_Service
             $this->validate_Cart_items_Data($data);
             $cart = $this->checkCart($user_id);
             $data['cart_id'] = $cart->id;
+            $product=Product::where('id', $data['product_id'])->first();
+            $user_id=User::where('id',auth()->id())->first();
+            if ($product->store->user_id !== $user_id) {
+                return ResponseHelper::jsonResponse([], "You cannot add a product from another store", 403, false);
+            }
             $cart_item = $this->cartItemsRepository->create($data);
             $data = ['Cart_items' => CartItemsResource::make($cart_item)];
             $response = ResponseHelper::jsonResponse($data, 'Cart_item created successfully!', 201);
