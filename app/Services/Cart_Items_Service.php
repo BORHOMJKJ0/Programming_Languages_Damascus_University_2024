@@ -88,9 +88,9 @@ class Cart_Items_Service
             $cart = $this->checkCart($user_id);
             $data['cart_id'] = $cart->id;
             $product=Product::where('id', $data['product_id'])->first();
-            $user_id=User::where('id',auth()->id())->first();
-            if ($product->store->user_id !== $user_id) {
-                return ResponseHelper::jsonResponse([], "You cannot add a product from another store", 403, false);
+            $user=User::where('id',auth()->id())->first();
+            if ($product->store->user_id === $user->id) {
+                return ResponseHelper::jsonResponse([], "You cannot add a product from your store", 403, false);
             }
             $cart_item = $this->cartItemsRepository->create($data);
             $data = ['Cart_items' => CartItemsResource::make($cart_item)];
