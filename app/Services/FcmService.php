@@ -59,11 +59,15 @@ class FcmService
                 ? "{$roleLabel} {$user_name} قام بإضافة متجر جديد {$store->name_ar}."
                 : "{$roleLabel} {$user_name} has added a new Store {$store->name_en}.";
         }
-
+        $data = [
+            'sound' => 'notification.mp3',
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+            'store_id' => $store->id,
+        ];
         $users = $this->userRepository->getAllUsersHasFcmToken();
         \Log::info($users);
         foreach ($users as $user) {
-            $this->sendNotification($user->fcm_token, $title, $body, ['store_id' => $store->id]);
+            $this->sendNotification($user->fcm_token, $title, $body, $data);
         }
     }
 
@@ -75,12 +79,14 @@ class FcmService
             ? " تم طلب الموافقة على إنشاء المتجر الجديد {$store->name_ar}. نحن في انتظار رد المسؤول العام."
             : "Approval has been requested for creating the new store {$store->name_en}. Waiting for the Super Admin's response.";
         $SuperAdmin_body = $lang === 'ar'
-            ? "المستخدم {$store->user->name} يريد إنشاء المتجر ID {$store->id}، الاسم {$store->name_ar} في النظام الخاص بك. هل تقبل أو ترفض طلب هذا المستخدم؟"
-            : "The user {$store->user->name} wants to create a store ID {$store->id}, name {$store->name_en} in your system. Do you accept or reject this user’s request?";
+            ? "المستخدم {$store->user->name} يريد إنشاء المتجر ، الاسم {$store->name_ar} في النظام الخاص بك. هل تقبل أو ترفض طلب هذا المستخدم؟"
+            : "The user {$store->user->name} wants to create a store , name {$store->name_en} in your system. Do you accept or reject this user’s request?";
         $data = [
             'store_id' => $store->id,
             'store_name' => $lang === 'ar' ? $store->name_ar : $store->name_en,
             'callback_url' => route('superAdmin.storeApprovalResponse', ['store' => $store->id]),
+            'sound' => 'notification.mp3',
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         ];
         \Log::info($store->user->fcm_token);
         \Log::info($superAdmin->fcm_token);
@@ -125,6 +131,8 @@ class FcmService
             $this->sendNotification($user->fcm_token, $title, $body, [
                 'product_id' => $product->id,
                 'action' => $action,
+                'sound' => 'notification.mp3',
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             ]);
         }
     }
@@ -145,6 +153,8 @@ class FcmService
         $data = [
             'order_number' => $order->id,
             'location' => $user->location,
+            'sound' => 'notification.mp3',
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         ];
 
         $deviceToken = $order->store()->user->fcm_token;
@@ -174,6 +184,8 @@ class FcmService
 
         $data = [
             'order_number' => $item->order->id,
+            'sound' => 'notification.mp3',
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         ];
         $deviceToken = $item->order->store()->user->fcm_token;
         if ($deviceToken != null) {
@@ -251,6 +263,8 @@ class FcmService
         }
         $data = [
             'order_id' => $item->order->id,
+            'sound' => 'notification.mp3',
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         ];
 
         $deviceToken = $item->order->user->fcm_token;
