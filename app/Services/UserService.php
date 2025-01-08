@@ -141,7 +141,7 @@ class UserService
     {
         $inputs = $request->all();
 
-        if (isset($inputs['remember_me']) && $inputs['remember_me']) {
+        if (isset($inputs['remember_me']) && $inputs['remember_me'] === 'true') {
             JWTAuth::factory()->setTTL(60 * 24 * 30 * 3);
         }
 
