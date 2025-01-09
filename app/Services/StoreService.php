@@ -333,6 +333,7 @@ class StoreService
             $body = $lang === 'ar'
                 ? " تمت الموافقة على إنشاء المتجر الخاص بك: {$store->name_ar}. يمكنك الآن رؤيته وإضافة المنتجات إليه."
                 : "Your request to create your store {$store->name_en} has been approved. You can now view it and add products to it.";
+            $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
         } elseif ($data['response'] === 'rejected') {
             $updateData = [
                 'status' => 'rejected',
@@ -355,7 +356,6 @@ class StoreService
                 : "Your request to create your store {$store->name_en} has been rejected. Reason: {$reason}.";
             cache()->put("rejection_body_ar_{$store->user_id}", $body, now()->addHours(24));
             cache()->put("rejection_body_en_{$store->user_id}", $body, now()->addHours(24));
-            $this->fcmService->notifyUsers($store, $request->header('lang', 'en'));
         }
         if ($store->user->fcm_token != null) {
             $this->fcmService->sendNotification($store->user->fcm_token, $title, $body,
