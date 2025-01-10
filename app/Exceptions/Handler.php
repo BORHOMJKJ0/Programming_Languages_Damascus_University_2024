@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Helpers\ResponseHelper;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;

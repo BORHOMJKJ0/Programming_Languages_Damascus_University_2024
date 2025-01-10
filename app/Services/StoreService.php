@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\RequestNotification;
 use App\Http\Resources\Store\MyStoreResource;
-use App\Http\Resources\Store\PendingStoresResource;
 use App\Http\Resources\Store\StoreResource;
 use App\Models\Store\Store;
 use App\Repositories\StoreRepository;
@@ -64,7 +63,7 @@ class StoreService
             $stores = $this->storeRepository->getPending($items);
 
             $data = [
-                'Stores' => PendingStoresResource::collection($stores),
+                'Stores' => StoreResource::collection($stores),
                 'total_pages' => $stores->lastPage(),
                 'current_page' => $stores->currentPage(),
                 'hasMorePages' => $stores->hasMorePages(),
