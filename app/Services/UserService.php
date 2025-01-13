@@ -244,11 +244,11 @@ class UserService
     public function deleteUser(IdRequest $request)
     {
         $id = $request->input('guest_id') ?? auth()->id();
-        $user = auth()->user();
+        $user = User::where('id', $id)->first();
         if ($user->role->role === 'super_admin') {
             return ResponseHelper::jsonResponse([], "This Super Admin Account You can't delete it", 403, false);
         }
-        $user = User::where('id', $id)->first();
+
         $this->userRepository->delete($user);
 
         return ResponseHelper::jsonResponse([], 'User deleted successfully!');
