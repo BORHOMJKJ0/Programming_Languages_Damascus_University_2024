@@ -33,6 +33,15 @@ trait Lockable
         });
     }
 
+    protected function lockForDeleteAll($modelClass, callable $callback)
+    {
+        return DB::transaction(function () use ($modelClass, $callback) {
+            $deleted = $modelClass::query()->delete();
+
+            return $callback($deleted);
+        });
+    }
+
     protected function lockAndRetrieve($modelClass, $id)
     {
         $model = $modelClass::where('id', $id)->lockForUpdate()->first();
