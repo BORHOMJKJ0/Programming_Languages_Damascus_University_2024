@@ -199,11 +199,15 @@ class FcmService
             $body = "A new order has been received from the customer {$user_name}.";
             $title_en = $title;
             $body_en = $body;
+            $title_ar = 'طلب جديد';
+            $body_ar = " تم استلام طلب جديد من العميل {$user_name}.";
         } else {
             $title = 'طلب جديد';
             $body = " تم استلام طلب جديد من العميل {$user_name}.";
             $title_ar = $title;
             $body_ar = $body;
+            $title_en = 'New Order';
+            $body_en = "A new order has been received from the customer {$user_name}.";
         }
 
         $data = [
@@ -237,17 +241,28 @@ class FcmService
             $body = "The customer {$user_name} has {$action}d the item \"{$item->product->name_en}\" in order number {$item->order->id}.";
             $title_en = $title;
             $body_en = $body;
+            if ($action === 'update') {
+                $title_ar = 'تعديل عنصر';
+                $body_ar = " قام العميل {$user_name} بتعديل العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
+            } else {
+                $title_ar = 'حذف عنصر';
+                $body_ar = " قام العميل {$user_name} بحذف العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
+            }
         } else {
             if ($action === 'update') {
                 $title = 'تعديل عنصر';
                 $body = " قام العميل {$user_name} بتعديل العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
                 $title_ar = $title;
                 $body_ar = $body;
+                $title_en = ucfirst($action).' Item';
+                $body_en = "The customer {$user_name} has {$action}d the item \"{$item->product->name_en}\" in order number {$item->order->id}.";
             } else {
                 $title = 'حذف عنصر';
                 $body = " قام العميل {$user_name} بحذف العنصر \"{$item->product->name_ar}\" في الطلب رقم {$item->order->id}.";
                 $title_ar = $title;
                 $body_ar = $body;
+                $title_en = ucfirst($action).' Item';
+                $body_en = "The customer {$user_name} has {$action}d the item \"{$item->product->name_en}\" in order number {$item->order->id}.";
             }
 
         }
@@ -284,6 +299,8 @@ class FcmService
                     $body = "The store {$store_name} has accepted the item {$item_name}, and it is now being prepared.";
                     $title_en = $title;
                     $body_en = $body;
+                    $title_ar = 'تم قبول عنصر';
+                    $body_ar = "قام متجر {$store_name} بقبول العنصر {$item_name} ,ويتم الأن العمل على تحضيره.";
                     break;
 
                 case 'reject':
@@ -291,6 +308,8 @@ class FcmService
                     $body = "The store {$store_name} has rejected the item {$item_name}. We apologize.";
                     $title_en = $title;
                     $body_en = $body;
+                    $title_ar = 'تم رفض عنصر';
+                    $body_ar = "قام متجر {$store_name} برفض العنصر {$item_name} ,نعتذر لكم.";
                     break;
 
                 case 'not available':
@@ -298,6 +317,8 @@ class FcmService
                     $body = "The store {$store_name} has rejected the item {$item_name} due to unavailability of the requested quantity.";
                     $title_en = $title;
                     $body_en = $body;
+                    $title_ar = 'العنصر غير متوفر';
+                    $body_ar = "قام متجر {$store_name} برفض العنصر {$item_name} بسبب عدم توفر الكمية المطلوبة.";
                     break;
 
                 case 'ship':
@@ -305,6 +326,8 @@ class FcmService
                     $body = "The store {$store_name} has shipped the item {$item_name}, and it is on its way to the specified location.";
                     $title_en = $title;
                     $body_en = $body;
+                    $title_ar = 'تم شحن عنصر';
+                    $body_ar = "قام متجر {$store_name} بشحن العنصر {$item_name} ,وهو في طربقه إلى الموقع المحدد.";
                     break;
 
                 case 'deliver':
@@ -312,6 +335,8 @@ class FcmService
                     $body = "The store {$store_name} has delivered the item {$item_name}. Thank you for your order.";
                     $title_en = $title;
                     $body_en = $body;
+                    $title_ar = 'تم توصيل عنصر';
+                    $body_ar = "قام متجر {$store_name} بتوصيل العنصر {$item_name} ,شكراً لطلبكم.";
                     break;
 
                 case 'cancel':
@@ -319,6 +344,8 @@ class FcmService
                     $body = "The store {$store_name} has canceled the item {$item_name}. We apologize.";
                     $title_en = $title;
                     $body_en = $body;
+                    $title_ar = 'تم إلغاء عنصر';
+                    $body_ar = "قام متجر {$store_name} بإلغاء العنصر {$item_name} ,نعتذر لكم.";
                     break;
             }
         } else {
@@ -330,36 +357,48 @@ class FcmService
                     $body = "قام متجر {$store_name} بقبول العنصر {$item_name} ,ويتم الأن العمل على تحضيره.";
                     $title_ar = $title;
                     $body_ar = $body;
+                    $title_en = 'Item Accepted';
+                    $body_en = "The store {$store_name} has accepted the item {$item_name}, and it is now being prepared.";
                     break;
                 case 'reject':
                     $title = 'تم رفض عنصر';
                     $body = "قام متجر {$store_name} برفض العنصر {$item_name} ,نعتذر لكم.";
                     $title_ar = $title;
                     $body_ar = $body;
+                    $title_en = 'Item Rejected';
+                    $body_en = "The store {$store_name} has rejected the item {$item_name}. We apologize.";
                     break;
                 case 'not available':
                     $title = 'العنصر غير متوفر';
                     $body = "قام متجر {$store_name} برفض العنصر {$item_name} بسبب عدم توفر الكمية المطلوبة.";
                     $title_ar = $title;
                     $body_ar = $body;
+                    $title_en = 'Item Unavailable';
+                    $body_en = "The store {$store_name} has rejected the item {$item_name} due to unavailability of the requested quantity.";
                     break;
                 case 'ship':
                     $title = 'تم شحن عنصر';
                     $body = "قام متجر {$store_name} بشحن العنصر {$item_name} ,وهو في طربقه إلى الموقع المحدد.";
                     $title_ar = $title;
                     $body_ar = $body;
+                    $title_en = 'Item Shipped';
+                    $body_en = "The store {$store_name} has shipped the item {$item_name}, and it is on its way to the specified location.";
                     break;
                 case 'deliver':
                     $title = 'تم توصيل عنصر';
                     $body = "قام متجر {$store_name} بتوصيل العنصر {$item_name} ,شكراً لطلبكم.";
                     $title_ar = $title;
                     $body_ar = $body;
+                    $title_en = 'Item Delivered';
+                    $body_en = "The store {$store_name} has delivered the item {$item_name}. Thank you for your order.";
                     break;
                 case 'cancel':
                     $title = 'تم إلغاء عنصر';
                     $body = "قام متجر {$store_name} بإلغاء العنصر {$item_name} ,نعتذر لكم.";
                     $title_ar = $title;
                     $body_ar = $body;
+                    $title_en = 'Item Canceled';
+                    $body_en = "The store {$store_name} has canceled the item {$item_name}. We apologize.";
                     break;
             }
         }
