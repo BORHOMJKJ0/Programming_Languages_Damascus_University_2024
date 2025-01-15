@@ -36,9 +36,9 @@ trait Lockable
     protected function lockForDeleteAll($modelClass, callable $callback)
     {
         return DB::transaction(function () use ($modelClass, $callback) {
-            $deleted = $modelClass::query()->delete();
+            $lockedModels = $modelClass::query()->lockForUpdate()->get();
 
-            return $callback($deleted);
+            return $callback($lockedModels);
         });
     }
 

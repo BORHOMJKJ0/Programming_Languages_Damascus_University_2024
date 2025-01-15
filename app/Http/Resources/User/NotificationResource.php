@@ -15,6 +15,7 @@ class NotificationResource extends JsonResource
             'id' => $this->id,
             'title' => $lang === 'ar' ? $this->title_ar : $this->title_en,
             'body' => $lang === 'ar' ? $this->body_ar : $this->body_en,
+            'user'=>UserNameResource::make($this->user),
             'created_at' => $this->created_at->format('Y-m-d H:i'),
         ];
     }

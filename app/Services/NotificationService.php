@@ -37,7 +37,7 @@ class NotificationService
     {
         $this->checkGuest();
         $this->checkOwnership($notification, 'Notification', 'perform');
-        $data = ['notification' => Notification::make($notification)];
+        $data = ['notification' => NotificationResource::make($notification)];
 
         return ResponseHelper::jsonResponse($data, 'Notification retrieved successfully!');
     }
@@ -56,6 +56,6 @@ class NotificationService
         $this->checkGuest();
         $this->notificationRepository->deleteAll();
 
-        return ResponseHelper::jsonResponse([], 'Notification deleted successfully!');
+        return ResponseHelper::jsonResponse([], 'Notifications deleted successfully!');
     }
 }

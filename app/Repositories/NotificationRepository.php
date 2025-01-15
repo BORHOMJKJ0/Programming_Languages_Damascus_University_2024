@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User\Notification;
+use App\Models\User\User;
 use App\Traits\Lockable;
 
 class NotificationRepository
@@ -11,7 +12,8 @@ class NotificationRepository
 
     public function getAll()
     {
-        return Notification::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
+        $user=User::where('id', auth()->id())->first();
+        return Notification::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
     }
 
     public function create(array $data)
@@ -31,7 +33,10 @@ class NotificationRepository
     public function deleteAll()
     {
         return $this->lockForDeleteAll(Notification::class, function ($lockedNotifications) {
-            return $lockedNotifications->where('user_id', auth()->id())->delete();
+            $user = User::find(auth()->id());
+            $userNotifications = $lockedNotifications->where('user_id', $user->id);
+           return Notification::whereIn('id', $userNotifications->pluck('id'))->delete();
+
         });
     }
 }
