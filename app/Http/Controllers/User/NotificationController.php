@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User\Notification;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -16,9 +17,9 @@ class NotificationController extends Controller
         $this->notificationService = $notificationService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->notificationService->getAllNotifications();
+        return $this->notificationService->getAllNotifications($request);
     }
 
     public function show(Notification $notification): JsonResponse

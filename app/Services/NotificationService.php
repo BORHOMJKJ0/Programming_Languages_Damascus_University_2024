@@ -7,6 +7,7 @@ use App\Http\Resources\User\NotificationResource;
 use App\Models\User\Notification;
 use App\Repositories\NotificationRepository;
 use App\Traits\AuthTrait;
+use Illuminate\Http\Request;
 
 class NotificationService
 {
@@ -19,15 +20,19 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
-    public function getAllNotifications()
+    public function getAllNotifications(Request $request)
     {
         if (! $this->checkSuperAdmin()) {
             $this->checkGuest();
         }
-        $notifications = $this->notificationRepository->getAll();
+        $items = $request->query('items', 10);
+        $notifications = $this->notificationRepository->getAll($items);
 
         $data = [
             'Notifications' => NotificationResource::collection($notifications),
+            'total_pages' => $notifications->lastPage(),
+            'current_page' => $notifications->currentPage(),
+            'hasMorePages' => $notifications->hasMorePages(),
         ];
 
         return ResponseHelper::jsonResponse($data, 'Notifications retrieved successfully');

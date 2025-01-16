@@ -10,10 +10,10 @@ class NotificationRepository
 {
     use Lockable;
 
-    public function getAll()
+    public function getAll($items)
     {
         $user=User::where('id', auth()->id())->first();
-        return Notification::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        return Notification::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate($items);
     }
 
     public function create(array $data)
