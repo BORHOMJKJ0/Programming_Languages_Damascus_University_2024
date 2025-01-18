@@ -95,9 +95,9 @@ Route::middleware('check_auth:api')->group(function () {
     });
     Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
         Route::get('/', 'index');
-        Route::get('/{notification}','show');
-        Route::delete('/{notification}','destroy');
-        Route::delete('/','destroy_all');
+        Route::get('/{notification}', 'show');
+        Route::delete('/{notification}', 'destroy');
+        Route::delete('/', 'destroy_all');
     });
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);

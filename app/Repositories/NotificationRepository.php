@@ -12,7 +12,8 @@ class NotificationRepository
 
     public function getAll($items)
     {
-        $user=User::where('id', auth()->id())->first();
+        $user = User::where('id', auth()->id())->first();
+
         return Notification::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate($items);
     }
 
@@ -35,7 +36,8 @@ class NotificationRepository
         return $this->lockForDeleteAll(Notification::class, function ($lockedNotifications) {
             $user = User::find(auth()->id());
             $userNotifications = $lockedNotifications->where('user_id', $user->id);
-           return Notification::whereIn('id', $userNotifications->pluck('id'))->delete();
+
+            return Notification::whereIn('id', $userNotifications->pluck('id'))->delete();
 
         });
     }
