@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Services;
+
+use App\Helpers\ResponseHelper;
+use App\Http\Resources\User\NotificationResource;
+use App\Models\User\Notification;
+use App\Repositories\NotificationRepository;
+use App\Traits\AuthTrait;
+use Illuminate\Http\Request;
+
+class NotificationService
+{
+    use AuthTrait;
+
+    protected NotificationRepository $notificationRepository;
+
+    public function __construct(NotificationRepository $notificationRepository)
+    {
+        $this->notificationRepository = $notificationRepository;
+    }
+
+    public function getAllNotifications(Request $request)
+    {
+        if (! $this->checkSuperAdmin()) {
+            $this->checkGuest();
+        }
+        $items = $request->query('items', 10);
+        $notifications = $this->notificationRepository->getAll($items);
+
+        $data = [
+            'Notifications' => NotificationResource::collection($notifications),
+            'total_pages' => $notifications->lastPage(),
+            'current_page' => $notifications->currentPage(),
+            'hasMorePages' => $notifications->hasMorePages(),
+        ];
+
+        return ResponseHelper::jsonResponse($data, 'Notifications retrieved successfully');
+    }
+
+    public function getNotificationById(Notification $notification)
+    {
+        $this->checkGuest();
+        $this->checkOwnership($notification, 'Notification', 'perform');
+        $data = ['notification' => NotificationResource::make($notification)];
+
+        return ResponseHelper::jsonResponse($data, 'Notification retrieved successfully!');
+    }
+
+    public function deleteNotification(Notification $notification)
+    {
+        $this->checkGuest();
+        $this->checkOwnership($notification, 'Notification', 'delete');
+        $this->notificationRepository->delete($notification);
+
+        return ResponseHelper::jsonResponse([], 'Notification deleted successfully!');
+    }
+
+    public function deleteAllNotification()
+    {
+        $this->checkGuest();
+        $this->notificationRepository->deleteAll();
+
+        return ResponseHelper::jsonResponse([], 'Notifications deleted successfully!');
+    }
+}

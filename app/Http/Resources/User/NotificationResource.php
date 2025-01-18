@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Store;
+namespace App\Http\Resources\User;
 
-use App\Http\Resources\User\UserNameResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PendingStoresResource extends JsonResource
+class NotificationResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -14,9 +13,10 @@ class PendingStoresResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
+            'title' => $lang === 'ar' ? $this->title_ar : $this->title_en,
+            'body' => $lang === 'ar' ? $this->body_ar : $this->body_en,
             'user' => UserNameResource::make($this->user),
-
+            'created_at' => $this->created_at->format('Y-m-d H:i'),
         ];
     }
 }

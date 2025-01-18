@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Category;
 
-use App\Http\Resources\Product\ProductsNamesResource;
+use App\Http\Resources\Product\ProductsDetailsResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,7 +15,7 @@ class CategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
-            'products' => ProductsNamesResource::collection($this->products),
+            'products' => ProductsDetailsResource::collection($this->products),
         ];
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\Product\FavoriteProductController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Store\StoreController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -91,6 +92,12 @@ Route::middleware('check_auth:api')->group(function () {
             Route::post('/deliver/{item}', 'deliver');
             Route::post('/cancel/byStore/{item}', 'cancel');
         });
+    });
+    Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('/{notification}', 'show');
+        Route::delete('/{notification}', 'destroy');
+        Route::delete('/', 'destroy_all');
     });
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);

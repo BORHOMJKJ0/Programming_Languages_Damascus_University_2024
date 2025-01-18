@@ -21,14 +21,14 @@ class DatabaseSeeder extends Seeder
         DB::transaction(function () {
             $this->call([
                 RoleSeeder::class,
-                UserSeeder::class,
+                // UserSeeder::class,
                 superAdminSeeder::class,
-                StoreSeeder::class,
+                // StoreSeeder::class,
                 CategorySeeder::class,
-                ProductSeeder::class,
-                ImageSeeder::class,
-                CartSeeder::class,
-                CartItemsSeeder::class,
+                // ProductSeeder::class,
+                // ImageSeeder::class,
+                // CartSeeder::class,
+                // CartItemsSeeder::class,
             ]);
         });
     }
