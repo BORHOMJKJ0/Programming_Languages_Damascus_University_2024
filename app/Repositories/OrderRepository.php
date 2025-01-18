@@ -47,6 +47,11 @@ class OrderRepository
         return Order::where('id', $order_id)->first();
     }
 
+    public function getOrderByIdWithTrashed($order_id)
+    {
+        return Order::withTrashed()->where('id', $order_id)->first();
+    }
+
     public function createNewOrder(array $data)
     {
         return Order::create($data);

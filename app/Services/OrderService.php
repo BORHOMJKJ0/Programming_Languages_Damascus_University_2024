@@ -135,10 +135,18 @@ class OrderService
         return ResponseHelper::jsonResponse($data, 'get orders successfully');
     }
 
-    public function details(Order $order)
+    public function details($order_id)
     {
         $this->checkGuest();
-        $order = Order::withTrashed()->where('id', $order->id)->first();
+        $order = $this->orderRepository->getOrderByIdWithTrashed($order_id);
+        if(!$order){
+            return ResponseHelper::jsonResponse(
+                [],
+            'Order no found!',
+            404,
+            false
+            );
+        }
         $order_details = $this->orderRepository->getOrderDetails($order);
         $data = [
             'order' => OrderResource::make($order),
