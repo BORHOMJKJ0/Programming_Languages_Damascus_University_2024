@@ -11,7 +11,25 @@ class MyStoreResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $products = $this->products()->paginate($request->query('per_page', 20));
+        $lang = $request->header('lang', 'en');
+        $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
+        $descriptionColumn = $lang === 'ar' ? 'description_ar' : 'description_en';
+
+        $validColumns = [$nameColumn, 'amount', 'price', $descriptionColumn, 'created_at', 'updated_at'];
+        $validDirections = ['asc', 'desc'];
+
+        $orderBy = $request->query('order_by');
+        $orderDirection = $request->query('order_direction');
+
+        $isOrderValid = in_array($orderBy, $validColumns) && in_array($orderDirection, $validDirections);
+
+        $query = $this->products();
+        if ($isOrderValid) {
+            $query->orderBy($orderBy, $orderDirection);
+        }
+
+        $products = $query->paginate($request->query('per_page', 20));
+
         $lang = $request->header('lang', 'en');
         $imageUrl = $this->image
             ? (str_starts_with($this->image, 'https://via.placeholder.com')

@@ -105,7 +105,7 @@ class ProductService
         $lang = $request->header('lang', 'en');
         $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
         $descriptionColumn = $lang === 'ar' ? 'description_ar' : 'description_en';
-        $validColumns = [$nameColumn, 'price', $descriptionColumn, 'created_at', 'updated_at'];
+        $validColumns = [$nameColumn, 'amount', 'price', $descriptionColumn, 'created_at', 'updated_at'];
         $validDirections = ['asc', 'desc'];
 
         if (! in_array($column, $validColumns) || ! in_array($direction, $validDirections)) {

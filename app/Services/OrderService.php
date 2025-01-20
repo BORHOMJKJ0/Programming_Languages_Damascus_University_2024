@@ -6,7 +6,6 @@ use App\Helpers\ResponseHelper;
 use App\Http\Requests\Order\editItemRequest;
 use App\Http\Resources\Order\Order_itemsResource;
 use App\Http\Resources\Order\OrderResource;
-use App\Models\Order\Order;
 use App\Models\Order\Order_item;
 use App\Models\Store\Store;
 use App\Repositories\CartRepository;
@@ -139,12 +138,12 @@ class OrderService
     {
         $this->checkGuest();
         $order = $this->orderRepository->getOrderByIdWithTrashed($order_id);
-        if(!$order){
+        if (! $order) {
             return ResponseHelper::jsonResponse(
                 [],
-            'Order no found!',
-            404,
-            false
+                'Order no found!',
+                404,
+                false
             );
         }
         $order_details = $this->orderRepository->getOrderDetails($order);

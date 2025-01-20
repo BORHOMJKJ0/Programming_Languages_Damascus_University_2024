@@ -28,7 +28,24 @@ class StoreResource extends JsonResource
         ];
 
         if ($request->routeIs('stores.show')) {
-            $paginatedProducts = $this->products()->paginate($request->query('per_page', 20));
+            $lang = $request->header('lang', 'en');
+            $nameColumn = $lang === 'ar' ? 'name_ar' : 'name_en';
+            $descriptionColumn = $lang === 'ar' ? 'description_ar' : 'description_en';
+
+            $validColumns = [$nameColumn, 'amount', 'price', $descriptionColumn, 'created_at', 'updated_at'];
+            $validDirections = ['asc', 'desc'];
+
+            $orderBy = $request->query('order_by');
+            $orderDirection = $request->query('order_direction');
+
+            $isOrderValid = in_array($orderBy, $validColumns) && in_array($orderDirection, $validDirections);
+
+            $query = $this->products();
+            if ($isOrderValid) {
+                $query->orderBy($orderBy, $orderDirection);
+            }
+
+            $paginatedProducts = $query->paginate($request->query('per_page', 20));
 
             $data['products'] = [
                 'data' => ProductsDetailsResource::collection($paginatedProducts),
