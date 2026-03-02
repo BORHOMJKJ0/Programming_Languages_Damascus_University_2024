@@ -1,66 +1,189 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Programming Languages Damascus University 2024 – Backend 📚
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> A Laravel-powered RESTful API supporting an e-commerce-style application used for the
+> Programming Languages course at Damascus University (2024). The backend handles
+> users, stores, products, carts, orders, notifications, and related business logic.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Project Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This repository contains the backend implementation of a multi‑store marketplace system built
+using **Laravel 10**. It exposes a JSON API consumed by mobile/web clients and includes:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   JWT‑based authentication (Sanctum)
+-   User registration, login, and profile management
+-   Store and product management with categories, images, and inventory
+-   Shopping cart, favorites, and order processing
+-   Push notifications via FCM
+-   Repository/service architecture for a clean separation of concerns
+-   Extensive use of Laravel features (migrations, policies, resources, queues)
 
-## Learning Laravel
+This project serves both as a course assignment and a foundation for further expansion.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🧩 Key Features
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   **Authentication & Authorization** – secure endpoints with role checks
+-   **Product Catalog** – categories, stores, and product CRUD
+-   **Image Handling** – upload and serve product/store images
+-   **Shopping Cart & Favorites** – add/remove items, quantity updates
+-   **Order Lifecycle** – place orders, update status, view history
+-   **Notifications** – Firebase Cloud Messaging for order and activity alerts
+-   **API Resources** – consistent JSON structure with Laravel resources
+-   **Unit/Feature Tests** – ensure stability across critical flows
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠 Tech Stack
 
-### Premium Partners
+| Component      | Technology       |
+| -------------- | ---------------- |
+| Language       | PHP 8.1+         |
+| Framework      | Laravel 10       |
+| Database       | MySQL / MariaDB  |
+| Cache / Queue  | Redis (optional) |
+| Authentication | Laravel Sanctum  |
+| Notifications  | Firebase (FCM)   |
+| Package Mgmt   | Composer / npm   |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## 📥 Requirements
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   PHP 8.1 or newer
+-   Composer
+-   Node.js & npm (for front‑end assets)
+-   MySQL or compatible database
 
-## Code of Conduct
+Optional services:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+-   Redis (cache/queues)
+-   Firebase project for push notifications
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## ⚙️ Installation & Setup
 
-## License
+```bash
+# 1. clone repository
+git clone <repo-url> back-end
+cd back-end
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 2. install dependencies
+composer install
+npm install
+
+# 3. environment
+cp .env.example .env
+# edit .env file and configure database, mail, FCM, etc.
+
+php artisan key:generate
+
+# 4. database
+db credentials already set in .env
+php artisan migrate --seed
+
+# 5. build assets (if used)
+npm run dev   # or "npm run build" for production
+
+# 6. run server
+php artisan serve
+```
+
+> **Tip:** use `php artisan serve --port=8001` or a dedicated Valet/Homestead environment
+> for parallel development.
+
+---
+
+## 🔧 Configuration
+
+Important `.env` variables:
+
+```env
+APP_NAME="PL-Damascus-Backend"
+APP_ENV=local
+APP_DEBUG=true
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=pl_backend
+DB_USERNAME=user
+DB_PASSWORD=secret
+
+FCM_SERVER_KEY=your_fcm_server_key
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+```
+
+Adjust as needed for production environments.
+
+---
+
+## 📄 API Documentation
+
+Endpoints are defined under `routes/api.php`. Some of the most-used routes include:
+
+```
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/categories
+GET    /api/stores
+GET    /api/products
+POST   /api/cart/add
+POST   /api/orders
+...
+```
+
+Resources and controllers include inline PHPDoc comments; you may generate
+Swagger/OpenAPI docs with packages such as `darkaonline/l5-swagger` if required.
+
+---
+
+## ✅ Running Tests
+
+Execute the test suite using PHPUnit:
+
+```bash
+php artisan test
+```
+
+Tests are located under `tests/Feature` and `tests/Unit`. Add new tests when implementing
+business logic or fixing bugs.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository and create a feature branch (`feature/your-feature`).
+2. Write tests for new functionality or bug fixes.
+3. Ensure coding standards comply with **PSR-12** and run `php artisan lint` if available.
+4. Submit a pull request with a clear description of your changes.
+
+> Note: this project may be used for academic purposes; check with project maintainers
+> for collaboration policies.
+
+---
+
+## 📚 Additional Resources
+
+-   [Laravel Documentation](https://laravel.com/docs/10.x)
+-   [Laracasts](https://laracasts.com)
+-   [PHP The Right Way](https://phptherightway.com)
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+
+---
+
+Happy coding! 🎉
